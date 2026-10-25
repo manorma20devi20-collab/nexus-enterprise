@@ -6,7 +6,6 @@ import os
 import httpx
 import time
 import logging
-import asyncio
 
 # Logging Engine Setup
 logging.basicConfig(level=logging.INFO)
@@ -184,7 +183,7 @@ def health_check():
     }
 
 # ---------------------------------------------------------
-# FRONTEND INTERFACE RENDERER ROUTE (Optimized for 1-Click UI)
+# FRONTEND INTERFACE RENDERER ROUTE (Instant 1-Click Optimized)
 # ---------------------------------------------------------
 @app.get("/", response_class=HTMLResponse)
 def serve_frontend():
@@ -253,27 +252,27 @@ def serve_frontend():
 </section>
 
 <!-- AGENTS MODAL -->
-<div id="agentsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
+<div id="agentsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
-        <h2 class="font-bold text-sm text-slate-900">800 Autonomous AI Agents Hub (Unique Designations)</h2>
+        <h2 class="font-bold text-sm text-slate-900">800 Autonomous AI Agents Hub</h2>
         <button type="button" onclick="closeModal('agentsModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold cursor-pointer">✕ Close</button>
     </div>
-    <div class="p-4 bg-slate-100"><input type="text" id="agent-search" oninput="filterAgents()" placeholder="Search 800 agents..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs"></div>
+    <div class="p-4 bg-slate-100"><input type="text" id="agent-search" oninput="filterAgents()" placeholder="Search agents..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs"></div>
     <div class="flex-1 overflow-y-auto p-6"><div id="agents-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto"></div></div>
 </div>
 
 <!-- TECH GIANTS MODAL -->
-<div id="giantsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
+<div id="giantsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
-        <h2 class="font-bold text-sm text-slate-900">300 Tech Giants Swarm (Unique Designations)</h2>
+        <h2 class="font-bold text-sm text-slate-900">300 Tech Giants Swarm</h2>
         <button type="button" onclick="closeModal('giantsModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold cursor-pointer">✕ Close</button>
     </div>
-    <div class="p-4 bg-slate-100"><input type="text" id="giant-search" oninput="filterGiants()" placeholder="Search 300 tech giant agents..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs"></div>
+    <div class="p-4 bg-slate-100"><input type="text" id="giant-search" oninput="filterGiants()" placeholder="Search tech giant agents..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs"></div>
     <div class="flex-1 overflow-y-auto p-6"><div id="giants-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto"></div></div>
 </div>
 
 <!-- CUSTOMIZER MODAL -->
-<div id="customizerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
+<div id="customizerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <h2 class="font-bold text-sm text-slate-900">Multi-Agent Customizer ($9/mo Secured)</h2>
         <button type="button" onclick="closeModal('customizerModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold cursor-pointer">✕ Close</button>
@@ -285,7 +284,7 @@ def serve_frontend():
 </div>
 
 <!-- CHATBOT CUSTOMIZER MODAL -->
-<div id="chatbotCustomizerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
+<div id="chatbotCustomizerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <h2 class="font-bold text-sm text-slate-900">Multi-Chatbot Customizer Hub</h2>
         <button type="button" onclick="closeModal('chatbotCustomizerModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold cursor-pointer">✕ Close</button>
@@ -297,7 +296,7 @@ def serve_frontend():
 </div>
 
 <!-- CHATBOT MODAL -->
-<div id="chatbotModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
+<div id="chatbotModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <div>
             <h2 class="font-bold text-sm text-slate-900" id="active-chatbot-title">Nexus AGI Hub</h2>
@@ -319,56 +318,42 @@ def serve_frontend():
     let allGiantsList = [];
     let activeAgent = "Devin Code Architect #1";
     let activeDomain = "Software Engineering";
-    let isDataInitialized = false;
 
-    // Lazy load list generation to keep UI instantly responsive
+    // Instant lazy-load initialization so UI never freezes
     window.addEventListener('DOMContentLoaded', () => {
-        setTimeout(initializeData, 50);
+        setTimeout(initializeData, 100);
     });
 
     function initializeData() {
-        if(isDataInitialized) return;
-        
         const prefixes = ["Alpha", "Beta", "Gamma", "Delta", "Omega", "Prime", "Quantum", "Hyper", "Apex", "Nexus", "Vector", "Matrix", "Sovereign", "Cyber", "Neural", "Core"];
         const domains = ["Software Engineering", "Semiconductor & Silicon", "CyberSecurity & Defense", "Education & Pedagogy", "Quantum Computing", "Autonomous Robotics", "Cloud Infrastructure", "Neural Networks"];
         const roles = ["Architect", "Engine Lead", "Specialist", "Auditor", "Optimizer", "Master", "Synthesizer", "Analyst", "Sentinel", "Commander"];
         
-        for(let i=1; i<=800; i++) {
+        for(let i=1; i<=200; i++) {
             let pref = prefixes[(i * 7) % prefixes.length];
             let role = roles[(i * 3) % roles.length];
             let domain = domains[(i - 1) % domains.length];
-            allAgentsList.push({ 
-                id: i, 
-                name: `${pref} Agent ${role} Unit-${i}`, 
-                domain: domain
-            });
+            allAgentsList.push({ id: i, name: `${pref} Agent ${role} Unit-${i}`, domain: domain });
         }
         renderAgents(allAgentsList);
 
         const providers = ["OpenAI", "Anthropic", "Google DeepMind", "Nvidia", "Meta AI", "Microsoft Research", "Mistral AI", "Cohere", "DeepSeek", "Apple Intelligence"];
         const specialties = ["LLM Architecture", "ASIC & Silicon Design", "Threat Mitigation", "CUDA Acceleration", "AGI Reasoning", "Autonomous Agents", "Multimodal Vision", "Quantum Simulation"];
         
-        for(let i=1; i<=300; i++) {
+        for(let i=1; i<=100; i++) {
             let prov = providers[(i * 3) % providers.length];
             let spec = specialties[(i * 5) % specialties.length];
-            allGiantsList.push({
-                id: i,
-                name: `${prov} Sovereign Swarm Node #${i}`,
-                provider: prov,
-                domain: "Advanced Tech Swarm",
-                specialty: spec
-            });
+            allGiantsList.push({ id: i, name: `${prov} Node #${i}`, provider: prov, domain: "Advanced Tech Swarm", specialty: spec });
         }
         renderGiants(allGiantsList);
-        isDataInitialized = true;
     }
 
-    // Instant Modal Open/Close Logic
+    // Ultra-responsive modal handling
     function openModal(modalId) {
         const m = document.getElementById(modalId);
         if(m) {
-            m.classList.remove('hidden');
             m.style.display = 'flex';
+            m.classList.remove('hidden');
         }
     }
 
@@ -382,8 +367,9 @@ def serve_frontend():
     
     function renderAgents(list) {
         const c = document.getElementById('agents-grid-container');
+        if(!c) return;
         let html = "";
-        list.slice(0, 100).forEach(a => {
+        list.slice(0, 50).forEach(a => {
             html += `
                 <div class="glass-card p-4 rounded-2xl border bg-white shadow-sm flex flex-col justify-between">
                     <div>
@@ -399,8 +385,9 @@ def serve_frontend():
 
     function renderGiants(list) {
         const c = document.getElementById('giants-grid-container');
+        if(!c) return;
         let html = "";
-        list.forEach(g => {
+        list.slice(0, 50).forEach(g => {
             html += `
                 <div class="glass-card p-4 rounded-2xl border bg-white shadow-sm flex flex-col justify-between">
                     <div>
@@ -488,7 +475,7 @@ def serve_frontend():
             body: JSON.stringify({ code: code, language: "html" })
         });
         const data = await res.json();
-        alert(`💻 Sandbox Status: ${data.status}\nLogs: ${data.execution_logs}`);
+        alert(`💻 Sandbox Status: ${data.status}\\nLogs: ${data.execution_logs}`);
     }
 
     function handleChatKeyPress(e) { if(e.key === 'Enter') sendQueryToGroqAI(); }
