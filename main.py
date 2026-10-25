@@ -22,13 +22,13 @@ class ChatRequest(BaseModel):
 
 @app.post("/api/chat")
 async def chat_with_agent(req: ChatRequest):
-    # यहाँ अपनी असली Groq API Key डालें (या Render एनवायरनमेंट वैरिएबल का उपयोग करें)
+    # यहाँ अपनी असली Groq API Key डालें या Render एनवायरनमेंट से लें
     key = os.getenv("GROQ_API_KEY", "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")
     
     if not key or "gsk_" not in key:
         raise HTTPException(
             status_code=500, 
-            detail="Server API Key is not configured properly in backend."
+            detail="Groq API Key missing or invalid. Please check Render environment variables."
         )
     
     headers = {
@@ -46,7 +46,7 @@ async def chat_with_agent(req: ChatRequest):
         "model": "llama-3.3-70b-versatile",
         "messages": [
             {"role": "system", "content": system_prompt},
-            {"role": "user", content: req.prompt}
+            {"role": "user", "content": req.prompt}
         ],
         "temperature": 0.3,
         "max_tokens": 3072
@@ -144,7 +144,7 @@ def serve_frontend():
     </div>
 </section>
 
-<!-- AGENTS MODAL (800 AGENTS) -->
+<!-- AGENTS MODAL -->
 <div id="agentsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <h2 class="font-bold text-sm text-slate-900">800 Autonomous AI Agents Hub</h2>
@@ -154,7 +154,7 @@ def serve_frontend():
     <div class="flex-1 overflow-y-auto p-6"><div id="agents-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto"></div></div>
 </div>
 
-<!-- TECH GIANTS MODAL (300 AGENTS) -->
+<!-- TECH GIANTS MODAL -->
 <div id="giantsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <h2 class="font-bold text-sm text-slate-900">300 Tech Giants Swarm (OpenAI, Anthropic, Google, Nvidia, Meta)</h2>
@@ -211,11 +211,46 @@ def serve_frontend():
     let allGiantsList = [];
     let activeAgent = "Devin Code Architect #1";
     let activeDomain = "Software Engineering";
+    let isDataInitialized = false;
 
-    // Универсаल (Universal) Modal Handler ताकि हर बटन एक बार में खुले
+    // डेटा को पहले ही लोड कर लें ताकि बटन तुरंत एक क्लिक में खुले
+    window.addEventListener('DOMContentLoaded', () => {
+        initializeData();
+    });
+
+    function initializeData() {
+        if(isDataInitialized) return;
+        // 800 Agents
+        const domains = ["Software Engineering", "Semiconductor & Silicon", "CyberSecurity & Defense", "Education & Pedagogy", "Quantum Computing", "Autonomous Robotics", "Cloud Infrastructure", "Neural Networks"];
+        const roles = ["Architect", "Engine Lead", "Specialist", "Auditor", "Optimizer", "Master", "Synthesizer", "Analyst"];
+        for(let i=1; i<=800; i++) {
+            allAgentsList.push({ 
+                id: i, 
+                name: `Agent ${roles[(i-1) % roles.length]} #${i}`, 
+                domain: domains[(i-1) % domains.length], 
+                desc: `Autonomous enterprise specialist.` 
+            });
+        }
+        renderAgents(allAgentsList);
+
+        // 300 Tech Giants
+        const providers = ["OpenAI", "Anthropic", "Google DeepMind", "Nvidia", "Meta AI", "Microsoft Research", "Mistral AI", "Cohere"];
+        const specialties = ["LLM Architecture", "ASIC & Silicon Design", "Threat Mitigation", "CUDA Acceleration", "AGI Reasoning", "Autonomous Agents", "Multimodal Vision", "Quantum Simulation"];
+        for(let i=1; i<=300; i++) {
+            allGiantsList.push({
+                id: i,
+                name: `${providers[(i-1) % providers.length]} Swarm Unit #${i}`,
+                provider: providers[(i-1) % providers.length],
+                domain: "Advanced Tech Swarm",
+                specialty: specialties[(i-1) % specialties.length]
+            });
+        }
+        renderGiants(allGiantsList);
+        isDataInitialized = true;
+    }
+
+    // इंस्टेंट मॉडल ओपनर (बिना किसी लैग के)
     function openModal(modalId) {
-        if(modalId === 'agentsModal') generateAgents();
-        if(modalId === 'giantsModal') generateTechGiants();
         const m = document.getElementById(modalId);
         if(m) {
             m.classList.remove('hidden');
@@ -230,30 +265,13 @@ def serve_frontend():
             m.classList.add('hidden');
         }
     }
-
-    // 800 Agents Generator
-    function generateAgents() {
-        if(allAgentsList.length > 0) return;
-        const domains = ["Software Engineering", "Semiconductor & Silicon", "CyberSecurity & Defense", "Education & Pedagogy", "Quantum Computing", "Autonomous Robotics", "Cloud Infrastructure", "Neural Networks"];
-        const roles = ["Architect", "Engine Lead", "Specialist", "Auditor", "Optimizer", "Master", "Synthesizer", "Analyst"];
-        for(let i=1; i<=800; i++) {
-            let domain = domains[(i-1) % domains.length];
-            let role = roles[(i-1) % roles.length];
-            allAgentsList.push({ 
-                id: i, 
-                name: `Agent ${role} #${i}`, 
-                domain: domain, 
-                desc: `Autonomous enterprise specialist for ${domain}.` 
-            });
-        }
-        renderAgents(allAgentsList);
-    }
     
     function renderAgents(list) {
         const c = document.getElementById('agents-grid-container');
-        c.innerHTML = "";
-        list.forEach(a => {
-            c.innerHTML += `
+        let html = "";
+        // परफॉरमेंस के लिए पहले 100 दिखाएं या सारे लूप करें
+        list.slice(0, 200).forEach(a => {
+            html += `
                 <div class="glass-card p-4 rounded-2xl border bg-white shadow-sm flex flex-col justify-between">
                     <div>
                         <span class="text-[9px] font-mono text-indigo-600 font-bold">ID #${a.id}</span>
@@ -263,32 +281,14 @@ def serve_frontend():
                     <button onclick="selectAgent('${a.name}', '${a.domain}')" class="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold rounded-xl transition">Deploy</button>
                 </div>`;
         });
-    }
-
-    // 300 Tech Giants Generator
-    function generateTechGiants() {
-        if(allGiantsList.length > 0) return;
-        const providers = ["OpenAI", "Anthropic", "Google DeepMind", "Nvidia", "Meta AI", "Microsoft Research", "Mistral AI", "Cohere"];
-        const specialties = ["LLM Architecture", "ASIC & Silicon Design", "Threat Mitigation", "CUDA Acceleration", "AGI Reasoning", "Autonomous Agents", "Multimodal Vision", "Quantum Simulation"];
-        for(let i=1; i<=300; i++) {
-            let prov = providers[(i-1) % providers.length];
-            let spec = specialties[(i-1) % specialties.length];
-            allGiantsList.push({
-                id: i,
-                name: `${prov} Swarm Unit #${i}`,
-                provider: prov,
-                domain: "Advanced Tech Swarm",
-                specialty: spec
-            });
-        }
-        renderGiants(allGiantsList);
+        c.innerHTML = html;
     }
 
     function renderGiants(list) {
-        const giantsContainer = document.getElementById('giants-grid-container');
-        giantsContainer.innerHTML = "";
+        const c = document.getElementById('giants-grid-container');
+        let html = "";
         list.forEach(g => {
-            giantsContainer.innerHTML += `
+            html += `
                 <div class="glass-card p-4 rounded-2xl border bg-white shadow-sm flex flex-col justify-between">
                     <div>
                         <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-bold">${g.provider}</span>
@@ -298,6 +298,7 @@ def serve_frontend():
                     <button onclick="selectAgent('${g.name}', '${g.domain}')" class="mt-3 w-full py-1.5 bg-violet-600 hover:bg-violet-500 text-white text-[10px] font-bold rounded-xl transition">Launch Chatbot</button>
                 </div>`;
         });
+        c.innerHTML = html;
     }
 
     function selectAgent(name, domain) {
@@ -340,6 +341,11 @@ def serve_frontend():
             const data = await res.json();
             document.getElementById(loadingId).remove();
             
+            if(res.status !== 200) {
+                container.innerHTML += `<div class="text-rose-600 text-xs p-3">Server Error: ${data.detail || 'Check API Key configuration.'}</div>`;
+                return;
+            }
+
             container.innerHTML += `
                 <div class="flex items-start space-x-3">
                     <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div>
@@ -349,14 +355,13 @@ def serve_frontend():
                 </div>`;
         } catch(e) {
             document.getElementById(loadingId).remove();
-            container.innerHTML += `<div class="text-rose-600 text-xs p-3">Error connecting to server.</div>`;
+            container.innerHTML += `<div class="text-rose-600 text-xs p-3">Error connecting to server. Please verify your backend deployment and API key.</div>`;
         }
         container.scrollTop = container.scrollHeight;
     }
 
     function openSelfHealingModal() { alert("Self-Healing Diagnostic Matrix active and secure."); }
     function openTerminalModal() { alert("Autonomous Execution Terminal ready."); }
-    
     function handleChatKeyPress(e) { if(e.key === 'Enter') sendQueryToGroqAI(); }
     
     function filterAgents() {
