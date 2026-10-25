@@ -1,7 +1,4 @@
 fastapi
 uvicorn
 pydantic
-groq
-requests
-chromadb
-pytest
+httpx
