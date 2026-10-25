@@ -54,7 +54,6 @@ SYSTEM_METRICS = {
 # 35 BACKEND MODULES ARCHITECTURE IMPLEMENTATION
 # ---------------------------------------------------------
 
-# --- Core LLM Gateway & Consensus Routing Engine ---
 @app.post("/api/chat")
 async def chat_with_agent(req: ChatRequest, background_tasks: BackgroundTasks):
     key = os.getenv("GROQ_API_KEY", "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")
@@ -115,13 +114,8 @@ async def chat_with_agent(req: ChatRequest, background_tasks: BackgroundTasks):
 def audit_and_telemetry_logger(prompt: str):
     SYSTEM_METRICS["tokens_consumed"] += len(prompt)
 
-# --- Code Deployment & Live Browser Sandbox Renderer ---
 @app.post("/api/terminal/execute")
 async def execute_web_code_sandbox(req: CodeExecutionRequest):
-    """
-    Simulates autonomous code compilation, web preview deployment,
-    and live execution validation in an isolated sandbox.
-    """
     clean_code = req.code.strip()
     is_valid = len(clean_code) > 0
     return {
@@ -132,12 +126,8 @@ async def execute_web_code_sandbox(req: CodeExecutionRequest):
         "execution_logs": "Compilation successful. DOM Tree validated with 0 critical syntax errors."
     }
 
-# --- Multi-Model Consensus Engine ---
 @app.post("/api/swarm/consensus")
 async def multi_model_consensus(req: ConsensusRequest):
-    """
-    Queries parallel nodes/models and synthesizes consensus output.
-    """
     SYSTEM_METRICS["consensus_runs"] += 1
     return {
         "status": "consensus_achieved",
@@ -147,7 +137,6 @@ async def multi_model_consensus(req: ConsensusRequest):
         "synthesized_response": f"Consensus resolution generated for query: '{req.prompt}'. Verified with zero hallucination index."
     }
 
-# --- Predictive Intent & Cache Engine ---
 @app.get("/api/cache/predictive")
 async def predictive_cache_lookup(intent: str = ""):
     SYSTEM_METRICS["cache_hits"] += 1
@@ -157,7 +146,6 @@ async def predictive_cache_lookup(intent: str = ""):
         "latency_saved_ms": 142.5
     }
 
-# --- Autonomous Self-Healing Matrix ---
 @app.post("/api/diagnostics/heal")
 async def self_healing_matrix():
     SYSTEM_METRICS["self_healing_events"] += 1
@@ -167,7 +155,6 @@ async def self_healing_matrix():
         "diagnostics": "All 35 backend modules inspected. Memory leaks zeroed, API pools re-balanced."
     }
 
-# --- System Health & 35 Backend Modules Diagnostic Route ---
 @app.get("/health")
 def health_check():
     return {
@@ -197,7 +184,7 @@ def health_check():
     }
 
 # ---------------------------------------------------------
-# FRONTEND INTERFACE RENDERER ROUTE
+# FRONTEND INTERFACE RENDERER ROUTE (Optimized for 1-Click UI)
 # ---------------------------------------------------------
 @app.get("/", response_class=HTMLResponse)
 def serve_frontend():
@@ -235,31 +222,31 @@ def serve_frontend():
 
 <section class="w-full max-w-2xl mx-auto px-4 space-y-3 mb-6">
     <div class="grid grid-cols-2 gap-3">
-        <button onclick="openModal('agentsModal')" class="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-bold transition shadow-md flex items-center justify-center space-x-2">
+        <button type="button" onclick="openModal('agentsModal')" class="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-bold transition shadow-md flex items-center justify-center space-x-2 cursor-pointer">
             <span>⚡</span><span>800 Domain Agents Hub</span>
         </button>
-        <button onclick="openModal('giantsModal')" class="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-600 text-white text-xs font-bold transition shadow-md flex items-center justify-center space-x-2">
+        <button type="button" onclick="openModal('giantsModal')" class="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-600 text-white text-xs font-bold transition shadow-md flex items-center justify-center space-x-2 cursor-pointer">
             <span>🚀</span><span>Tech Giants (300 Agents)</span>
         </button>
     </div>
     <div class="grid grid-cols-2 gap-3">
-        <button onclick="openModal('customizerModal')" class="py-3 px-3 rounded-2xl bg-cyan-50 hover:bg-cyan-100 text-cyan-900 text-xs font-bold transition border border-cyan-200 flex items-center justify-center space-x-1.5">
+        <button type="button" onclick="openModal('customizerModal')" class="py-3 px-3 rounded-2xl bg-cyan-50 hover:bg-cyan-100 text-cyan-900 text-xs font-bold transition border border-cyan-200 flex items-center justify-center space-x-1.5 cursor-pointer">
             <span>🧬</span><span>Multi-Agent Customizer ($9/mo)</span>
         </button>
-        <button onclick="openModal('chatbotCustomizerModal')" class="py-3 px-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-bold transition border border-emerald-200 flex items-center justify-center space-x-1.5">
+        <button type="button" onclick="openModal('chatbotCustomizerModal')" class="py-3 px-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-bold transition border border-emerald-200 flex items-center justify-center space-x-1.5 cursor-pointer">
             <span>⚙️</span><span>Multi-Chatbot Customizer</span>
         </button>
     </div>
     <div class="grid grid-cols-2 gap-3">
-        <button onclick="openSelfHealingModal()" class="py-3 px-3 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-900 text-xs font-bold transition border border-indigo-200 flex items-center justify-center space-x-1.5">
+        <button type="button" onclick="openSelfHealingModal()" class="py-3 px-3 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-900 text-xs font-bold transition border border-indigo-200 flex items-center justify-center space-x-1.5 cursor-pointer">
             <span>🛠️</span><span>Self-Healing Engine</span>
         </button>
-        <button onclick="openTerminalModal()" class="py-3 px-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-emerald-400 text-xs font-bold transition border border-slate-700 flex items-center justify-center space-x-1.5">
+        <button type="button" onclick="openTerminalModal()" class="py-3 px-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-emerald-400 text-xs font-bold transition border border-slate-700 flex items-center justify-center space-x-1.5 cursor-pointer">
             <span>💻</span><span>Execution Terminal & Sandbox</span>
         </button>
     </div>
     <div>
-        <button onclick="openModal('chatbotModal')" class="w-full py-3.5 px-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold transition flex items-center justify-center space-x-2 shadow-lg">
+        <button type="button" onclick="openModal('chatbotModal')" class="w-full py-3.5 px-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold transition flex items-center justify-center space-x-2 shadow-lg cursor-pointer">
             <span>💬</span><span>Launch Active Agent / Live Chat Hub</span>
         </button>
     </div>
@@ -269,7 +256,7 @@ def serve_frontend():
 <div id="agentsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <h2 class="font-bold text-sm text-slate-900">800 Autonomous AI Agents Hub (Unique Designations)</h2>
-        <button onclick="closeModal('agentsModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
+        <button type="button" onclick="closeModal('agentsModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold cursor-pointer">✕ Close</button>
     </div>
     <div class="p-4 bg-slate-100"><input type="text" id="agent-search" oninput="filterAgents()" placeholder="Search 800 agents..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs"></div>
     <div class="flex-1 overflow-y-auto p-6"><div id="agents-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto"></div></div>
@@ -279,7 +266,7 @@ def serve_frontend():
 <div id="giantsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <h2 class="font-bold text-sm text-slate-900">300 Tech Giants Swarm (Unique Designations)</h2>
-        <button onclick="closeModal('giantsModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
+        <button type="button" onclick="closeModal('giantsModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold cursor-pointer">✕ Close</button>
     </div>
     <div class="p-4 bg-slate-100"><input type="text" id="giant-search" oninput="filterGiants()" placeholder="Search 300 tech giant agents..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs"></div>
     <div class="flex-1 overflow-y-auto p-6"><div id="giants-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto"></div></div>
@@ -289,11 +276,11 @@ def serve_frontend():
 <div id="customizerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <h2 class="font-bold text-sm text-slate-900">Multi-Agent Customizer ($9/mo Secured)</h2>
-        <button onclick="closeModal('customizerModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
+        <button type="button" onclick="closeModal('customizerModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold cursor-pointer">✕ Close</button>
     </div>
     <div class="p-6 max-w-xl mx-auto w-full flex-1 flex flex-col gap-4">
         <input type="text" id="custom-agent-prompt" placeholder="e.g., Deep Python Async Expert" class="bg-white border rounded-xl px-4 py-3 text-xs">
-        <button onclick="buildCustomAgent()" class="py-3 bg-indigo-600 text-white text-xs font-bold rounded-xl">Synthesize Agent</button>
+        <button type="button" onclick="buildCustomAgent()" class="py-3 bg-indigo-600 text-white text-xs font-bold rounded-xl cursor-pointer">Synthesize Agent</button>
     </div>
 </div>
 
@@ -301,11 +288,11 @@ def serve_frontend():
 <div id="chatbotCustomizerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <h2 class="font-bold text-sm text-slate-900">Multi-Chatbot Customizer Hub</h2>
-        <button onclick="closeModal('chatbotCustomizerModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
+        <button type="button" onclick="closeModal('chatbotCustomizerModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold cursor-pointer">✕ Close</button>
     </div>
     <div class="p-6 max-w-xl mx-auto w-full flex-1 flex flex-col gap-4">
         <input type="text" id="custom-chatbot-name" placeholder="Chatbot Swarm Name..." class="bg-white border rounded-xl px-4 py-3 text-xs">
-        <button onclick="saveCustomChatbot()" class="py-3 bg-emerald-600 text-white text-xs font-bold rounded-xl">Deploy Chatbot Swarm</button>
+        <button type="button" onclick="saveCustomChatbot()" class="py-3 bg-emerald-600 text-white text-xs font-bold rounded-xl cursor-pointer">Deploy Chatbot Swarm</button>
     </div>
 </div>
 
@@ -316,13 +303,13 @@ def serve_frontend():
             <h2 class="font-bold text-sm text-slate-900" id="active-chatbot-title">Nexus AGI Hub</h2>
             <p class="text-[11px] text-indigo-600" id="active-chatbot-subtitle">Domain: Software Engineering</p>
         </div>
-        <button onclick="closeModal('chatbotModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
+        <button type="button" onclick="closeModal('chatbotModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold cursor-pointer">✕ Close</button>
     </div>
     <div id="chat-stream-container" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 flex flex-col max-w-4xl w-full mx-auto"></div>
     <div class="glass-panel border-t p-4 shrink-0">
         <div class="max-w-4xl mx-auto flex items-center space-x-2">
             <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Ask agent..." class="flex-1 bg-white border rounded-xl px-4 py-3 text-xs">
-            <button onclick="sendQueryToGroqAI()" class="px-5 py-3 bg-indigo-600 text-white text-xs font-bold rounded-xl">Send</button>
+            <button type="button" onclick="sendQueryToGroqAI()" class="px-5 py-3 bg-indigo-600 text-white text-xs font-bold rounded-xl cursor-pointer">Send</button>
         </div>
     </div>
 </div>
@@ -334,14 +321,14 @@ def serve_frontend():
     let activeDomain = "Software Engineering";
     let isDataInitialized = false;
 
+    // Lazy load list generation to keep UI instantly responsive
     window.addEventListener('DOMContentLoaded', () => {
-        initializeData();
+        setTimeout(initializeData, 50);
     });
 
     function initializeData() {
         if(isDataInitialized) return;
         
-        // 800 Unique AI Agents Generation Logic
         const prefixes = ["Alpha", "Beta", "Gamma", "Delta", "Omega", "Prime", "Quantum", "Hyper", "Apex", "Nexus", "Vector", "Matrix", "Sovereign", "Cyber", "Neural", "Core"];
         const domains = ["Software Engineering", "Semiconductor & Silicon", "CyberSecurity & Defense", "Education & Pedagogy", "Quantum Computing", "Autonomous Robotics", "Cloud Infrastructure", "Neural Networks"];
         const roles = ["Architect", "Engine Lead", "Specialist", "Auditor", "Optimizer", "Master", "Synthesizer", "Analyst", "Sentinel", "Commander"];
@@ -358,7 +345,6 @@ def serve_frontend():
         }
         renderAgents(allAgentsList);
 
-        // 300 Unique Tech Giants Generation Logic
         const providers = ["OpenAI", "Anthropic", "Google DeepMind", "Nvidia", "Meta AI", "Microsoft Research", "Mistral AI", "Cohere", "DeepSeek", "Apple Intelligence"];
         const specialties = ["LLM Architecture", "ASIC & Silicon Design", "Threat Mitigation", "CUDA Acceleration", "AGI Reasoning", "Autonomous Agents", "Multimodal Vision", "Quantum Simulation"];
         
@@ -377,18 +363,19 @@ def serve_frontend():
         isDataInitialized = true;
     }
 
+    // Instant Modal Open/Close Logic
     function openModal(modalId) {
         const m = document.getElementById(modalId);
         if(m) {
             m.classList.remove('hidden');
-            m.classList.add('flex');
+            m.style.display = 'flex';
         }
     }
 
     function closeModal(modalId) {
         const m = document.getElementById(modalId);
         if(m) {
-            m.classList.remove('flex');
+            m.style.display = 'none';
             m.classList.add('hidden');
         }
     }
@@ -396,7 +383,7 @@ def serve_frontend():
     function renderAgents(list) {
         const c = document.getElementById('agents-grid-container');
         let html = "";
-        list.slice(0, 200).forEach(a => {
+        list.slice(0, 100).forEach(a => {
             html += `
                 <div class="glass-card p-4 rounded-2xl border bg-white shadow-sm flex flex-col justify-between">
                     <div>
@@ -404,7 +391,7 @@ def serve_frontend():
                         <h3 class="font-bold text-xs mb-1 text-slate-900">${a.name}</h3>
                         <p class="text-[10px] text-indigo-600 font-semibold mb-2">${a.domain}</p>
                     </div>
-                    <button onclick="selectAgent('${a.name}', '${a.domain}')" class="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold rounded-xl transition">Deploy</button>
+                    <button type="button" onclick="selectAgent('${a.name}', '${a.domain}')" class="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold rounded-xl transition cursor-pointer">Deploy</button>
                 </div>`;
         });
         c.innerHTML = html;
@@ -421,7 +408,7 @@ def serve_frontend():
                         <h3 class="font-bold text-xs mt-2 text-slate-900">${g.name}</h3>
                         <p class="text-[10px] text-slate-600 mt-1">${g.specialty}</p>
                     </div>
-                    <button onclick="selectAgent('${g.name}', '${g.domain}')" class="mt-3 w-full py-1.5 bg-violet-600 hover:bg-violet-500 text-white text-[10px] font-bold rounded-xl transition">Launch Chatbot</button>
+                    <button type="button" onclick="selectAgent('${g.name}', '${g.domain}')" class="mt-3 w-full py-1.5 bg-violet-600 hover:bg-violet-500 text-white text-[10px] font-bold rounded-xl transition cursor-pointer">Launch Chatbot</button>
                 </div>`;
         });
         c.innerHTML = html;
