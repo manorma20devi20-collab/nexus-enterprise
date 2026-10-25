@@ -1,1 +1,5 @@
-pip install fastapi uvicorn httpx pydantic python-multipart
+fastapi
+uvicorn
+httpx
+pydantic
+python-multipart
