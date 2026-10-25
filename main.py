@@ -162,7 +162,7 @@ def health_check():
         "metrics": SYSTEM_METRICS
     }
 
-# --- Frontend Interface (Optimized for 1-Click Response) ---
+# --- Frontend Interface (Optimized for Instant 1-Click Response) ---
 @app.get("/", response_class=HTMLResponse)
 def serve_frontend():
     return """<!DOCTYPE html>
