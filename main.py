@@ -1,5 +1,5 @@
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
@@ -38,7 +38,6 @@ class CodeExecutionRequest(BaseModel):
 class ConsensusRequest(BaseModel):
     prompt: str
 
-# System State and Telemetry Store
 SYSTEM_METRICS = {
     "total_queries": 0,
     "active_modules": 35,
@@ -50,17 +49,17 @@ SYSTEM_METRICS = {
 }
 
 # ---------------------------------------------------------
-# 35 BACKEND MODULES ARCHITECTURE IMPLEMENTATION
+# 35 BACKEND MODULES & CORE LLM GATEWAY
 # ---------------------------------------------------------
-
 @app.post("/api/chat")
 async def chat_with_agent(req: ChatRequest, background_tasks: BackgroundTasks):
+    # API Key सीधे यहाँ बैकएंड में सेट की गई है
     key = os.getenv("GROQ_API_KEY", "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")
     
     if not key or "gsk_" not in key:
         raise HTTPException(
             status_code=500, 
-            detail="Groq API Key missing or invalid. Please set GROQ_API_KEY environment variable."
+            detail="Groq API Key missing or invalid in backend configuration."
         )
     
     headers = {
@@ -160,31 +159,10 @@ def health_check():
         "status": "healthy",
         "system": "Nexus Sovereign Enterprise AGI v36.0",
         "total_backend_modules": 35,
-        "backend_modules_list": [
-            # 25 Original Core Backend Modules
-            "JWT Auth & RBAC", "Autonomous Agent Orchestrator", "Vector RAG Engine", 
-            "Self-Healing Matrix", "Multi-Model Fallback Gateway", "Execution Sandbox Terminal", 
-            "Unit Test Generator", "Token & Cost Analytics", "Async Task Queue", "Database ORM Layer", 
-            "API Rate Limiter", "Audit Logger", "Dynamic Prompt Compiler", "Webhook Dispatcher", 
-            "Swarm Consensus Engine", "Web Scraper Pipeline", "Fine-Tuning Dataset Prep", 
-            "CI/CD Trigger Engine", "Prometheus Metrics Exporter", "Encrypted Vault", 
-            "Semantic Search Engine", "OpenAPI Schema Engine", "Session State Persistence", 
-            "Threat Detection Firewall", "Distributed Cache Manager",
-            # 10 Advanced Sovereign AI Backend Modules
-            "Autonomous Web Compiler & Sandbox", "Multi-Model Consensus Routing Engine", 
-            "Distributed P2P Mesh Pipeline", "Self-Mutating Code Optimizer", 
-            "Predictive Intent Pre-Computation Cache", "Quantum Cryptographic Sandbox", 
-            "Autonomous Sovereign Cost Allocator", "Agentic Self-Correction Loop", 
-            "Real-Time RAG Scraper Node", "Multi-Agent Team Workflow Pipeline"
-        ],
-        "agents_hub": "800 Domain Agents Unlocked",
-        "tech_giants": "300 Tech Giants Swarm Unlocked",
         "metrics": SYSTEM_METRICS
     }
 
-# ---------------------------------------------------------
-# FRONTEND INTERFACE RENDERER ROUTE (Instant 1-Click Optimized)
-# ---------------------------------------------------------
+# --- Frontend Interface (Optimized for 1-Click Response) ---
 @app.get("/", response_class=HTMLResponse)
 def serve_frontend():
     return """<!DOCTYPE html>
@@ -215,7 +193,7 @@ def serve_frontend():
     </div>
     <div class="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-bold flex items-center space-x-1.5 shadow-sm">
         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span>AGI Core Active (35/35)</span>
+        <span>AGI Active (35/35)</span>
     </div>
 </header>
 
@@ -318,38 +296,13 @@ def serve_frontend():
     let allGiantsList = [];
     let activeAgent = "Devin Code Architect #1";
     let activeDomain = "Software Engineering";
+    let isInitialized = false;
 
-    // Instant lazy-load initialization so UI never freezes
-    window.addEventListener('DOMContentLoaded', () => {
-        setTimeout(initializeData, 100);
-    });
-
-    function initializeData() {
-        const prefixes = ["Alpha", "Beta", "Gamma", "Delta", "Omega", "Prime", "Quantum", "Hyper", "Apex", "Nexus", "Vector", "Matrix", "Sovereign", "Cyber", "Neural", "Core"];
-        const domains = ["Software Engineering", "Semiconductor & Silicon", "CyberSecurity & Defense", "Education & Pedagogy", "Quantum Computing", "Autonomous Robotics", "Cloud Infrastructure", "Neural Networks"];
-        const roles = ["Architect", "Engine Lead", "Specialist", "Auditor", "Optimizer", "Master", "Synthesizer", "Analyst", "Sentinel", "Commander"];
-        
-        for(let i=1; i<=200; i++) {
-            let pref = prefixes[(i * 7) % prefixes.length];
-            let role = roles[(i * 3) % roles.length];
-            let domain = domains[(i - 1) % domains.length];
-            allAgentsList.push({ id: i, name: `${pref} Agent ${role} Unit-${i}`, domain: domain });
-        }
-        renderAgents(allAgentsList);
-
-        const providers = ["OpenAI", "Anthropic", "Google DeepMind", "Nvidia", "Meta AI", "Microsoft Research", "Mistral AI", "Cohere", "DeepSeek", "Apple Intelligence"];
-        const specialties = ["LLM Architecture", "ASIC & Silicon Design", "Threat Mitigation", "CUDA Acceleration", "AGI Reasoning", "Autonomous Agents", "Multimodal Vision", "Quantum Simulation"];
-        
-        for(let i=1; i<=100; i++) {
-            let prov = providers[(i * 3) % providers.length];
-            let spec = specialties[(i * 5) % specialties.length];
-            allGiantsList.push({ id: i, name: `${prov} Node #${i}`, provider: prov, domain: "Advanced Tech Swarm", specialty: spec });
-        }
-        renderGiants(allGiantsList);
-    }
-
-    // Ultra-responsive modal handling
     function openModal(modalId) {
+        if(!isInitialized && (modalId === 'agentsModal' || modalId === 'giantsModal')) {
+            initializeData();
+            isInitialized = true;
+        }
         const m = document.getElementById(modalId);
         if(m) {
             m.style.display = 'flex';
@@ -364,12 +317,36 @@ def serve_frontend():
             m.classList.add('hidden');
         }
     }
+
+    function initializeData() {
+        const prefixes = ["Alpha", "Beta", "Gamma", "Delta", "Omega", "Prime", "Quantum", "Hyper", "Apex", "Nexus", "Vector", "Matrix", "Sovereign", "Cyber", "Neural", "Core"];
+        const domains = ["Software Engineering", "Semiconductor & Silicon", "CyberSecurity & Defense", "Education & Pedagogy", "Quantum Computing", "Autonomous Robotics", "Cloud Infrastructure", "Neural Networks"];
+        const roles = ["Architect", "Engine Lead", "Specialist", "Auditor", "Optimizer", "Master", "Synthesizer", "Analyst", "Sentinel", "Commander"];
+        
+        for(let i=1; i<=100; i++) {
+            let pref = prefixes[(i * 7) % prefixes.length];
+            let role = roles[(i * 3) % roles.length];
+            let domain = domains[(i - 1) % domains.length];
+            allAgentsList.push({ id: i, name: `${pref} Agent ${role} Unit-${i}`, domain: domain });
+        }
+        renderAgents(allAgentsList);
+
+        const providers = ["OpenAI", "Anthropic", "Google DeepMind", "Nvidia", "Meta AI", "Microsoft Research", "Mistral AI", "Cohere", "DeepSeek", "Apple Intelligence"];
+        const specialties = ["LLM Architecture", "ASIC & Silicon Design", "Threat Mitigation", "CUDA Acceleration", "AGI Reasoning", "Autonomous Agents", "Multimodal Vision", "Quantum Simulation"];
+        
+        for(let i=1; i<=50; i++) {
+            let prov = providers[(i * 3) % providers.length];
+            let spec = specialties[(i * 5) % specialties.length];
+            allGiantsList.push({ id: i, name: `${prov} Node #${i}`, provider: prov, domain: "Advanced Tech Swarm", specialty: spec });
+        }
+        renderGiants(allGiantsList);
+    }
     
     function renderAgents(list) {
         const c = document.getElementById('agents-grid-container');
         if(!c) return;
         let html = "";
-        list.slice(0, 50).forEach(a => {
+        list.forEach(a => {
             html += `
                 <div class="glass-card p-4 rounded-2xl border bg-white shadow-sm flex flex-col justify-between">
                     <div>
@@ -387,7 +364,7 @@ def serve_frontend():
         const c = document.getElementById('giants-grid-container');
         if(!c) return;
         let html = "";
-        list.slice(0, 50).forEach(g => {
+        list.forEach(g => {
             html += `
                 <div class="glass-card p-4 rounded-2xl border bg-white shadow-sm flex flex-col justify-between">
                     <div>
@@ -426,7 +403,7 @@ def serve_frontend():
             <div id="${loadingId}" class="flex items-start space-x-3">
                 <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div>
                 <div class="glass-card rounded-2xl p-4 text-xs text-indigo-700 font-semibold max-w-[85%] animate-pulse">
-                    ⚡ Processing with ${activeAgent} via 35 Backend Modules Engine...
+                    ⚡ Processing with ${activeAgent}...
                 </div>
             </div>
         `;
@@ -442,7 +419,7 @@ def serve_frontend():
             document.getElementById(loadingId).remove();
             
             if(res.status !== 200) {
-                container.innerHTML += `<div class="text-rose-600 text-xs p-3">Server Error: ${data.detail || 'Check API Key configuration.'}</div>`;
+                container.innerHTML += `<div class="text-rose-600 text-xs p-3">Server Error: ${data.detail || 'Check API Key configuration in backend.'}</div>`;
                 return;
             }
 
@@ -455,7 +432,7 @@ def serve_frontend():
                 </div>`;
         } catch(e) {
             document.getElementById(loadingId).remove();
-            container.innerHTML += `<div class="text-rose-600 text-xs p-3">Error connecting to server. Please verify your backend deployment and API key.</div>`;
+            container.innerHTML += `<div class="text-rose-600 text-xs p-3">Error connecting to server. Please verify your backend deployment.</div>`;
         }
         container.scrollTop = container.scrollHeight;
     }
@@ -514,4 +491,5 @@ def serve_frontend():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=10000, reload=True)
+    port = int(os.environ.get("PORT", 10000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
