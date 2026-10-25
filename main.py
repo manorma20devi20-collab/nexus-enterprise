@@ -7,7 +7,6 @@ import httpx
 
 app = FastAPI(title="Nexus Enterprise Sovereign AGI v36.0", version="36.0")
 
-# CORS सक्षम करें
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -23,7 +22,7 @@ class ChatRequest(BaseModel):
 
 @app.post("/api/chat")
 async def chat_with_agent(req: ChatRequest):
-    # यहाँ अपनी असली Groq API Key डालें
+    # यहाँ अपनी असली Groq API Key डालें (या Render एनवायरनमेंट वैरिएबल का उपयोग करें)
     key = os.getenv("GROQ_API_KEY", "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")
     
     if not key or "gsk_" not in key:
@@ -37,7 +36,6 @@ async def chat_with_agent(req: ChatRequest):
         "Content-Type": "application/json"
     }
     
-    # एआई कभी मना न करे और सीधे एक्सपर्ट जवाब दे
     system_prompt = (
         f"You are {req.agent_name} operating strictly within the domain of {req.domain}. "
         "Provide professional, highly optimized, enterprise-grade technical answers directly and comprehensively. "
@@ -48,7 +46,7 @@ async def chat_with_agent(req: ChatRequest):
         "model": "llama-3.3-70b-versatile",
         "messages": [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": req.prompt}
+            {"role": "user", content: req.prompt}
         ],
         "temperature": 0.3,
         "max_tokens": 3072
@@ -80,7 +78,6 @@ def health_check():
         "tech_giants": "300 Agents Unlocked"
     }
 
-# मुख्य HTML UI रूट
 @app.get("/", response_class=HTMLResponse)
 def serve_frontend():
     return """<!DOCTYPE html>
@@ -117,18 +114,18 @@ def serve_frontend():
 
 <section class="w-full max-w-2xl mx-auto px-4 space-y-3 mb-6">
     <div class="grid grid-cols-2 gap-3">
-        <button onclick="openAgentsModal()" class="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-bold transition shadow-md flex items-center justify-center space-x-2">
+        <button onclick="openModal('agentsModal')" class="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-bold transition shadow-md flex items-center justify-center space-x-2">
             <span>⚡</span><span>800 Domain Agents Hub</span>
         </button>
-        <button onclick="openGiantsModal()" class="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-600 text-white text-xs font-bold transition shadow-md flex items-center justify-center space-x-2">
+        <button onclick="openModal('giantsModal')" class="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-600 text-white text-xs font-bold transition shadow-md flex items-center justify-center space-x-2">
             <span>🚀</span><span>Tech Giants (300 Agents)</span>
         </button>
     </div>
     <div class="grid grid-cols-2 gap-3">
-        <button onclick="openAgentCustomizerModal()" class="py-3 px-3 rounded-2xl bg-cyan-50 hover:bg-cyan-100 text-cyan-900 text-xs font-bold transition border border-cyan-200 flex items-center justify-center space-x-1.5">
+        <button onclick="openModal('customizerModal')" class="py-3 px-3 rounded-2xl bg-cyan-50 hover:bg-cyan-100 text-cyan-900 text-xs font-bold transition border border-cyan-200 flex items-center justify-center space-x-1.5">
             <span>🧬</span><span>Multi-Agent Customizer ($9/mo)</span>
         </button>
-        <button onclick="openChatbotCustomizerModal()" class="py-3 px-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-bold transition border border-emerald-200 flex items-center justify-center space-x-1.5">
+        <button onclick="openModal('chatbotCustomizerModal')" class="py-3 px-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-bold transition border border-emerald-200 flex items-center justify-center space-x-1.5">
             <span>⚙️</span><span>Multi-Chatbot Customizer</span>
         </button>
     </div>
@@ -141,37 +138,37 @@ def serve_frontend():
         </button>
     </div>
     <div>
-        <button onclick="openChatbotModal()" class="w-full py-3.5 px-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold transition flex items-center justify-center space-x-2 shadow-lg">
+        <button onclick="openModal('chatbotModal')" class="w-full py-3.5 px-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold transition flex items-center justify-center space-x-2 shadow-lg">
             <span>💬</span><span>Launch Active Agent / Live Chat Hub</span>
         </button>
     </div>
 </section>
 
 <!-- AGENTS MODAL (800 AGENTS) -->
-<div id="agentsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex flex-col overflow-hidden">
+<div id="agentsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <h2 class="font-bold text-sm text-slate-900">800 Autonomous AI Agents Hub</h2>
-        <button onclick="closeAgentsModal()" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
+        <button onclick="closeModal('agentsModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
     </div>
     <div class="p-4 bg-slate-100"><input type="text" id="agent-search" oninput="filterAgents()" placeholder="Search 800 agents..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs"></div>
     <div class="flex-1 overflow-y-auto p-6"><div id="agents-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto"></div></div>
 </div>
 
 <!-- TECH GIANTS MODAL (300 AGENTS) -->
-<div id="giantsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex flex-col overflow-hidden">
+<div id="giantsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <h2 class="font-bold text-sm text-slate-900">300 Tech Giants Swarm (OpenAI, Anthropic, Google, Nvidia, Meta)</h2>
-        <button onclick="closeGiantsModal()" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
+        <button onclick="closeModal('giantsModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
     </div>
     <div class="p-4 bg-slate-100"><input type="text" id="giant-search" oninput="filterGiants()" placeholder="Search 300 tech giant agents..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs"></div>
     <div class="flex-1 overflow-y-auto p-6"><div id="giants-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto"></div></div>
 </div>
 
 <!-- CUSTOMIZER MODAL -->
-<div id="customizerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex flex-col overflow-hidden">
+<div id="customizerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <h2 class="font-bold text-sm text-slate-900">Multi-Agent Customizer ($9/mo Secured)</h2>
-        <button onclick="closeAgentCustomizerModal()" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
+        <button onclick="closeModal('customizerModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
     </div>
     <div class="p-6 max-w-xl mx-auto w-full flex-1 flex flex-col gap-4">
         <input type="text" id="custom-agent-prompt" placeholder="e.g., Deep Python Async Expert" class="bg-white border rounded-xl px-4 py-3 text-xs">
@@ -180,10 +177,10 @@ def serve_frontend():
 </div>
 
 <!-- CHATBOT CUSTOMIZER MODAL -->
-<div id="chatbotCustomizerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex flex-col overflow-hidden">
+<div id="chatbotCustomizerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <h2 class="font-bold text-sm text-slate-900">Multi-Chatbot Customizer Hub</h2>
-        <button onclick="closeChatbotCustomizerModal()" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
+        <button onclick="closeModal('chatbotCustomizerModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
     </div>
     <div class="p-6 max-w-xl mx-auto w-full flex-1 flex flex-col gap-4">
         <input type="text" id="custom-chatbot-name" placeholder="Chatbot Swarm Name..." class="bg-white border rounded-xl px-4 py-3 text-xs">
@@ -192,13 +189,13 @@ def serve_frontend():
 </div>
 
 <!-- CHATBOT MODAL -->
-<div id="chatbotModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex flex-col overflow-hidden">
+<div id="chatbotModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <div>
             <h2 class="font-bold text-sm text-slate-900" id="active-chatbot-title">Nexus AGI Hub</h2>
             <p class="text-[11px] text-indigo-600" id="active-chatbot-subtitle">Domain: Software Engineering</p>
         </div>
-        <button onclick="closeChatbotModal()" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
+        <button onclick="closeModal('chatbotModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
     </div>
     <div id="chat-stream-container" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 flex flex-col max-w-4xl w-full mx-auto"></div>
     <div class="glass-panel border-t p-4 shrink-0">
@@ -215,7 +212,26 @@ def serve_frontend():
     let activeAgent = "Devin Code Architect #1";
     let activeDomain = "Software Engineering";
 
-    // 800 Agents Generator with unique names and domains
+    // Универсаल (Universal) Modal Handler ताकि हर बटन एक बार में खुले
+    function openModal(modalId) {
+        if(modalId === 'agentsModal') generateAgents();
+        if(modalId === 'giantsModal') generateTechGiants();
+        const m = document.getElementById(modalId);
+        if(m) {
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+    }
+
+    function closeModal(modalId) {
+        const m = document.getElementById(modalId);
+        if(m) {
+            m.classList.remove('flex');
+            m.classList.add('hidden');
+        }
+    }
+
+    // 800 Agents Generator
     function generateAgents() {
         if(allAgentsList.length > 0) return;
         const domains = ["Software Engineering", "Semiconductor & Silicon", "CyberSecurity & Defense", "Education & Pedagogy", "Quantum Computing", "Autonomous Robotics", "Cloud Infrastructure", "Neural Networks"];
@@ -249,7 +265,7 @@ def serve_frontend():
         });
     }
 
-    // 300 Tech Giants Generator with distinct names across providers
+    // 300 Tech Giants Generator
     function generateTechGiants() {
         if(allGiantsList.length > 0) return;
         const providers = ["OpenAI", "Anthropic", "Google DeepMind", "Nvidia", "Meta AI", "Microsoft Research", "Mistral AI", "Cohere"];
@@ -289,9 +305,9 @@ def serve_frontend():
         activeDomain = domain;
         document.getElementById('active-chatbot-title').innerText = `Active: ${name}`;
         document.getElementById('active-chatbot-subtitle').innerText = `Domain: ${domain}`;
-        closeAgentsModal();
-        closeGiantsModal();
-        openChatbotModal();
+        closeModal('agentsModal');
+        closeModal('giantsModal');
+        openModal('chatbotModal');
     }
     
     async function sendQueryToGroqAI() {
@@ -338,64 +354,6 @@ def serve_frontend():
         container.scrollTop = container.scrollHeight;
     }
 
-    // Modal Control Functions (Fixed with 'flex' class)
-    function openAgentsModal() { 
-        generateAgents(); 
-        const m = document.getElementById('agentsModal');
-        m.classList.remove('hidden'); 
-        m.classList.add('flex'); 
-    }
-    function closeAgentsModal() { 
-        const m = document.getElementById('agentsModal');
-        m.classList.remove('flex'); 
-        m.classList.add('hidden'); 
-    }
-    
-    function openGiantsModal() { 
-        generateTechGiants(); 
-        const m = document.getElementById('giantsModal');
-        m.classList.remove('hidden'); 
-        m.classList.add('flex'); 
-    }
-    function closeGiantsModal() { 
-        const m = document.getElementById('giantsModal');
-        m.classList.remove('flex'); 
-        m.classList.add('hidden'); 
-    }
-    
-    function openAgentCustomizerModal() { 
-        const m = document.getElementById('customizerModal');
-        m.classList.remove('hidden'); 
-        m.classList.add('flex'); 
-    }
-    function closeAgentCustomizerModal() { 
-        const m = document.getElementById('customizerModal');
-        m.classList.remove('flex'); 
-        m.classList.add('hidden'); 
-    }
-
-    function openChatbotCustomizerModal() { 
-        const m = document.getElementById('chatbotCustomizerModal');
-        m.classList.remove('hidden'); 
-        m.classList.add('flex'); 
-    }
-    function closeChatbotCustomizerModal() { 
-        const m = document.getElementById('chatbotCustomizerModal');
-        m.classList.remove('flex'); 
-        m.classList.add('hidden'); 
-    }
-    
-    function openChatbotModal() { 
-        const m = document.getElementById('chatbotModal');
-        m.classList.remove('hidden'); 
-        m.classList.add('flex'); 
-    }
-    function closeChatbotModal() { 
-        const m = document.getElementById('chatbotModal');
-        m.classList.remove('flex'); 
-        m.classList.add('hidden'); 
-    }
-    
     function openSelfHealingModal() { alert("Self-Healing Diagnostic Matrix active and secure."); }
     function openTerminalModal() { alert("Autonomous Execution Terminal ready."); }
     
@@ -417,7 +375,7 @@ def serve_frontend():
         const prompt = document.getElementById('custom-agent-prompt').value.trim();
         if(!prompt) return;
         alert(`Custom Agent '${prompt}' successfully synthesized under $9/mo tier!`);
-        closeAgentCustomizerModal();
+        closeModal('customizerModal');
         selectAgent(prompt + " (Custom)", "Software Engineering");
     }
 
@@ -425,7 +383,7 @@ def serve_frontend():
         const name = document.getElementById('custom-chatbot-name').value.trim();
         if(!name) return;
         alert(`Chatbot Swarm '${name}' deployed successfully!`);
-        closeChatbotCustomizerModal();
+        closeModal('chatbotCustomizerModal');
         selectAgent(name, "Multi-Chatbot Swarm");
     }
 </script>
