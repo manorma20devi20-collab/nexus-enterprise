@@ -42,8 +42,9 @@ async def chat_with_agent(req: ChatRequest):
         "Never refuse queries, never say 'I am sorry', and always execute the user's technical requests with full implementation details."
     )
     
+    # ग्रोक का सबसे एडवांस्ड मॉडल यहाँ सेट किया गया है
     payload = {
-        "model": "llama-3.3-70b-versatile",
+        "model": "openai/gpt-oss-120b",
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": req.prompt}
@@ -75,7 +76,8 @@ def health_check():
         "system": "Nexus Enterprise AGI v36.0",
         "active_modules": 25,
         "agents_hub": "800 Agents Unlocked",
-        "tech_giants": "300 Agents Unlocked"
+        "tech_giants": "300 Agents Unlocked",
+        "model_active": "openai/gpt-oss-120b"
     }
 
 @app.get("/", response_class=HTMLResponse)
@@ -103,7 +105,7 @@ def serve_frontend():
         <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-cyan-500 flex items-center justify-center font-black text-2xl text-white shadow-lg">Ω</div>
         <div class="text-left">
             <h1 class="text-sm md:text-base font-black tracking-wider bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent">NEXUS ENTERPRISE</h1>
-            <p class="text-[10px] font-bold text-indigo-600">Autonomous Ecosystem v36.0 (25 Modules Active)</p>
+            <p class="text-[10px] font-bold text-indigo-600">Autonomous Ecosystem v36.0 (Model: openai/gpt-oss-120b)</p>
         </div>
     </div>
     <div class="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-bold flex items-center space-x-1.5 shadow-sm">
@@ -147,7 +149,7 @@ def serve_frontend():
 <!-- AGENTS MODAL -->
 <div id="agentsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
-        <h2 class="font-bold text-sm text-slate-900">800 Autonomous AI Agents Hub</h2>
+        <h2 class="font-bold text-sm text-slate-900">800 Autonomous AI Agents Hub (Unique Names)</h2>
         <button onclick="closeModal('agentsModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
     </div>
     <div class="p-4 bg-slate-100"><input type="text" id="agent-search" oninput="filterAgents()" placeholder="Search 800 agents..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs"></div>
@@ -157,7 +159,7 @@ def serve_frontend():
 <!-- TECH GIANTS MODAL -->
 <div id="giantsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
-        <h2 class="font-bold text-sm text-slate-900">300 Tech Giants Swarm (OpenAI, Anthropic, Google, Nvidia, Meta)</h2>
+        <h2 class="font-bold text-sm text-slate-900">300 Tech Giants Swarm (Unique Names)</h2>
         <button onclick="closeModal('giantsModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
     </div>
     <div class="p-4 bg-slate-100"><input type="text" id="giant-search" oninput="filterGiants()" placeholder="Search 300 tech giant agents..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs"></div>
@@ -213,43 +215,50 @@ def serve_frontend():
     let activeDomain = "Software Engineering";
     let isDataInitialized = false;
 
-    // डेटा को पहले ही लोड कर लें ताकि बटन तुरंत एक क्लिक में खुले
     window.addEventListener('DOMContentLoaded', () => {
         initializeData();
     });
 
     function initializeData() {
         if(isDataInitialized) return;
-        // 800 Agents
+        
+        // 800 Agents with 100% Unique Names & Distinct Designations
+        const prefixes = ["Alpha", "Beta", "Gamma", "Delta", "Omega", "Prime", "Quantum", "Hyper", "Apex", "Nexus", "Vector", "Matrix", "Sovereign", "Cyber", "Neural", "Core"];
         const domains = ["Software Engineering", "Semiconductor & Silicon", "CyberSecurity & Defense", "Education & Pedagogy", "Quantum Computing", "Autonomous Robotics", "Cloud Infrastructure", "Neural Networks"];
-        const roles = ["Architect", "Engine Lead", "Specialist", "Auditor", "Optimizer", "Master", "Synthesizer", "Analyst"];
+        const roles = ["Architect", "Engine Lead", "Specialist", "Auditor", "Optimizer", "Master", "Synthesizer", "Analyst", "Sentinel", "Commander"];
+        
         for(let i=1; i<=800; i++) {
+            let pref = prefixes[(i * 7) % prefixes.length];
+            let role = roles[(i * 3) % roles.length];
+            let domain = domains[(i - 1) % domains.length];
             allAgentsList.push({ 
                 id: i, 
-                name: `Agent ${roles[(i-1) % roles.length]} #${i}`, 
-                domain: domains[(i-1) % domains.length], 
-                desc: `Autonomous enterprise specialist.` 
+                name: `${pref} Agent ${role} Unit-${i}`, 
+                domain: domain, 
+                desc: `Unique autonomous enterprise specialist unit #${i}.` 
             });
         }
         renderAgents(allAgentsList);
 
-        // 300 Tech Giants
-        const providers = ["OpenAI", "Anthropic", "Google DeepMind", "Nvidia", "Meta AI", "Microsoft Research", "Mistral AI", "Cohere"];
+        // 300 Tech Giants with 100% Unique Names Across Providers
+        const providers = ["OpenAI", "Anthropic", "Google DeepMind", "Nvidia", "Meta AI", "Microsoft Research", "Mistral AI", "Cohere", "DeepSeek", "Apple Intelligence"];
         const specialties = ["LLM Architecture", "ASIC & Silicon Design", "Threat Mitigation", "CUDA Acceleration", "AGI Reasoning", "Autonomous Agents", "Multimodal Vision", "Quantum Simulation"];
+        
         for(let i=1; i<=300; i++) {
+            let prov = providers[(i * 3) % providers.length];
+            let spec = specialties[(i * 5) % specialties.length];
             allGiantsList.push({
                 id: i,
-                name: `${providers[(i-1) % providers.length]} Swarm Unit #${i}`,
-                provider: providers[(i-1) % providers.length],
+                name: `${prov} Sovereign Swarm Node #${i}`,
+                provider: prov,
                 domain: "Advanced Tech Swarm",
-                specialty: specialties[(i-1) % specialties.length]
+                specialty: spec
             });
         }
         renderGiants(allGiantsList);
         isDataInitialized = true;
     }
 
-    // इंस्टेंट मॉडल ओपनर (बिना किसी लैग के)
     function openModal(modalId) {
         const m = document.getElementById(modalId);
         if(m) {
@@ -269,7 +278,6 @@ def serve_frontend():
     function renderAgents(list) {
         const c = document.getElementById('agents-grid-container');
         let html = "";
-        // परफॉरमेंस के लिए पहले 100 दिखाएं या सारे लूप करें
         list.slice(0, 200).forEach(a => {
             html += `
                 <div class="glass-card p-4 rounded-2xl border bg-white shadow-sm flex flex-col justify-between">
@@ -326,7 +334,7 @@ def serve_frontend():
             <div id="${loadingId}" class="flex items-start space-x-3">
                 <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div>
                 <div class="glass-card rounded-2xl p-4 text-xs text-indigo-700 font-semibold max-w-[85%] animate-pulse">
-                    ⚡ Processing with ${activeAgent}...
+                    ⚡ Processing with ${activeAgent} via openai/gpt-oss-120b...
                 </div>
             </div>
         `;
