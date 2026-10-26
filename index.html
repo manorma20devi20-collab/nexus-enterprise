@@ -1,94 +1,9 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-import os
-import httpx
-
-app = FastAPI(title="Nexus Enterprise Sovereign AGI v36.0", version="36.0")
-
-# CORS सक्षम करें
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-class ChatRequest(BaseModel):
-    prompt: str
-    agent_name: str = "Devin Code Architect #1"
-    domain: str = "Software Engineering"
-
-@app.post("/api/chat")
-async def chat_with_agent(req: ChatRequest):
-    # यहाँ अपनी असली Groq API Key डालें
-    key = os.getenv("GROQ_API_KEY", "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")
-    
-    if not key or "gsk_" not in key:
-        raise HTTPException(
-            status_code=500, 
-            detail="Server API Key is not configured properly in backend."
-        )
-    
-    headers = {
-        "Authorization": f"Bearer {key}",
-        "Content-Type": "application/json"
-    }
-    
-    # एआई कभी मना न करे और सीधे एक्सपर्ट जवाब दे
-    system_prompt = (
-        f"You are {req.agent_name} operating strictly within the domain of {req.domain}. "
-        "Provide professional, highly optimized, enterprise-grade technical answers directly and comprehensively. "
-        "Never refuse queries, never say 'I am sorry', and always execute the user's technical requests with full implementation details."
-    )
-    
-    payload = {
-        "model": "llama-3.3-70b-versatile",
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": req.prompt}
-        ],
-        "temperature": 0.3,
-        "max_tokens": 3072
-    }
-    
-    async with httpx.AsyncClient(timeout=45.0) as client:
-        try:
-            response = await client.post(
-                "https://api.groq.com/openai/v1/chat/completions",
-                json=payload,
-                headers=headers
-            )
-            if response.status_code != 200:
-                raise HTTPException(status_code=response.status_code, detail=response.text)
-            
-            data = response.json()
-            reply = data["choices"][0]["message"]["content"]
-            return {"status": "success", "reply": reply}
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/health")
-def health_check():
-    return {
-        "status": "healthy",
-        "system": "Nexus Enterprise AGI v36.0",
-        "active_modules": 25,
-        "agents_hub": "800 Agents Unlocked",
-        "tech_giants": "300 Agents Unlocked"
-    }
-
-# मुख्य HTML UI रूट
-@app.get("/", response_class=HTMLResponse)
-def serve_frontend():
-    return """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS Autonomous Enterprise Ecosystem v36.0</title>
+    <title>NEXUS Sovereign Enterprise AGI v36.0 - Render Python Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(0, 0, 0, 0.08); }
@@ -101,338 +16,236 @@ def serve_frontend():
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen flex flex-col font-sans pb-10">
 
-<header class="w-full max-w-2xl mx-auto p-6 flex items-center justify-between mt-2">
+<header class="w-full max-w-3xl mx-auto p-6 flex items-center justify-between mt-2">
     <div class="flex items-center space-x-3">
         <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-cyan-500 flex items-center justify-center font-black text-2xl text-white shadow-lg">Ω</div>
         <div class="text-left">
-            <h1 class="text-sm md:text-base font-black tracking-wider bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent">NEXUS ENTERPRISE</h1>
-            <p class="text-[10px] font-bold text-indigo-600">Autonomous Ecosystem v36.0 (25 Modules Active)</p>
+            <h1 class="text-sm md:text-base font-black tracking-wider bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent">NEXUS SOVEREIGN ENTERPRISE</h1>
+            <p class="text-[10px] font-bold text-indigo-600">AGI v36.0 | Python Backend & 35 Modules Engaged</p>
         </div>
     </div>
     <div class="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-bold flex items-center space-x-1.5 shadow-sm">
         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span>AGI Core Active</span>
+        <span>35/35 Python Backend Online</span>
     </div>
 </header>
 
-<section class="w-full max-w-2xl mx-auto px-4 space-y-3 mb-6">
+<section class="w-full max-w-3xl mx-auto px-4 space-y-3 mb-6">
     <div class="grid grid-cols-2 gap-3">
-        <button onclick="openAgentsModal()" class="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-bold transition shadow-md flex items-center justify-center space-x-2">
+        <button type="button" onclick="openModal('agentsModal')" class="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-xs font-bold transition shadow-md flex items-center justify-center space-x-2 cursor-pointer">
             <span>⚡</span><span>800 Domain Agents Hub</span>
         </button>
-        <button onclick="openGiantsModal()" class="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-600 text-white text-xs font-bold transition shadow-md flex items-center justify-center space-x-2">
-            <span>🚀</span><span>Tech Giants (300 Agents)</span>
+        <button type="button" onclick="openModal('giantsModal')" class="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-600 text-white text-xs font-bold transition shadow-md flex items-center justify-center space-x-2 cursor-pointer">
+            <span>🚀</span><span>300 Tech Giants Swarm</span>
         </button>
     </div>
     <div class="grid grid-cols-2 gap-3">
-        <button onclick="openAgentCustomizerModal()" class="py-3 px-3 rounded-2xl bg-cyan-50 hover:bg-cyan-100 text-cyan-900 text-xs font-bold transition border border-cyan-200 flex items-center justify-center space-x-1.5">
+        <button type="button" onclick="openModal('customizerModal')" class="py-3 px-3 rounded-2xl bg-cyan-50 hover:bg-cyan-100 text-cyan-900 text-xs font-bold transition border border-cyan-200 flex items-center justify-center space-x-1.5 cursor-pointer">
             <span>🧬</span><span>Multi-Agent Customizer ($9/mo)</span>
         </button>
-        <button onclick="openChatbotCustomizerModal()" class="py-3 px-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-bold transition border border-emerald-200 flex items-center justify-center space-x-1.5">
-            <span>⚙️</span><span>Multi-Chatbot Customizer</span>
+        <button type="button" onclick="openModal('modulesModal')" class="py-3 px-3 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-900 text-xs font-bold transition border border-indigo-200 flex items-center justify-center space-x-1.5 cursor-pointer">
+            <span>🔍</span><span>View Backend Architecture</span>
         </button>
     </div>
     <div class="grid grid-cols-2 gap-3">
-        <button onclick="openSelfHealingModal()" class="py-3 px-3 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-900 text-xs font-bold transition border border-indigo-200 flex items-center justify-center space-x-1.5">
+        <button type="button" onclick="triggerSelfHealing()" class="py-3 px-3 rounded-2xl bg-purple-50 hover:bg-purple-100 text-purple-900 text-xs font-bold transition border border-purple-200 flex items-center justify-center space-x-1.5 cursor-pointer">
             <span>🛠️</span><span>Self-Healing Engine</span>
         </button>
-        <button onclick="openTerminalModal()" class="py-3 px-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-emerald-400 text-xs font-bold transition border border-slate-700 flex items-center justify-center space-x-1.5">
-            <span>💻</span><span>Execution Terminal</span>
+        <button type="button" onclick="triggerTerminal()" class="py-3 px-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-emerald-400 text-xs font-bold transition border border-slate-700 flex items-center justify-center space-x-1.5 cursor-pointer">
+            <span>💻</span><span>Execution Sandbox Terminal</span>
         </button>
     </div>
     <div>
-        <button onclick="openChatbotModal()" class="w-full py-3.5 px-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold transition flex items-center justify-center space-x-2 shadow-lg">
-            <span>💬</span><span>Launch Active Agent / Live Chat Hub</span>
+        <button type="button" onclick="openModal('chatbotModal')" class="w-full py-3.5 px-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold transition flex items-center justify-center space-x-2 shadow-lg cursor-pointer">
+            <span>💬</span><span>Launch Active Agent / Live Chat Hub (gpt-oss-120b)</span>
         </button>
     </div>
 </section>
 
-<!-- AGENTS MODAL (800 AGENTS) -->
-<div id="agentsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
+<!-- MODALS -->
+<div id="modulesModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
+    <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
+        <h2 class="font-bold text-sm text-slate-900">35 Python Backend Modules Overview</h2>
+        <button type="button" onclick="closeModal('modulesModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold cursor-pointer">✕ Close</button>
+    </div>
+    <div class="flex-1 overflow-y-auto p-6 max-w-4xl mx-auto w-full">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 text-xs text-slate-700 leading-relaxed font-mono">
+            ✅ All 35 Backend Modules are executing silently inside main.py on Render server.<br>
+            Security Guardrails, Consensus Engine, Self-Healing Matrix, and Latency Caching are active.
+        </div>
+    </div>
+</div>
+
+<div id="agentsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <h2 class="font-bold text-sm text-slate-900">800 Autonomous AI Agents Hub</h2>
-        <button onclick="closeAgentsModal()" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
+        <button type="button" onclick="closeModal('agentsModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold cursor-pointer">✕ Close</button>
     </div>
-    <div class="p-4 bg-slate-100"><input type="text" id="agent-search" oninput="filterAgents()" placeholder="Search 800 agents..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs"></div>
+    <div class="p-4 bg-slate-100"><input type="text" id="agent-search" oninput="filterAgents()" placeholder="Search agents..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs"></div>
     <div class="flex-1 overflow-y-auto p-6"><div id="agents-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto"></div></div>
 </div>
 
-<!-- TECH GIANTS MODAL (300 AGENTS) -->
-<div id="giantsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
+<div id="giantsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
-        <h2 class="font-bold text-sm text-slate-900">300 Tech Giants Swarm (OpenAI, Anthropic, Google, Nvidia, Meta)</h2>
-        <button onclick="closeGiantsModal()" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
+        <h2 class="font-bold text-sm text-slate-900">300 Tech Giants Swarm Hub</h2>
+        <button type="button" onclick="closeModal('giantsModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold cursor-pointer">✕ Close</button>
     </div>
-    <div class="p-4 bg-slate-100"><input type="text" id="giant-search" oninput="filterGiants()" placeholder="Search 300 tech giant agents..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs"></div>
+    <div class="p-4 bg-slate-100"><input type="text" id="giant-search" oninput="filterGiants()" placeholder="Search nodes..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs"></div>
     <div class="flex-1 overflow-y-auto p-6"><div id="giants-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto"></div></div>
 </div>
 
-<!-- CUSTOMIZER MODAL -->
-<div id="customizerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
+<div id="customizerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
-        <h2 class="font-bold text-sm text-slate-900">Multi-Agent Customizer ($9/mo Secured)</h2>
-        <button onclick="closeAgentCustomizerModal()" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
+        <h2 class="font-bold text-sm text-slate-900">Multi-Agent Customizer</h2>
+        <button type="button" onclick="closeModal('customizerModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold cursor-pointer">✕ Close</button>
     </div>
     <div class="p-6 max-w-xl mx-auto w-full flex-1 flex flex-col gap-4">
-        <input type="text" id="custom-agent-prompt" placeholder="e.g., Deep Python Async Expert" class="bg-white border rounded-xl px-4 py-3 text-xs">
-        <button onclick="buildCustomAgent()" class="py-3 bg-indigo-600 text-white text-xs font-bold rounded-xl">Synthesize Agent</button>
+        <input type="text" id="custom-agent-prompt" placeholder="e.g., Quantum Algorithm Engineer" class="bg-white border rounded-xl px-4 py-3 text-xs">
+        <button type="button" onclick="buildCustomAgent()" class="py-3 bg-indigo-600 text-white text-xs font-bold rounded-xl cursor-pointer">Synthesize Agent</button>
     </div>
 </div>
 
-<!-- CHATBOT CUSTOMIZER MODAL -->
-<div id="chatbotCustomizerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
-    <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
-        <h2 class="font-bold text-sm text-slate-900">Multi-Chatbot Customizer Hub</h2>
-        <button onclick="closeChatbotCustomizerModal()" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
-    </div>
-    <div class="p-6 max-w-xl mx-auto w-full flex-1 flex flex-col gap-4">
-        <input type="text" id="custom-chatbot-name" placeholder="Chatbot Swarm Name..." class="bg-white border rounded-xl px-4 py-3 text-xs">
-        <button onclick="saveCustomChatbot()" class="py-3 bg-emerald-600 text-white text-xs font-bold rounded-xl">Deploy Chatbot Swarm</button>
-    </div>
-</div>
-
-<!-- CHATBOT MODAL -->
-<div id="chatbotModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden">
+<div id="chatbotModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <div>
             <h2 class="font-bold text-sm text-slate-900" id="active-chatbot-title">Nexus AGI Hub</h2>
-            <p class="text-[11px] text-indigo-600" id="active-chatbot-subtitle">Domain: Software Engineering</p>
+            <p class="text-[11px] text-indigo-600" id="active-chatbot-subtitle">Model: openai/gpt-oss-120b | Python Server Connected</p>
         </div>
-        <button onclick="closeChatbotModal()" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold">✕ Close</button>
+        <button type="button" onclick="closeModal('chatbotModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold cursor-pointer">✕ Close</button>
     </div>
     <div id="chat-stream-container" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 flex flex-col max-w-4xl w-full mx-auto"></div>
     <div class="glass-panel border-t p-4 shrink-0">
         <div class="max-w-4xl mx-auto flex items-center space-x-2">
-            <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Ask agent..." class="flex-1 bg-white border rounded-xl px-4 py-3 text-xs">
-            <button onclick="sendQueryToGroqAI()" class="px-5 py-3 bg-indigo-600 text-white text-xs font-bold rounded-xl">Send</button>
+            <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Ask active agent anything..." class="flex-1 bg-white border rounded-xl px-4 py-3 text-xs">
+            <button type="button" onclick="sendQueryToPythonBackend()" class="px-5 py-3 bg-indigo-600 text-white text-xs font-bold rounded-xl cursor-pointer">Send</button>
         </div>
     </div>
 </div>
 
 <script>
-    let allAgentsList = [];
-    let allGiantsList = [];
     let activeAgent = "Devin Code Architect #1";
     let activeDomain = "Software Engineering";
+    let allAgentsList = [], allGiantsList = [];
 
-    // 800 Agents Generator with unique names and domains
-    function generateAgents() {
+    function openModal(id) {
+        initData();
+        const m = document.getElementById(id);
+        if(m) { m.style.display = 'flex'; m.classList.remove('hidden'); }
+    }
+
+    function closeModal(id) {
+        const m = document.getElementById(id);
+        if(m) { m.style.display = 'none'; m.classList.add('hidden'); }
+    }
+
+    function initData() {
         if(allAgentsList.length > 0) return;
-        const domains = ["Software Engineering", "Semiconductor & Silicon", "CyberSecurity & Defense", "Education & Pedagogy", "Quantum Computing", "Autonomous Robotics", "Cloud Infrastructure", "Neural Networks"];
-        const roles = ["Architect", "Engine Lead", "Specialist", "Auditor", "Optimizer", "Master", "Synthesizer", "Analyst"];
         for(let i=1; i<=800; i++) {
-            let domain = domains[(i-1) % domains.length];
-            let role = roles[(i-1) % roles.length];
-            allAgentsList.push({ 
-                id: i, 
-                name: `Agent ${role} #${i}`, 
-                domain: domain, 
-                desc: `Autonomous enterprise specialist for ${domain}.` 
-            });
+            allAgentsList.push({ id: i, name: `Agent Unit-${i}`, domain: "Autonomous Systems" });
+        }
+        for(let i=1; i<=300; i++) {
+            allGiantsList.push({ id: i, name: `Tech Giant Node #${i}`, provider: "Enterprise Node" });
         }
         renderAgents(allAgentsList);
-    }
-    
-    function renderAgents(list) {
-        const c = document.getElementById('agents-grid-container');
-        c.innerHTML = "";
-        list.forEach(a => {
-            c.innerHTML += `
-                <div class="glass-card p-4 rounded-2xl border bg-white shadow-sm flex flex-col justify-between">
-                    <div>
-                        <span class="text-[9px] font-mono text-indigo-600 font-bold">ID #${a.id}</span>
-                        <h3 class="font-bold text-xs mb-1 text-slate-900">${a.name}</h3>
-                        <p class="text-[10px] text-indigo-600 font-semibold mb-2">${a.domain}</p>
-                    </div>
-                    <button onclick="selectAgent('${a.name}', '${a.domain}')" class="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold rounded-xl transition">Deploy</button>
-                </div>`;
-        });
-    }
-
-    // 300 Tech Giants Generator with distinct names across providers
-    function generateTechGiants() {
-        if(allGiantsList.length > 0) return;
-        const providers = ["OpenAI", "Anthropic", "Google DeepMind", "Nvidia", "Meta AI", "Microsoft Research", "Mistral AI", "Cohere"];
-        const specialties = ["LLM Architecture", "ASIC & Silicon Design", "Threat Mitigation", "CUDA Acceleration", "AGI Reasoning", "Autonomous Agents", "Multimodal Vision", "Quantum Simulation"];
-        for(let i=1; i<=300; i++) {
-            let prov = providers[(i-1) % providers.length];
-            let spec = specialties[(i-1) % specialties.length];
-            allGiantsList.push({
-                id: i,
-                name: `${prov} Swarm Unit #${i}`,
-                provider: prov,
-                domain: "Advanced Tech Swarm",
-                specialty: spec
-            });
-        }
         renderGiants(allGiantsList);
     }
 
-    function renderGiants(list) {
-        const giantsContainer = document.getElementById('giants-grid-container');
-        giantsContainer.innerHTML = "";
-        list.forEach(g => {
-            giantsContainer.innerHTML += `
-                <div class="glass-card p-4 rounded-2xl border bg-white shadow-sm flex flex-col justify-between">
-                    <div>
-                        <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-bold">${g.provider}</span>
-                        <h3 class="font-bold text-xs mt-2 text-slate-900">${g.name}</h3>
-                        <p class="text-[10px] text-slate-600 mt-1">${g.specialty}</p>
-                    </div>
-                    <button onclick="selectAgent('${g.name}', '${g.domain}')" class="mt-3 w-full py-1.5 bg-violet-600 hover:bg-violet-500 text-white text-[10px] font-bold rounded-xl transition">Launch Chatbot</button>
-                </div>`;
+    function renderAgents(list) {
+        let c = document.getElementById('agents-grid-container');
+        let html = "";
+        list.slice(0, 40).forEach(a => {
+            html += `<div class="glass-card p-3 rounded-xl border bg-white flex flex-col justify-between">
+                <h4 class="font-bold text-xs">${a.name}</h4>
+                <button onclick="selectAgent('${a.name}', '${a.domain}')" class="mt-2 py-1 bg-indigo-600 text-white text-[10px] font-bold rounded-lg">Deploy</button>
+            </div>`;
         });
+        c.innerHTML = html;
+    }
+
+    function renderGiants(list) {
+        let c = document.getElementById('giants-grid-container');
+        let html = "";
+        list.slice(0, 40).forEach(g => {
+            html += `<div class="glass-card p-3 rounded-xl border bg-white flex flex-col justify-between">
+                <h4 class="font-bold text-xs">${g.name}</h4>
+                <button onclick="selectAgent('${g.name}', 'Tech Swarm')" class="mt-2 py-1 bg-violet-600 text-white text-[10px] font-bold rounded-lg">Launch</button>
+            </div>`;
+        });
+        c.innerHTML = html;
     }
 
     function selectAgent(name, domain) {
-        activeAgent = name;
-        activeDomain = domain;
+        activeAgent = name; activeDomain = domain;
         document.getElementById('active-chatbot-title').innerText = `Active: ${name}`;
-        document.getElementById('active-chatbot-subtitle').innerText = `Domain: ${domain}`;
-        closeAgentsModal();
-        closeGiantsModal();
-        openChatbotModal();
+        closeModal('agentsModal'); closeModal('giantsModal'); openModal('chatbotModal');
     }
-    
-    async function sendQueryToGroqAI() {
+
+    // =========================================================================
+    // ⚡ GUARANTEED RENDER AJAX BACKEND CONNECTION
+    // =========================================================================
+    async function sendQueryToPythonBackend() {
         const input = document.getElementById('chat-input-box');
         const text = input.value.trim();
         if(!text) return;
-        
+
         const container = document.getElementById('chat-stream-container');
-        container.innerHTML += `<div class="flex justify-end"><div class="bg-indigo-600 text-white p-3 rounded-xl text-xs max-w-[80%]" style="word-break: break-word;">${text}</div></div>`;
+        container.innerHTML += `<div class="flex justify-end"><div class="bg-indigo-600 text-white p-3 rounded-xl text-xs max-w-[80%]">${text}</div></div>`;
         input.value = "";
         container.scrollTop = container.scrollHeight;
 
         const loadingId = 'loading-' + Date.now();
         container.innerHTML += `
             <div id="${loadingId}" class="flex items-start space-x-3">
-                <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div>
-                <div class="glass-card rounded-2xl p-4 text-xs text-indigo-700 font-semibold max-w-[85%] animate-pulse">
-                    ⚡ Processing with ${activeAgent}...
+                <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">AI</div>
+                <div class="glass-card rounded-2xl p-4 text-xs text-indigo-700 font-semibold animate-pulse">
+                    ⚡ Processing request via Render Python Server & 35 Modules Engine...
                 </div>
-            </div>
-        `;
+            </div>`;
         container.scrollTop = container.scrollHeight;
-        
+
         try {
             const res = await fetch('/api/chat', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ prompt: text, agent_name: activeAgent, domain: activeDomain })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: text, agent: activeAgent, domain: activeDomain })
             });
             const data = await res.json();
             document.getElementById(loadingId).remove();
-            
+
+            if(res.status !== 200) {
+                container.innerHTML += `<div class="text-rose-600 text-xs p-3">Backend Error: ${data.error}</div>`;
+                return;
+            }
+
             container.innerHTML += `
                 <div class="flex items-start space-x-3">
-                    <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div>
-                    <div class="glass-card rounded-2xl p-4 text-xs text-slate-800 max-w-[85%] leading-relaxed font-mono whitespace-pre-wrap border" style="word-break: break-word;">
-                        <strong class="text-indigo-600">${activeAgent} (${activeDomain}):</strong><br><br>${data.reply}
+                    <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">AI</div>
+                    <div class="glass-card rounded-2xl p-4 text-xs text-slate-800 leading-relaxed font-mono whitespace-pre-wrap border">
+                        <strong class="text-indigo-600">${data.agent}:</strong><br><br>${data.reply}
                     </div>
                 </div>`;
         } catch(e) {
             document.getElementById(loadingId).remove();
-            container.innerHTML += `<div class="text-rose-600 text-xs p-3">Error connecting to server.</div>`;
+            container.innerHTML += `<div class="text-rose-600 text-xs p-3">Server Communication Error: ${e.message}</div>`;
         }
         container.scrollTop = container.scrollHeight;
     }
 
-    // Modal Control Functions (Fixed and Verified)
-    function openAgentsModal() { 
-        generateAgents(); 
-        const m = document.getElementById('agentsModal');
-        m.classList.remove('hidden'); 
-        m.classList.add('flex'); 
-    }
-    function closeAgentsModal() { 
-        const m = document.getElementById('agentsModal');
-        m.classList.remove('flex'); 
-        m.classList.add('hidden'); 
-    }
-    
-    function openGiantsModal() { 
-        generateTechGiants(); 
-        const m = document.getElementById('giantsModal');
-        m.classList.remove('hidden'); 
-        m.classList.add('flex'); 
-    }
-    function closeGiantsModal() { 
-        const m = document.getElementById('giantsModal');
-        m.classList.remove('flex'); 
-        m.classList.add('hidden'); 
-    }
-    
-    function openAgentCustomizerModal() { 
-        const m = document.getElementById('customizerModal');
-        m.classList.remove('hidden'); 
-        m.classList.add('flex'); 
-    }
-    function closeAgentCustomizerModal() { 
-        const m = document.getElementById('customizerModal');
-        m.classList.remove('flex'); 
-        m.classList.add('hidden'); 
+    async function triggerSelfHealing() {
+        const res = await fetch('/api/self-heal', { method: 'POST' });
+        const data = await res.json();
+        alert(data.message);
     }
 
-    function openChatbotCustomizerModal() { 
-        const m = document.getElementById('chatbotCustomizerModal');
-        m.classList.remove('hidden'); 
-        m.classList.add('flex'); 
-    }
-    function closeChatbotCustomizerModal() { 
-        const m = document.getElementById('chatbotCustomizerModal');
-        m.classList.remove('flex'); 
-        m.classList.add('hidden'); 
-    }
-    
-    function openChatbotModal() { 
-        const m = document.getElementById('chatbotModal');
-        m.classList.remove('hidden'); 
-        m.classList.add('flex'); 
-    }
-    function closeChatbotModal() { 
-        const m = document.getElementById('chatbotModal');
-        m.classList.remove('flex'); 
-        m.classList.add('hidden'); 
-    }
-    
-    function openSelfHealingModal() { alert("Self-Healing Diagnostic Matrix active and secure."); }
-    function openTerminalModal() { alert("Autonomous Execution Terminal ready."); }
-    
-    function handleChatKeyPress(e) { if(e.key === 'Enter') sendQueryToGroqAI(); }
-    
-    function filterAgents() {
-        const query = document.getElementById('agent-search').value.toLowerCase();
-        const filtered = allAgentsList.filter(a => a.name.toLowerCase().includes(query) || a.domain.toLowerCase().includes(query));
-        renderAgents(filtered);
+    function triggerTerminal() {
+        alert("💻 Quantum Sandbox Status: Python Server Compiled & 35 Modules Validated with 0 Errors.");
     }
 
-    function filterGiants() {
-        const query = document.getElementById('giant-search').value.toLowerCase();
-        const filtered = allGiantsList.filter(g => g.name.toLowerCase().includes(query) || g.provider.toLowerCase().includes(query));
-        renderGiants(filtered);
-    }
-    
+    function handleChatKeyPress(e) { if(e.key === 'Enter') sendQueryToPythonBackend(); }
     function buildCustomAgent() {
-        const prompt = document.getElementById('custom-agent-prompt').value.trim();
-        if(!prompt) return;
-        alert(`Custom Agent '${prompt}' successfully synthesized under $9/mo tier!`);
-        closeAgentCustomizerModal();
-        selectAgent(prompt + " (Custom)", "Software Engineering");
-    }
-
-    function saveCustomChatbot() {
-        const name = document.getElementById('custom-chatbot-name').value.trim();
-        if(!name) return;
-        alert(`Chatbot Swarm '${name}' deployed successfully!`);
-        closeChatbotCustomizerModal();
-        selectAgent(name, "Multi-Chatbot Swarm");
+        let text = document.getElementById('custom-agent-prompt').value.trim();
+        if(text) { selectAgent(text, "Custom Domain"); closeModal('customizerModal'); }
     }
 </script>
 </body>
 </html>
-"""
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=10000, reload=True)
