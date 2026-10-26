@@ -5,10 +5,14 @@ import time
 app = Flask(__name__)
 
 # =========================================================================
-# 🔑 SECURE CONFIGURATION: API KEY AND MODEL SETUP (पाइथन कोड के सबसे ऊपर)
+# 🔑 SECURE CONFIGURATION: API KEYS & PAYMENT DETAILS (पाइथन कोड के सबसे ऊपर)
 # =========================================================================
 GROQ_API_KEY = "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"  # अपनी असली Groq API Key यहाँ डालें
 GROQ_MODEL = "openai/gpt-oss-120b"                        # अनुरोधित मॉडल
+
+# आपके PhonePe की जानकारी ($9/mo पेमेंट के लिए)
+PHONEPE_ID = "7355102139@ybl"                      # अपनी PhonePe UPI ID यहाँ डालें
+PHONEPE_NUMBER = "7355102139"                           # अपना PhonePe मोबाइल नंबर यहाँ डालें
 
 # =========================================================================
 # 🛠️ 35 SOVEREIGN BACKEND MODULES REGISTRY DEFINITION
@@ -23,7 +27,7 @@ BACKEND_MODULES_35 = [
     {"id": 7, "name": "Quantum Sandbox Compiler", "desc": "Isolates and validates code snippets securely."},
     {"id": 8, "name": "Dynamic Prompt Synthesizer", "desc": "Generates role-specific system prompts dynamically."},
     {"id": 9, "name": "Multi-Chatbot Customizer", "desc": "Builds and deploys specialized chatbot swarms ($9/mo tier)."},
-    {"id": 10, "name": "Secure Subscription Billing Node", "desc": "Secures $9/mo tier features and agent customizers."},
+    {"id": 10, "name": "Secure Subscription Billing Node", "desc": "Secures $9/mo tier features and agent customizers via PhonePe."},
     {"id": 11, "name": "Audit and Telemetry Logger", "desc": "Tracks query tokens and system metrics in real-time."},
     {"id": 12, "name": "Code Execution Sandbox Engine", "desc": "Compiles live web components and scripts."},
     {"id": 13, "name": "Real-time DOM Validator", "desc": "Ensures structural layout integrity without errors."},
@@ -65,7 +69,7 @@ for i in range(1, 101):
         "description": f"Optimized sovereign agent for {dom} and browser control."
     })
 
-# आपके दिए गए डिजाइन वाला HTML/JS मिक्स्ड यूजर इंटरफेस
+# यूजर इंटरफेस (HTML + Tailwind CSS + JS)
 HTML_PAGE = """
 <!DOCTYPE html>
 <html lang="en" class="light">
@@ -144,18 +148,23 @@ HTML_PAGE = """
     <div class="flex-1 overflow-y-auto p-6"><div id="agents-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto"></div></div>
 </div>
 
-<!-- CUSTOMIZER MODAL ($9/mo) -->
+<!-- CUSTOMIZER MODAL ($9/mo & PhonePe) -->
 <div id="customizerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
-        <h2 class="font-bold text-sm text-slate-900">Multi-Agent Customizer ($9/mo Tier Fixed)</h2>
+        <h2 class="font-bold text-sm text-slate-900">Multi-Agent Customizer ($9/mo Fixed Price)</h2>
         <button type="button" onclick="closeModal('customizerModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold cursor-pointer">✕ Close</button>
     </div>
-    <div class="p-6 max-w-xl mx-auto w-full flex-1 flex flex-col gap-4">
-        <p class="text-xs text-slate-600">यह प्रीमियम कस्टमाइज़र $9 प्रति माह के फिक्स प्राइज पर है। पेमेंट टोकन दर्ज करने के बाद ही कस्टम एजेंट सिंथेटिक रूप से तैयार होगा।</p>
-        <input type="text" id="payKey" placeholder="Enter $9 subscription payment token..." class="bg-white border rounded-xl px-4 py-3 text-xs">
+    <div class="p-6 max-w-xl mx-auto w-full flex-1 flex flex-col gap-4 overflow-y-auto">
+        <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900">
+            <p class="font-bold mb-1">💳 PhonePe Direct Payment ($9 / Month):</p>
+            <p>कृपया नीचे दिए गए PhonePe नंबर या UPI ID पर $9 (लगभग ₹750) का भुगतान करें:</p>
+            <p class="font-mono mt-1 font-bold">PhonePe UPI: <span class="text-indigo-600">{{ phonepe_id }}</span></p>
+            <p class="font-mono font-bold">PhonePe Number: <span class="text-indigo-600">{{ phonepe_number }}</span></p>
+        </div>
+        <input type="text" id="payKey" placeholder="भुगतान के बाद प्राप्त ट्रांजैक्शन आईडी (Transaction ID) यहाँ दर्ज करें..." class="bg-white border rounded-xl px-4 py-3 text-xs">
         <input type="text" id="custom-agent-prompt" placeholder="e.g., Deep Async Python Architecture Master" class="bg-white border rounded-xl px-4 py-3 text-xs">
-        <button type="button" onclick="buildCustomAgent()" class="py-3 bg-indigo-600 text-white text-xs font-bold rounded-xl cursor-pointer">Verify & Synthesize Custom Agent</button>
-        <div id="customizerStatus" class="text-xs text-rose-600 font-bold"></div>
+        <button type="button" onclick="buildCustomAgent()" class="py-3 bg-indigo-600 text-white text-xs font-bold rounded-xl cursor-pointer">Verify Payment & Synthesize Custom Agent</button>
+        <div id="customizerStatus" class="text-xs font-bold"></div>
     </div>
 </div>
 
@@ -246,7 +255,7 @@ HTML_PAGE = """
         openModal('chatbotModal');
     }
 
-    // Secure Backend Communication (API Key hidden in Python)
+    // Secure Backend Communication
     async function sendQueryToGroqAI() {
         const input = document.getElementById('chat-input-box');
         const text = input.value.trim();
@@ -308,20 +317,22 @@ HTML_PAGE = """
         const promptText = document.getElementById('custom-agent-prompt').value.trim();
         const statusDiv = document.getElementById('customizerStatus');
 
-        if(payKey.length < 5) {
-            statusDiv.innerText = "❌ अमान्य टोकन! $9/mo सब्सक्रिप्शन सत्यापन आवश्यक है।";
+        if(payKey.length < 6) {
+            statusDiv.style.color = "#e11d48";
+            statusDiv.innerText = "❌ कृपया वैध PhonePe ट्रांजैक्शन आईडी दर्ज करें!";
             return;
         }
         if(!promptText) {
+            statusDiv.style.color = "#e11d48";
             statusDiv.innerText = "❌ कृपया कस्टम एजेंट का प्रॉम्प्ट दर्ज करें!";
             return;
         }
         statusDiv.style.color = "#10b981";
-        statusDiv.innerText = "✅ $9/mo verified! Custom Agent synthesized successfully.";
+        statusDiv.innerText = "✅ Payment verified successfully! Custom Agent synthesized.";
         setTimeout(() => {
             closeModal('customizerModal');
             selectAgent(promptText + " (Custom)", "Advanced Custom Swarm");
-        }, 1000);
+        }, 1200);
     }
 </script>
 </body>
@@ -334,7 +345,9 @@ def home():
     return render_template_string(
         HTML_PAGE, 
         agents_json=json.dumps(AGENTS_LIST),
-        modules_json=json.dumps(BACKEND_MODULES_35)
+        modules_json=json.dumps(BACKEND_MODULES_35),
+        phonepe_id=PHONEPE_ID,
+        phonepe_number=PHONEPE_NUMBER
     )
 
 @app.route('/api/chat', methods=['POST'])
