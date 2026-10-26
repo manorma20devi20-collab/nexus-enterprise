@@ -2,7 +2,6 @@ from flask import Flask, render_template_string, request, jsonify
 import requests
 import time
 
-app = Flaskname__ if '__name__' == '__main__' else __name__
 app = Flask(__name__)
 
 # =========================================================================
@@ -15,41 +14,41 @@ GROQ_MODEL = "openai/gpt-oss-120b"                        # अनुरोध�
 # 🛠️ 35 SOVEREIGN BACKEND MODULES REGISTRY DEFINITION
 # =========================================================================
 BACKEND_MODULES_35 = [
-    { id: 1, name: "Sovereign LLM Gateway", desc: "Routes requests securely to Groq OpenAI GPT-OSS-120B model." },
-    { id: 2, name: "Multi-Agent Orchestrator", desc: "Coordinates execution across 100 swarm agents." },
-    { id: 3, name: "Tech Giants Swarm Hub", desc: "Manages specialized nodes across tech providers." },
-    { id: 4, name: "Autonomous Consensus Engine", desc: "Evaluates multi-node verification with high confidence." },
-    { id: 5, name: "Predictive Cache & Latency Reducer", desc: "Accelerates response delivery via precomputed intent mapping." },
-    { id: 6, name: "Self-Healing Telemetry Matrix", desc: "Detects memory anomalies and auto-balances execution pools." },
-    { id: 7, name: "Quantum Sandbox Compiler", desc: "Isolates and validates code snippets securely." },
-    { id: 8, name: "Dynamic Prompt Synthesizer", desc: "Generates role-specific system prompts dynamically." },
-    { id: 9, name: "Multi-Chatbot Customizer", desc: "Builds and deploys specialized chatbot swarms ($9/mo tier)." },
-    { id: 10, name: "Secure Subscription Billing Node", desc: "Secures $9/mo tier features and agent customizers." },
-    { id: 11, name: "Audit and Telemetry Logger", desc: "Tracks query tokens and system metrics in real-time." },
-    { id: 12, name: "Code Execution Sandbox Engine", desc: "Compiles live web components and scripts." },
-    { id: 13, name: "Real-time DOM Validator", desc: "Ensures structural layout integrity without errors." },
-    { id: 14, name: "Neural Memory Pool Manager", desc: "Allocates persistent state across sessions." },
-    { id: 15, name: "ASIC & Silicon Simulation Node", desc: "Simulates hardware acceleration metrics." },
-    { id: 16, name: "CyberSecurity Threat Mitigation Hub", desc: "Scans requests for malicious injection vectors." },
-    { id: 17, name: "Autonomous Robotics Controller", desc: "Manages simulation parameters for robotic agents." },
-    { id: 18, name: "Cloud Infrastructure Orchestrator", desc: "Simulates multi-region serverless deployment." },
-    { id: 19, name: "Neural Network Optimizer", desc: "Adjusts inference temperature and token bounds." },
-    { id: 20, name: "Multimodal Vision Processor", desc: "Handles visual prompt context interpretation." },
-    { id: 21, name: "Distributed Vector Database Sync", desc: "Indexes context chunks for instant retrieval." },
-    { id: 22, name: "Zero-Hallucination Guardrail", desc: "Filters low-confidence outputs automatically." },
-    { id: 23, name: "Context Window Compression Engine", desc: "Optimizes token usage for large inputs." },
-    { id: 24, name: "Automated Unit Test Generator", desc: "Synthesizes code verification tests on the fly." },
-    { id: 25, name: "API Rate Limiter & Token Bucket", desc: "Protects gateway limits against burst flooding." },
-    { id: 26, name: "Role-Based Access Control (RBAC)", desc: "Enforces authorization tiers per agent." },
-    { id: 27, name: "CORS Security Guard", desc: "Manages secure cross-origin communication." },
-    { id: 28, name: "Asynchronous Task Queue Manager", desc: "Handles background audit logging seamlessly." },
-    { id: 29, name: "Error Recovery & Fallback Router", desc: "Ensures 100% uptime through smart fallbacks." },
-    { id: 30, name: "Session State Persistence Engine", desc: "Maintains chat history and preferences." },
-    { id: 31, name: "Encrypted Vault Storage Node", desc: "Protects API secrets and user configuration." },
-    { id: 32, name: "Real-time Metrics Aggregator", desc: "Computes system queries and healing events." },
-    { id: 33, name: "Enterprise Load Balancer", desc: "Distributes traffic across active Swarm units." },
-    { id: 34, name: "Automated Documentation Synthesizer", desc: "Generates technical briefs instantly." },
-    { id: 35, name: "Sovereign Master Core Controller", desc: "Oversees root-level execution and ecosystem health." }
+    {"id": 1, "name": "Sovereign LLM Gateway", "desc": "Routes requests securely to Groq OpenAI GPT-OSS-120B model."},
+    {"id": 2, "name": "Multi-Agent Orchestrator", "desc": "Coordinates execution across 100 swarm agents."},
+    {"id": 3, "name": "Tech Giants Swarm Hub", "desc": "Manages specialized nodes across tech providers."},
+    {"id": 4, "name": "Autonomous Consensus Engine", "desc": "Evaluates multi-node verification with high confidence."},
+    {"id": 5, "name": "Predictive Cache & Latency Reducer", "desc": "Accelerates response delivery via precomputed intent mapping."},
+    {"id": 6, "name": "Self-Healing Telemetry Matrix", "desc": "Detects memory anomalies and auto-balances execution pools."},
+    {"id": 7, "name": "Quantum Sandbox Compiler", "desc": "Isolates and validates code snippets securely."},
+    {"id": 8, "name": "Dynamic Prompt Synthesizer", "desc": "Generates role-specific system prompts dynamically."},
+    {"id": 9, "name": "Multi-Chatbot Customizer", "desc": "Builds and deploys specialized chatbot swarms ($9/mo tier)."},
+    {"id": 10, "name": "Secure Subscription Billing Node", "desc": "Secures $9/mo tier features and agent customizers."},
+    {"id": 11, "name": "Audit and Telemetry Logger", "desc": "Tracks query tokens and system metrics in real-time."},
+    {"id": 12, "name": "Code Execution Sandbox Engine", "desc": "Compiles live web components and scripts."},
+    {"id": 13, "name": "Real-time DOM Validator", "desc": "Ensures structural layout integrity without errors."},
+    {"id": 14, "name": "Neural Memory Pool Manager", "desc": "Allocates persistent state across sessions."},
+    {"id": 15, "name": "ASIC & Silicon Simulation Node", "desc": "Simulates hardware acceleration metrics."},
+    {"id": 16, "name": "CyberSecurity Threat Mitigation Hub", "desc": "Scans requests for malicious injection vectors."},
+    {"id": 17, "name": "Autonomous Robotics Controller", "desc": "Manages simulation parameters for robotic agents."},
+    {"id": 18, "name": "Cloud Infrastructure Orchestrator", "desc": "Simulates multi-region serverless deployment."},
+    {"id": 19, "name": "Neural Network Optimizer", "desc": "Adjusts inference temperature and token bounds."},
+    {"id": 20, "name": "Multimodal Vision Processor", "desc": "Handles visual prompt context interpretation."},
+    {"id": 21, "name": "Distributed Vector Database Sync", "desc": "Indexes context chunks for instant retrieval."},
+    {"id": 22, "name": "Zero-Hallucination Guardrail", "desc": "Filters low-confidence outputs automatically."},
+    {"id": 23, "name": "Context Window Compression Engine", "desc": "Optimizes token usage for large inputs."},
+    {"id": 24, "name": "Automated Unit Test Generator", "desc": "Synthesizes code verification tests on the fly."},
+    {"id": 25, "name": "API Rate Limiter & Token Bucket", "desc": "Protects gateway limits against burst flooding."},
+    {"id": 26, "name": "Role-Based Access Control (RBAC)", "desc": "Enforces authorization tiers per agent."},
+    {"id": 27, "name": "CORS Security Guard", "desc": "Manages secure cross-origin communication."},
+    {"id": 28, "name": "Asynchronous Task Queue Manager", "desc": "Handles background audit logging seamlessly."},
+    {"id": 29, "name": "Error Recovery & Fallback Router", "desc": "Ensures 100% uptime through smart fallbacks."},
+    {"id": 30, "name": "Session State Persistence Engine", "desc": "Maintains chat history and preferences."},
+    {"id": 31, "name": "Encrypted Vault Storage Node", "desc": "Protects API secrets and user configuration."},
+    {"id": 32, "name": "Real-time Metrics Aggregator", "desc": "Computes system queries and healing events."},
+    {"id": 33, "name": "Enterprise Load Balancer", "desc": "Distributes traffic across active Swarm units."},
+    {"id": 34, "name": "Automated Documentation Synthesizer", "desc": "Generates technical briefs instantly."},
+    {"id": 35, "name": "Sovereign Master Core Controller", "desc": "Oversees root-level execution and ecosystem health."}
 ]
 
 # ठीक 100 ऑप्टिमाइज्ड एजेंट्स की सूची
@@ -66,7 +65,7 @@ for i in range(1, 101):
         "description": f"Optimized sovereign agent for {dom} and browser control."
     })
 
-# आपके दिए गए स्ट्रक्चर और डिजाइन वाला HTML/JS मिक्स्ड यूजर इंटरफेस
+# आपके दिए गए डिजाइन वाला HTML/JS मिक्स्ड यूजर इंटरफेस
 HTML_PAGE = """
 <!DOCTYPE html>
 <html lang="en" class="light">
@@ -346,7 +345,6 @@ def chat_with_ai():
         active_agent = data.get('agent', 'Alpha Agent Unit-1')
         active_domain = data.get('domain', 'Software Engineering')
         
-        # जाँचें कि पाइथन कोड में API key ठीक से भरी है या नहीं
         if not GROQ_API_KEY or GROQ_API_KEY.startswith("gsk_YahanApni"):
             return jsonify({
                 "status": "error", 
