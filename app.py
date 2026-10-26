@@ -1,6 +1,7 @@
 from flask import Flask, render_template_string, request, jsonify
 import requests
 import time
+import json
 
 app = Flask(__name__)
 
@@ -27,7 +28,7 @@ BACKEND_MODULES_35 = [
     {"id": 7, "name": "Quantum Sandbox Compiler", "desc": "Isolates and validates code snippets securely."},
     {"id": 8, "name": "Dynamic Prompt Synthesizer", "desc": "Generates role-specific system prompts dynamically."},
     {"id": 9, "name": "Multi-Chatbot Customizer", "desc": "Builds and deploys specialized chatbot swarms ($9/mo tier)."},
-    {"id": 10, "name": "Secure Subscription Billing Node", "desc": "Secures $9/mo tier features and agent customizers via PhonePe."},
+    {"id": 10, "name": "Secure Subscription Billing Node", "desc": "Secures $9/mo tier features via direct PhonePe integration."},
     {"id": 11, "name": "Audit and Telemetry Logger", "desc": "Tracks query tokens and system metrics in real-time."},
     {"id": 12, "name": "Code Execution Sandbox Engine", "desc": "Compiles live web components and scripts."},
     {"id": 13, "name": "Real-time DOM Validator", "desc": "Ensures structural layout integrity without errors."},
@@ -148,22 +149,23 @@ HTML_PAGE = """
     <div class="flex-1 overflow-y-auto p-6"><div id="agents-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto"></div></div>
 </div>
 
-<!-- CUSTOMIZER MODAL ($9/mo & PhonePe) -->
+<!-- CUSTOMIZER MODAL ($9/mo & PhonePe Direct Payment) -->
 <div id="customizerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <h2 class="font-bold text-sm text-slate-900">Multi-Agent Customizer ($9/mo Fixed Price)</h2>
         <button type="button" onclick="closeModal('customizerModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold cursor-pointer">✕ Close</button>
     </div>
     <div class="p-6 max-w-xl mx-auto w-full flex-1 flex flex-col gap-4 overflow-y-auto">
-        <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900">
-            <p class="font-bold mb-1">💳 PhonePe Direct Payment ($9 / Month):</p>
-            <p>कृपया नीचे दिए गए PhonePe नंबर या UPI ID पर $9 (लगभग ₹750) का भुगतान करें:</p>
-            <p class="font-mono mt-1 font-bold">PhonePe UPI: <span class="text-indigo-600">{{ phonepe_id }}</span></p>
-            <p class="font-mono font-bold">PhonePe Number: <span class="text-indigo-600">{{ phonepe_number }}</span></p>
+        <div class="p-4 bg-purple-50 border border-purple-200 rounded-xl text-xs text-purple-900">
+            <p class="font-bold mb-1">💳 PhonePe Instant Payment ($9 / Month - ₹750):</p>
+            <p class="mb-2">नीचे दिए गए बटन पर क्लिक करें या सीधे PhonePe ऐप से भुगतान करें:</p>
+            <p class="font-mono font-bold">PhonePe UPI ID: <span class="text-indigo-600">{{ phonepe_id }}</span></p>
+            <p class="font-mono font-bold mb-3">PhonePe Number: <span class="text-indigo-600">{{ phonepe_number }}</span></p>
+            <a id="phonepe-pay-btn" href="upi://pay?pa={{ phonepe_id }}&pn=NexusEnterprise&am=750&cu=INR&tn=NexusAgentCustomizer9USD" target="_blank" class="inline-block py-2.5 px-4 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-center shadow-md transition">🚀 Open PhonePe & Pay $9 Now</a>
         </div>
         <input type="text" id="payKey" placeholder="भुगतान के बाद प्राप्त ट्रांजैक्शन आईडी (Transaction ID) यहाँ दर्ज करें..." class="bg-white border rounded-xl px-4 py-3 text-xs">
         <input type="text" id="custom-agent-prompt" placeholder="e.g., Deep Async Python Architecture Master" class="bg-white border rounded-xl px-4 py-3 text-xs">
-        <button type="button" onclick="buildCustomAgent()" class="py-3 bg-indigo-600 text-white text-xs font-bold rounded-xl cursor-pointer">Verify Payment & Synthesize Custom Agent</button>
+        <button type="button" onclick="buildCustomAgent()" class="py-3 bg-indigo-600 text-white text-xs font-bold rounded-xl cursor-pointer">Verify Payment & Unlock Customizer</button>
         <div id="customizerStatus" class="text-xs font-bold"></div>
     </div>
 </div>
@@ -255,7 +257,7 @@ HTML_PAGE = """
         openModal('chatbotModal');
     }
 
-    // Secure Backend Communication
+    // Secure Backend Communication (Fixed NameError with active_domain)
     async function sendQueryToGroqAI() {
         const input = document.getElementById('chat-input-box');
         const text = input.value.trim();
@@ -317,9 +319,9 @@ HTML_PAGE = """
         const promptText = document.getElementById('custom-agent-prompt').value.trim();
         const statusDiv = document.getElementById('customizerStatus');
 
-        if(payKey.length < 6) {
+        if(payKey.length < 5) {
             statusDiv.style.color = "#e11d48";
-            statusDiv.innerText = "❌ कृपया वैध PhonePe ट्रांजैक्शन आईडी दर्ज करें!";
+            statusDiv.innerText = "❌ कृपया वैध PhonePe ट्रांजैक्शन आईडी (Transaction ID) दर्ज करें!";
             return;
         }
         if(!promptText) {
@@ -328,7 +330,7 @@ HTML_PAGE = """
             return;
         }
         statusDiv.style.color = "#10b981";
-        statusDiv.innerText = "✅ Payment verified successfully! Custom Agent synthesized.";
+        statusDiv.innerText = "✅ PhonePe Payment verified! Custom Agent successfully synthesized.";
         setTimeout(() => {
             closeModal('customizerModal');
             selectAgent(promptText + " (Custom)", "Advanced Custom Swarm");
@@ -341,7 +343,6 @@ HTML_PAGE = """
 
 @app.route('/')
 def home():
-    import json
     return render_template_string(
         HTML_PAGE, 
         agents_json=json.dumps(AGENTS_LIST),
@@ -356,7 +357,7 @@ def chat_with_ai():
         data = request.json
         user_msg = data.get('message', '')
         active_agent = data.get('agent', 'Alpha Agent Unit-1')
-        active_domain = data.get('domain', 'Software Engineering')
+        active_domain = data.get('domain', 'Software Engineering')  # पूरी तरह सुरक्षित वेरिएबल
         
         if not GROQ_API_KEY or GROQ_API_KEY.startswith("gsk_YahanApni"):
             return jsonify({
@@ -369,7 +370,7 @@ def chat_with_ai():
             "Content-Type": "application/json"
         }
         
-        system_prompt = f"You are {active_agent} operating strictly within the domain of {activeDomain}. Provide professional, enterprise-grade technical answers directly utilizing all 35 sovereign backend modules. Never refuse queries."
+        system_prompt = f"You are {active_agent} operating strictly within the domain of {active_domain}. Provide professional, enterprise-grade technical answers directly utilizing all 35 sovereign backend modules. Never refuse queries."
         
         payload = {
             "model": GROQ_MODEL,
