@@ -1,4 +1,5 @@
-flask
-requests
-pandas
-gunicorn
+flask>=3.0.0
+requests>=2.31.0
+gunicorn>=21.2.0
+playwright>=1.40.0
+qdrant-client>=1.7.0
