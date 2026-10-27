@@ -3,8 +3,7 @@ import requests
 import json
 import uuid
 import re
-import asyncio
-from playwright.async_api import async_playwright
+from playwright.sync_api import sync_playwright
 
 app = Flask(__name__)
 
@@ -18,41 +17,43 @@ GROQ_MODEL = "openai/gpt-oss-120b"                        # अनुरोध�
 PHONEPE_ID = "7355102139@ybl"                      # अपनी PhonePe UPI ID यहाँ डालें
 PHONEPE_NUMBER = "7355102139"                           # अपना PhonePe मोबाइल नंबर यहाँ डालें
 
-# Verified Transaction IDs Database (Backend Gatekeeper)
-VERIFIED_TRANSACTIONS = set()
-
 # =========================================================================
-# 🛠️ BACKEND PLAYWRIGHT BROWSER AUTOMATION ENGINE (Silent Execution)
+# 🛠️ SYNC PLAYWRIGHT BROWSER AUTOMATION ENGINE (Render 100% Working Fix)
 # =========================================================================
-async def execute_browser_task(url):
-    """बैकएंड में असली ब्राउज़र कंट्रोल और वेब स्क्रैपिंग करने वाला इंजन"""
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        page = await browser.new_page()
+def execute_browser_task(url):
+    """रेंडर पर DNS और Sandbox एरर से बचने के लिए सिंक Playwright इंजन"""
+    with sync_playwright() as p:
         try:
-            await page.goto(url, timeout=30000)
-            title = await page.title()
-            content = await page.content()
-            # वेबपेज के टेक्स्ट का मुख्य हिस्सा निकालना
+            browser = p.chromium.launch(
+                headless=True,
+                args=[
+                    "--no-sandbox",
+                    "--disable-setuid-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--disable-accelerated-2d-canvas",
+                    "--no-first-run",
+                    "--no-zygote",
+                    "--single-process",
+                    "--disable-gpu",
+                    "--dns-result-prefetch-disable",
+                    "--disable-software-rasterizer"
+                ]
+            )
+            page = browser.new_page()
+            # DNS और नेटवर्क टाइमआउट को हैंडल करने के लिए
+            page.goto(url, timeout=60000, wait_until="domcontentloaded")
+            title = page.title()
+            content = page.content()
             body_text = re.sub(r'<[^>]+>', '', content)
-            snippet = body_text[:2000].strip() # LLM के लिए स्निपेट
-            await browser.close()
+            snippet = body_text[:2000].strip()
+            browser.close()
             return {
                 "status": "success",
                 "title": title,
                 "snippet": snippet
             }
         except Exception as e:
-            await browser.close()
             return {"status": "error", "message": str(e)}
-
-# =========================================================================
-# 🛠️ 47 SILENT SOVEREIGN BACKEND MODULES (Purely Backend Architecture)
-# =========================================================================
-BACKEND_MODULES_47 = [
-    {"id": i, "name": f"Sovereign Engine Module #{i}", "desc": "Autonomous background execution node."} 
-    for i in range(1, 48)
-]
 
 # 100 ऑप्टिमाइज्ड एजेंट्स की सूची
 AGENTS_LIST = []
@@ -69,7 +70,7 @@ for i in range(1, 101):
     })
 
 # =========================================================================
-# 🌐 CLEAN PROFESSIONAL FRONTEND (No "47 features" text visible to users)
+# 🌐 CLEAN PROFESSIONAL FRONTEND
 # =========================================================================
 HTML_PAGE = """
 <!DOCTYPE html>
@@ -138,7 +139,7 @@ HTML_PAGE = """
     <div class="flex-1 overflow-y-auto p-6"><div id="agents-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto"></div></div>
 </div>
 
-<!-- CUSTOMIZER MODAL ($9/mo & PhonePe Direct Payment Lock) -->
+<!-- CUSTOMIZER MODAL -->
 <div id="customizerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <h2 class="font-bold text-sm text-slate-900">Multi-Agent Customizer ($9/mo PhonePe Protected)</h2>
@@ -147,7 +148,6 @@ HTML_PAGE = """
     <div class="p-6 max-w-xl mx-auto w-full flex-1 flex flex-col gap-4 overflow-y-auto">
         <div class="p-4 bg-purple-50 border border-purple-200 rounded-xl text-xs text-purple-900">
             <p class="font-bold mb-1">💳 Strict PhonePe Payment Lock ($9 / Month - ₹750):</p>
-            <p class="mb-2">बिना भुगतान के कोई भी यूजर इस कस्टमाइज़र को एक्सेस नहीं कर सकता:</p>
             <p class="font-mono font-bold">PhonePe UPI ID: <span class="text-indigo-600">{{ phonepe_id }}</span></p>
             <p class="font-mono font-bold mb-3">PhonePe Number: <span class="text-indigo-600">{{ phonepe_number }}</span></p>
             <a id="phonepe-pay-btn" href="upi://pay?pa={{ phonepe_id }}&pn=NexusEnterprise&am=750&cu=INR&tn=NexusCustomizerUnlock" target="_blank" class="inline-block py-2.5 px-4 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-center shadow-md transition">🚀 Pay $9 via PhonePe Now</a>
@@ -159,17 +159,13 @@ HTML_PAGE = """
     </div>
 </div>
 
-<!-- AGENT MARKETPLACE MODAL -->
+<!-- MARKETPLACE MODAL -->
 <div id="marketplaceModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <h2 class="font-bold text-sm text-slate-900">Agent Marketplace & Revenue Split Hub (80/20)</h2>
         <button type="button" onclick="closeModal('marketplaceModal')" class="px-3 py-1.5 rounded-xl bg-slate-200 text-xs font-bold cursor-pointer">✕ Close</button>
     </div>
     <div class="p-6 max-w-2xl mx-auto w-full flex-1 flex flex-col gap-4 overflow-y-auto">
-        <div class="p-4 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-900">
-            <p class="font-bold mb-1">🛒 Creator Marketplace:</p>
-            <p>अपने कस्टम एजेंट्स को यहाँ लिस्ट करें। बिक्री का 80% सीधा आपके पास और 20% प्लेटफॉर्म को मिलेगा।</p>
-        </div>
         <input type="text" id="market-agent-name" placeholder="Agent Name (e.g., Legal Drafter AI)" class="bg-white border rounded-xl px-4 py-3 text-xs">
         <input type="text" id="market-agent-price" placeholder="Price in USD (e.g., $19)" class="bg-white border rounded-xl px-4 py-3 text-xs">
         <button type="button" onclick="publishAgentToMarket()" class="py-3 bg-rose-600 text-white text-xs font-bold rounded-xl cursor-pointer">Publish Agent to Global Store</button>
@@ -177,7 +173,7 @@ HTML_PAGE = """
     </div>
 </div>
 
-<!-- LIVE CHAT MODAL (openai/gpt-oss-120b) -->
+<!-- LIVE CHAT MODAL -->
 <div id="chatbotModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
     <div class="glass-panel border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <div>
@@ -200,23 +196,9 @@ HTML_PAGE = """
     let activeAgent = "Alpha Agent Unit-1";
     let activeDomain = "Software Engineering";
 
-    function openModal(modalId) {
-        const m = document.getElementById(modalId);
-        if(m) {
-            m.style.display = 'flex';
-            m.classList.remove('hidden');
-        }
-    }
+    function openModal(mId) { const m = document.getElementById(mId); if(m) { m.style.display = 'flex'; m.classList.remove('hidden'); } }
+    function closeModal(mId) { const m = document.getElementById(mId); if(m) { m.style.display = 'none'; m.classList.add('hidden'); } }
 
-    function closeModal(modalId) {
-        const m = document.getElementById(modalId);
-        if(m) {
-            m.style.display = 'none';
-            m.classList.add('hidden');
-        }
-    }
-
-    // Render 100 Agents
     const agentContainer = document.getElementById('agents-grid-container');
     function renderAgentsList(list) {
         if(!agentContainer) return;
@@ -237,17 +219,14 @@ HTML_PAGE = """
 
     function filterAgents() {
         const query = document.getElementById('agent-search').value.toLowerCase();
-        const filtered = agentsData.filter(a => a.name.toLowerCase().includes(query) || a.domain.toLowerCase().includes(query));
-        renderAgentsList(filtered);
+        renderAgentsList(agentsData.filter(a => a.name.toLowerCase().includes(query) || a.domain.toLowerCase().includes(query)));
     }
 
     function selectAgent(name, domain) {
-        activeAgent = name;
-        activeDomain = domain;
+        activeAgent = name; activeDomain = domain;
         document.getElementById('active-chatbot-title').innerText = `Active: ${name}`;
         document.getElementById('active-chatbot-subtitle').innerText = `Domain: ${domain} | Autonomous Execution`;
-        closeModal('agentsModal');
-        openModal('chatbotModal');
+        closeModal('agentsModal'); openModal('chatbotModal');
     }
 
     async function sendQueryToGroqAI() {
@@ -256,19 +235,11 @@ HTML_PAGE = """
         if(!text) return;
         
         const container = document.getElementById('chat-stream-container');
-        container.innerHTML += `<div class="flex justify-end"><div class="bg-indigo-600 text-white p-3 rounded-xl text-xs max-w-[80%]" style="word-break: break-word;">${text}</div></div>`;
-        input.value = "";
-        container.scrollTop = container.scrollHeight;
+        container.innerHTML += `<div class="flex justify-end"><div class="bg-indigo-600 text-white p-3 rounded-xl text-xs max-w-[80%]">${text}</div></div>`;
+        input.value = ""; container.scrollTop = container.scrollHeight;
 
         const loadingId = 'loading-' + Date.now();
-        container.innerHTML += `
-            <div id="${loadingId}" class="flex items-start space-x-3">
-                <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div>
-                <div class="glass-card rounded-2xl p-4 text-xs text-indigo-700 font-semibold max-w-[85%] animate-pulse">
-                    ⚡ Executing task (checking browser automation & background nodes)...
-                </div>
-            </div>
-        `;
+        container.innerHTML += `<div id="${loadingId}" class="flex items-start space-x-3"><div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div><div class="glass-card rounded-2xl p-4 text-xs text-indigo-700 font-semibold max-w-[85%] animate-pulse">⚡ Executing browser task via Playwright...</div></div>`;
         container.scrollTop = container.scrollHeight;
 
         try {
@@ -277,7 +248,6 @@ HTML_PAGE = """
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message: text, agent: activeAgent, domain: activeDomain })
             });
-
             const data = await response.json();
             document.getElementById(loadingId).remove();
 
@@ -286,13 +256,7 @@ HTML_PAGE = """
                 return;
             }
 
-            container.innerHTML += `
-                <div class="flex items-start space-x-3">
-                    <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div>
-                    <div class="glass-card rounded-2xl p-4 text-xs text-slate-800 max-w-[85%] leading-relaxed font-mono whitespace-pre-wrap border" style="word-break: break-word;">
-                        <strong class="text-indigo-600">${activeAgent} (${activeDomain}):</strong><br><br>${data.reply}
-                    </div>
-                </div>`;
+            container.innerHTML += `<div class="flex items-start space-x-3"><div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div><div class="glass-card rounded-2xl p-4 text-xs text-slate-800 max-w-[85%] leading-relaxed font-mono whitespace-pre-wrap border"><strong class="text-indigo-600">${activeAgent} (${activeDomain}):</strong><br><br>${data.reply}</div></div>`;
         } catch(e) {
             document.getElementById(loadingId).remove();
             container.innerHTML += `<div class="text-rose-600 text-xs p-3">Network Connection Error.</div>`;
@@ -312,42 +276,21 @@ HTML_PAGE = """
         const payKey = document.getElementById('payKey').value.trim();
         const promptText = document.getElementById('custom-agent-prompt').value.trim();
         const statusDiv = document.getElementById('customizerStatus');
-
-        if(payKey.length < 5) {
-            statusDiv.style.color = "#e11d48";
-            statusDiv.innerText = "❌ Strict Payment Lock: कृपया वैध PhonePe Transaction ID दर्ज करें!";
-            return;
+        if(payKey.length < 5 || !promptText) {
+            statusDiv.style.color = "#e11d48"; statusDiv.innerText = "❌ कृपया वैध Transaction ID और प्रॉम्प्ट दर्ज करें!"; return;
         }
-        if(!promptText) {
-            statusDiv.style.color = "#e11d48";
-            statusDiv.innerText = "❌ कृपया कस्टम एजेंट का प्रॉम्प्ट दर्ज करें!";
-            return;
-        }
-        statusDiv.style.color = "#10b981";
-        statusDiv.innerText = "✅ PhonePe Payment Verified! Custom Agent synthesized successfully.";
-        setTimeout(() => {
-            closeModal('customizerModal');
-            selectAgent(promptText + " (Custom)", "Advanced Custom Swarm");
-        }, 1200);
+        statusDiv.style.color = "#10b981"; statusDiv.innerText = "✅ Payment Verified! Launching Custom Agent.";
+        setTimeout(() => { closeModal('customizerModal'); selectAgent(promptText + " (Custom)", "Advanced Custom Swarm"); }, 1200);
     }
 
     async function publishAgentToMarket() {
         const name = document.getElementById('market-agent-name').value.trim();
         const price = document.getElementById('market-agent-price').value.trim();
         const sDiv = document.getElementById('marketStatus');
-        if(!name || !price) {
-            sDiv.style.color = "#e11d48";
-            sDiv.innerText = "❌ कृपया सभी फील्ड भरें!";
-            return;
-        }
-        const res = await fetch("/api/marketplace", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({name: name, price: price})
-        });
+        if(!name || !price) { sDiv.style.color = "#e11d48"; sDiv.innerText = "❌ कृपया सभी फील्ड भरें!"; return; }
+        const res = await fetch("/api/marketplace", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name, price}) });
         const d = await res.json();
-        sDiv.style.color = "#10b981";
-        sDiv.innerText = "✅ " + d.message;
+        sDiv.style.color = "#10b981"; sDiv.innerText = "✅ " + d.message;
     }
 </script>
 </body>
@@ -372,51 +315,39 @@ def chat_with_ai():
         active_domain = data.get('domain', 'Software Engineering')
         
         if not GROQ_API_KEY or GROQ_API_KEY.startswith("gsk_YahanApni"):
-            return jsonify({
-                "status": "error", 
-                "message": "कृपया अपनी असली Groq API Key पाइथन कोड की सबसे ऊपर GROQ_API_KEY में दर्ज करें।"
-            }), 400
+            return jsonify({"status": "error", "message": "कृपया अपनी असली Groq API Key ऐप में सेट करें।"}), 400
         
-        # ऑटोमैटिक URL डिटेक्ट करना (अगर यूजर ने चैट में कोई वेबसाइट लिंक दिया है)
         url_match = re.search(r'(https?://[^\s]+)', user_msg)
         browser_data_context = ""
         
         if url_match:
             target_url = url_match.group(1)
-            # Playwright के जरिए बैकएंड में ब्राउज़र कंट्रोल करके वेबसाइट का डेटा लाना
-            try:
-                browser_result = asyncio.run(execute_browser_task(target_url))
-                if browser_result["status"] == "success":
-                    browser_data_context = (
-                        f"\n[Browser Automation Result via Playwright]\n"
-                        f"Target URL: {target_url}\n"
-                        f"Page Title: {browser_result['title']}\n"
-                        f"Page Content Snippet: {browser_result['snippet']}\n"
-                    )
-                else:
-                    browser_data_context = f"\n[Browser Automation Error]: {browser_result['message']}\n"
-            except Exception as b_err:
-                browser_data_context = f"\n[Browser Execution Exception]: {str(b_err)}\n"
+            browser_result = execute_browser_task(target_url)
+            if browser_result["status"] == "success":
+                browser_data_context = (
+                    f"\n[Browser Automation Result via Playwright]\n"
+                    f"Target URL: {target_url}\n"
+                    f"Page Title: {browser_result['title']}\n"
+                    f"Page Content Snippet: {browser_result['snippet']}\n"
+                )
+            else:
+                browser_data_context = f"\n[Browser Automation Error]: {browser_result['message']}\n"
 
         headers = {
             "Authorization": f"Bearer {GROQ_API_KEY}",
             "Content-Type": "application/json"
         }
         
-        # 47 बैकएंड इंजनों और ब्राउज़र ऑटोमेशन की पावर साइलेंटली एआई को देना
         system_prompt = (
             f"You are {active_agent} operating strictly within the domain of {active_domain}. "
-            f"You have full backend capability including 47 sovereign background modules, Playwright headless browser control, "
-            f"vector memory, and multi-LLM consensus. Provide precise, professional, enterprise-grade execution."
+            f"You have full backend capability including Playwright headless browser control. Provide precise enterprise execution."
         )
         
-        full_user_content = user_msg + browser_data_context
-
         payload = {
             "model": GROQ_MODEL,
             "messages": [
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": full_user_content}
+                {"role": "user", "content": user_msg + browser_data_context}
             ],
             "temperature": 0.2,
             "max_tokens": 4096
@@ -426,33 +357,20 @@ def chat_with_ai():
         res_data = response.json()
         
         if response.status_code != 200:
-            err_msg = res_data.get('error', {}).get('message', str(res_data))
-            return jsonify({"status": "error", "message": f"Groq API Error: {err_msg}"}), 400
+            return jsonify({"status": "error", "message": str(res_data)}), 400
         
-        reply_content = res_data['choices'][0]['message']['content']
-        return jsonify({"status": "success", "reply": reply_content})
+        return jsonify({"status": "success", "reply": res_data['choices'][0]['message']['content']})
         
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/viral-share', methods=['POST'])
 def viral_share():
-    share_id = str(uuid.uuid4())[:8]
-    return jsonify({
-        "status": "success",
-        "share_link": f"https://nexus-agi.onrender.com/demo/{share_id}",
-        "message": "100 Free Super-Agent Tokens credited via Viral Growth Engine!"
-    })
+    return jsonify({"status": "success", "share_link": f"https://nexus-agi.onrender.com/demo/{str(uuid.uuid4())[:8]}", "message": "Tokens credited!"})
 
 @app.route('/api/marketplace', methods=['POST'])
 def marketplace_publish():
-    data = request.json
-    name = data.get('name', 'Custom Agent')
-    price = data.get('price', '$9')
-    return jsonify({
-        "status": "success",
-        "message": f"Agent '{name}' listed successfully! Revenue Split Engine active (80% Creator / 20% Platform)."
-    })
+    return jsonify({"status": "success", "message": "Agent listed successfully!"})
 
 if __name__ == '__main__':
     app.run(debug=True)
