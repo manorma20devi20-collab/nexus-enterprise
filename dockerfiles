@@ -1,6 +1,6 @@
 FROM python:3.10-slim
 
-# आवश्यक लिनक्स सिस्टम डिपेंडेंसीज और क्रोमियम टूल्स
+# आवश्यक लिनक्स सिस्टम डिपेंडेंसीज और क्रोमियम ब्राउज़र टूल्स
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
@@ -30,7 +30,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Playwright Chromium और डिपेंडेंसीज इंस्टॉलेशन
+# Playwright Chromium इंस्टॉलेशन
 RUN playwright install chromium
 RUN playwright install-deps chromium
 
