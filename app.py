@@ -11,7 +11,7 @@ app = Flask(__name__)
 # =========================================================================
 # 🔑 SECURE CONFIGURATION: API KEYS & PAYMENT DETAILS
 # =========================================================================
-GROQ_API_KEY = "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"  # अपनी असली Groq API Key यहाँ डालें
+GROQ_API_KEY = "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"  # अपनी असली Groq API Key यहाँ डालें
 GROQ_MODEL = "openai/gpt-oss-120b"                        # अनुरोधित मॉडल
 
 # PhonePe Payment Gateway ($9/mo Tier Enforcement)
