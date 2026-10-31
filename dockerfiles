@@ -1,4 +1,3 @@
-# माइक्रोसॉफ्ट का आधिकारिक Playwright पाइथन इमेज जो क्रोमियम और सभी लिनक्स डिपेंडेंसीज के साथ आता है
 FROM mcr.microsoft.com/playwright/python:v1.42.0-jammy
 
 RUN apt-get update && apt-get install -y \
