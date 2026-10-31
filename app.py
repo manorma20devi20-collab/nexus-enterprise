@@ -13,6 +13,7 @@ app = Flask(__name__)
 # =========================================================================
 GROQ_API_KEY = "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"  # अपनी असली Groq API Key यहाँ डालें
 GROQ_MODEL = "openai/gpt-oss-120b"                        # अनुरोधित मॉडल
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions" # सुरक्षित यूआरएल वैरिएबल
 
 PHONEPE_ID = "7355102139@ybl"                      # अपनी PhonePe UPI ID यहाँ डालें
 PHONEPE_NUMBER = "7355102139"                           # अपना PhonePe नंबर यहाँ डालें
@@ -59,7 +60,7 @@ def generate_dynamic_website_via_ai(spec_prompt):
     }
     
     try:
-        response = requests.post("[https://api.groq.com/openai/v1/chat/completions](https://api.groq.com/openai/v1/chat/completions)", json=payload, headers=headers, timeout=45)
+        response = requests.post(GROQ_URL, json=payload, headers=headers, timeout=45)
         res_data = response.json()
         if response.status_code == 200:
             html_content = res_data['choices'][0]['message']['content']
@@ -386,8 +387,8 @@ def chat_with_ai():
             "max_tokens": 2000
         }
         
-        # यहाँ यूआरएल को बिल्कुल सादा रखा गया है ताकि No connection adapters एरर न आए
-        response = requests.post("[https://api.groq.com/openai/v1/chat/completions](https://api.groq.com/openai/v1/chat/completions)", json=payload, headers=headers, timeout=45)
+        # सुरक्षित वैरिएबल का उपयोग (कोई एरर नहीं आएगा)
+        response = requests.post(GROQ_URL, json=payload, headers=headers, timeout=45)
         res_data = response.json()
         
         if response.status_code != 200:
@@ -400,7 +401,8 @@ def chat_with_ai():
 
 @app.route('/api/viral-share', methods=['POST'])
 def viral_share():
-    return jsonify({"status": "success", "share_link": f"[https://nexus-agi.onrender.com/demo/](https://nexus-agi.onrender.com/demo/){str(uuid.uuid4())[:8]}", "message": "Tokens credited!"})
+    share_url = "[https://nexus-agi.onrender.com/demo/](https://nexus-agi.onrender.com/demo/)" + str(uuid.uuid4())[:8]
+    return jsonify({"status": "success", "share_link": share_url, "message": "Tokens credited!"})
 
 @app.route('/api/marketplace', methods=['POST'])
 def marketplace_publish():
