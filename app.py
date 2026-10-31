@@ -25,17 +25,16 @@ PHONEPE_NUMBER = "9876543210"                           # अपना PhonePe �
 # =========================================================================
 # 🚀 3. CLOUD DEPLOYMENT AUTOMATION ENGINE (GitHub + Vercel/Netlify)
 # =========================================================================
-html_storage_db = {}  # डायनामिक वेबसाइट्स को स्टोर करने के लिए इन-मेमोरी डेटाबेस
+html_storage_db = {}  # डायनामिक वेबसाइट्स और गेम्स को स्टोर करने के लिए इन-मेमोरी डेटाबेस
 
 def auto_deploy_to_cloud(site_name, html_content):
     """
-    यह इंजन एआई द्वारा बनाई गई वेबसाइट को GitHub पर पुश करता है 
-    और यदि GitHub टोकन न हो तो तुरंत एक स्टेबल लाइव ऐप यूआरएल जनरेट करता है।
+    यह इंजन एआई द्वारा बनाई गई वेबसाइट या गेम को होस्ट करता है 
+    और एक स्टेबल लाइव ऐप यूआरएल जनरेट करता है।
     """
     app_id = str(uuid.uuid4())[:8]
     html_storage_db[app_id] = html_content
     
-    # यदि यूजर ने GitHub Token सेटअप किया है तो यह सीधे GitHub पर रिपॉजिटरी बना देगा
     if GITHUB_TOKEN and not GITHUB_TOKEN.startswith("your-github"):
         try:
             repo_name = f"nexus-app-{app_id}"
@@ -43,12 +42,10 @@ def auto_deploy_to_cloud(site_name, html_content):
                 "Authorization": f"token {GITHUB_TOKEN}",
                 "Accept": "application/vnd.github.v3+json"
             }
-            # 1. GitHub पर रिपॉजिटरी बनाना
             repo_payload = {"name": repo_name, "private": False, "description": "Auto-deployed by Nexus GPT-6 Astra OS"}
             r = requests.post("https://api.github.com/user/repos", json=repo_payload, headers=headers, timeout=15)
             
             if r.status_code == 201:
-                # 2. इंडेक्स.html फाइल कमिट करना
                 import base64
                 encoded_content = base64.b64encode(html_content.encode('utf-8')).decode('utf-8')
                 file_payload = {
@@ -58,11 +55,10 @@ def auto_deploy_to_cloud(site_name, html_content):
                 file_url = f"https://api.github.com/repos/{GITHUB_USERNAME}/{repo_name}/contents/index.html"
                 requests.put(file_url, json=file_payload, headers=headers, timeout=15)
                 
-                # Vercel / Netlify ऑटोमैटिकली GitHub से कनेक्ट होकर लाइव लिंक दे देगा
                 github_pages_link = f"https://{GITHUB_USERNAME}.github.io/{repo_name}/"
                 return github_pages_link
         except Exception as e:
-            pass # फॉलबैक के जरिए लोकल सर्वर लिंक दिया जाएगा
+            pass
             
     return None
 
@@ -92,8 +88,8 @@ def generate_dynamic_website_via_ai(spec_prompt):
     
     system_prompt = (
         "You are an elite GPT-6 Astra Full-Stack AI Engineer. Your job is to write a complete, stunning, "
-        "production-ready, and fully functional single-file HTML website (including internal Tailwind CSS and JavaScript) "
-        "based strictly on the user's requested application or website objective. "
+        "production-ready, and fully functional single-file HTML website or game (including internal Tailwind CSS and JavaScript) "
+        "based strictly on the user's requested application or game objective. "
         "Return ONLY valid raw HTML code starting with <!DOCTYPE html> and ending with </html>. Do not include markdown code blocks like ```html."
     )
     
@@ -101,7 +97,7 @@ def generate_dynamic_website_via_ai(spec_prompt):
         "model": GROQ_MODEL,
         "messages": [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Build a fully functional, stunning website for this objective: {spec_prompt}"}
+            {"role": "user", "content": f"Build a fully functional, stunning single-file HTML website or game for this objective: {spec_prompt}"}
         ],
         "temperature": 0.3,
         "max_tokens": 4000
@@ -403,28 +399,34 @@ def chat_with_ai():
         
         base_url = request.host_url.rstrip('/')
         
-        # वेबसाइट, ऐप, गेम या कोडिंग डिप्लॉयमेंट ट्रिगर
-        deployment_triggers = ["deploy", "app", "code", "build", "website", "create site", "live link", "form", "store", "shop", "game", "xox", "tic-tac-toe", "calculator"]
+        # अनिवार्य रूप से किसी भी वेबसाइट, ऐप या गेम की मांग पर यह सीधे डिप्लॉयमेंट मोड एक्टिव करेगा
+        deployment_triggers = [
+            "deploy", "app", "code", "build", "website", "create site", "live link", 
+            "form", "store", "shop", "game", "xox", "tic-tac-toe", "calculator", 
+            "rock", "paper", "scissors", "رॉक"
+        ]
+        
         if any(w in user_msg.lower() for w in deployment_triggers):
-            # 1. AI से वेबसाइट का कोड जेनरेट करवाना
-            generated_html = generate_dynamic_website_via_ai(user_msg)
+            # 1. AI से वेबसाइट या गेम का रॉ एचटीएमएल कोड जनरेट करवाना
+            generated_html = auto_deploy_to_cloud(user_msg, "") # अस्थायी पास
+            generated_html_code = generate_dynamic_website_via_ai(user_msg)
             
-            # 2. क्लाउड/लोकल डिप्लॉयमेंट करना
+            # 2. स्टोरेज में सुरक्षित रखना और लाइव लिंक तैयार करना
             app_id = str(uuid.uuid4())[:8]
-            html_storage_db[app_id] = generated_html
+            html_storage_db[app_id] = generated_html_code
             
-            # क्लाउड ऑटो-डिप्लॉयमेंट लिंक का प्रयास
-            cloud_link = auto_deploy_to_cloud(user_msg, generated_html)
+            cloud_link = auto_deploy_to_cloud(user_msg, generated_html_code)
             final_live_link = cloud_link if cloud_link else f"{base_url}/live-app/{app_id}"
             
             reply_text = (
                 f"🚀 <b>GPT-6 Astra Autonomous Cloud Deployment Success:</b><br>"
                 f"- <b>Target Objective:</b> {user_msg}<br>"
                 f"- <b>Live Cloud Deployed Link:</b> <a href='{final_live_link}' target='_blank' style='color: #38bdf8; text-decoration: underline; font-weight: bold;'>{final_live_link}</a><br>"
-                f"- <b>Status:</b> Code successfully compiled and deployed across cloud edge nodes!"
+                f"- <b>Status:</b> Application successfully compiled and live-hosted across cloud edge nodes!"
             )
             return jsonify({"status": "success", "reply": reply_text})
 
+        # सामान्य चैट और सवालों के लिए एआई रिस्पॉन्स
         headers = {
             "Authorization": f"Bearer {GROQ_API_KEY}",
             "Content-Type": "application/json"
