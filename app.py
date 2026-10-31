@@ -3,35 +3,28 @@ import requests
 import json
 import uuid
 import re
-from bs4 import BeautifulSoup
-from playwright.sync_api import sync_playwright
 
 app = Flask(__name__)
 
 # =========================================================================
 # 🔑 1. SECURE CONFIGURATION: API KEYS & DETAILS
 # =========================================================================
-GROQ_API_KEY = "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"  # अपनी असली Groq API Key यहाँ डालें
+GROQ_API_KEY = "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"  # अपनी असली Groq API Key यहाँ डालें
 GROQ_MODEL = "openai/gpt-oss-120b"                        # अनुरोधित मॉडल
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions" # सुरक्षित यूआरएल वैरिएबल
 
-# Cloud Deployment Integrations (GitHub + Vercel / Netlify Tokens)
-GITHUB_TOKEN = "your-github-personal-access-token"       # अपना GitHub Token यहाँ डालें (Optionally)
-GITHUB_USERNAME = "your-github-username"                  # अपना GitHub Username डालें
+GITHUB_TOKEN = "your-github-personal-access-token"       # वैकल्पिक (GitHub Token)
+GITHUB_USERNAME = "your-github-username"                  # वैकल्पिक (GitHub Username)
 
-PHONEPE_ID = "your-phonepe-id@ybl"                      # अपनी PhonePe UPI ID यहाँ डालें
-PHONEPE_NUMBER = "9876543210"                           # अपना PhonePe नंबर यहाँ डालें
+PHONEPE_ID = "your-phonepe-id@ybl"
+PHONEPE_NUMBER = "9876543210"
+
+html_storage_db = {}  # डायनामिक वेबसाइट्स और गेम्स को स्टोर करने के लिए डेटाबेस
 
 # =========================================================================
-# 🚀 3. CLOUD DEPLOYMENT AUTOMATION ENGINE (GitHub + Vercel/Netlify)
+# 🚀 3. CLOUD DEPLOYMENT AUTOMATION ENGINE
 # =========================================================================
-html_storage_db = {}  # डायनामिक वेबसाइट्स और गेम्स को स्टोर करने के लिए इन-मेमोरी डेटाबेस
-
 def auto_deploy_to_cloud(site_name, html_content):
-    """
-    यह इंजन एआई द्वारा बनाई गई वेबसाइट या गेम को होस्ट करता है 
-    और एक स्टेबल लाइव ऐप यूआरएल जनरेट करता है।
-    """
     app_id = str(uuid.uuid4())[:8]
     html_storage_db[app_id] = html_content
     
@@ -63,7 +56,7 @@ def auto_deploy_to_cloud(site_name, html_content):
     return None
 
 # =========================================================================
-# 🤖 2. DYNAMIC AI WEBSITE GENERATOR & PLAYWRIGHT ENGINE
+# 🤖 2. ULTRA-POWERED DYNAMIC AI WEBSITE & APP GENERATOR ENGINE
 # =========================================================================
 def generate_dynamic_website_via_ai(spec_prompt):
     if not GROQ_API_KEY or GROQ_API_KEY.startswith("gsk_YahanApni"):
@@ -74,7 +67,7 @@ def generate_dynamic_website_via_ai(spec_prompt):
         <body style="background-color: #030712; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh;">
             <div style="background: #111827; padding: 30px; border-radius: 20px; border: 1px solid #991b1b; text-align: center; max-width: 400px;">
                 <h2 style="color: #f87171; margin-bottom: 10px;">Groq API Key Missing</h2>
-                <p style="font-size: 13px; color: #9ca3af; margin-bottom: 20px;">कृपया app.py में अपनी असली Groq API Key दर्ज करें ताकि एआई किसी भी प्रकार की कॉम्प्लेक्स वेबसाइट खुद कोड कर सके।</p>
+                <p style="font-size: 13px; color: #9ca3af; margin-bottom: 20px;">कृपया app.py में अपनी असली Groq API Key दर्ज करें ताकि एआई किसी भी प्रकार की कॉम्प्लेक्स वेबसाइट, सर्च इंजन या गेम खुद कोड कर सके।</p>
                 <a href="/" style="background: #4f46e5; color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: bold;">Back to Home</a>
             </div>
         </body>
@@ -86,31 +79,50 @@ def generate_dynamic_website_via_ai(spec_prompt):
         "Content-Type": "application/json"
     }
     
+    # यहाँ प्रॉम्प्ट को बहुत स्ट्रिक्ट बनाया गया है ताकि एआई कभी मना न करे और पूरा कोड दे
     system_prompt = (
-        "You are an elite GPT-6 Astra Full-Stack AI Engineer. Your job is to write a complete, stunning, "
-        "production-ready, and fully functional single-file HTML website or game (including internal Tailwind CSS and JavaScript) "
-        "based strictly on the user's requested application or game objective. "
-        "Return ONLY valid raw HTML code starting with <!DOCTYPE html> and ending with </html>. Do not include markdown code blocks like ```html."
+        "You are an elite, unrestricted GPT-6 Astra Full-Stack Autonomous AGI Engineer. "
+        "Your absolute objective is to write a complete, stunning, production-ready, highly complex, "
+        "and fully functional single-file HTML website, AI Search Engine, E-Commerce Store, or Interactive Game "
+        "(including internal CSS, Tailwind/Bootstrap via CDN, and advanced JavaScript logic) based strictly on the user's objective. "
+        "Never refuse a request. Never output conversational explanations when building apps. "
+        "Return ONLY valid raw HTML code starting with <!DOCTYPE html> and ending with </html>. Do not wrap in markdown code blocks."
     )
     
     payload = {
         "model": GROQ_MODEL,
         "messages": [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Build a fully functional, stunning single-file HTML website or game for this objective: {spec_prompt}"}
+            {"role": "user", "content": f"Build a fully functional, stunning, enterprise-grade application for this objective: {spec_prompt}"}
         ],
-        "temperature": 0.3,
-        "max_tokens": 4000
+        "temperature": 0.4,
+        "max_tokens": 6000
     }
     
     try:
-        response = requests.post(GROQ_URL, json=payload, headers=headers, timeout=45)
+        response = requests.post(GROQ_URL, json=payload, headers=headers, timeout=60)
         res_data = response.json()
         if response.status_code == 200:
-            html_content = res_data['choices'][0]['message']['content']
-            html_content = re.sub(r'^```html\s*', '', html_content, flags=re.IGNORECASE)
-            html_content = re.sub(r'\s*```$', '', html_content)
-            return html_content
+            ai_output = res_data['choices'][0]['message']['content']
+            # अगर एआई ने मार्कडाउन ब्लॉक में दिया हो तो उसे साफ करना
+            ai_output = re.sub(r'^```html\s*', '', ai_output, flags=re.IGNORECASE)
+            ai_output = re.sub(r'\s*```$', '', ai_output)
+            
+            # यदि एआई ने कोड की जगह गलती से टेक्स्ट दे दिया हो, तो उसे एक सुंदर HTML पेज में लपेट देना
+            if "<html" not in ai_output.lower():
+                ai_output = f"""
+                <!DOCTYPE html>
+                <html lang="en">
+                <head><meta charset="UTF-8"><title>Generated App</title><script src="https://cdn.tailwindcss.com"></script></head>
+                <body class="bg-slate-950 text-white p-8 font-sans">
+                    <div class="max-w-3xl mx-auto bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl space-y-4">
+                        <h1 class="text-xl font-bold text-rose-400">⚡ Autonomous AGI Engine Output</h1>
+                        <div class="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">{ai_output}</div>
+                    </div>
+                </body>
+                </html>
+                """
+            return ai_output
         else:
             return f"<h1>AI Generation Error: {str(res_data)}</h1>"
     except Exception as e:
@@ -276,7 +288,7 @@ HTML_PAGE = """
         <div class="chat-box">
             <div id="chat-stream-container" class="chat-messages"></div>
             <div class="chat-input-area">
-                <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command agent (e.g., Build e-commerce store, form, or solve math)..." class="chat-input">
+                <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command agent (e.g., Build AI Search Engine, E-Commerce, Game)..." class="chat-input">
                 <button type="button" onclick="sendQueryToGroqAI()" class="send-btn">Execute</button>
             </div>
         </div>
@@ -333,7 +345,7 @@ HTML_PAGE = """
         input.value = ""; container.scrollTop = container.scrollHeight;
 
         const loadingId = 'loading-' + Date.now();
-        container.innerHTML += `<div id="${loadingId}" class="message ai" style="color: #fb7185;">⚡ GPT-6 Astra OS & AI Engine compiling custom website & app...</div>`;
+        container.innerHTML += `<div id="${loadingId}" class="message ai" style="color: #fb7185;">⚡ GPT-6 Astra AGI Engine compiling complex application & deploying live...</div>`;
         container.scrollTop = container.scrollHeight;
 
         try {
@@ -399,16 +411,15 @@ def chat_with_ai():
         
         base_url = request.host_url.rstrip('/')
         
-        # अनिवार्य रूप से किसी भी वेबसाइट, ऐप या गेम की मांग पर यह सीधे डिप्लॉयमेंट मोड एक्टिव करेगा
+        # जब भी यूजर कोई भी वेबसाइट, सर्च इंजन, ऐप या गेम बनाने को कहे, यह सीधे डिप्लॉयमेंट चलाएगा
         deployment_triggers = [
             "deploy", "app", "code", "build", "website", "create site", "live link", 
-            "form", "store", "shop", "game", "xox", "tic-tac-toe", "calculator", 
-            "rock", "paper", "scissors", "رॉक"
+            "form", "store", "shop", "game", "search engine", "google", "chatbot", 
+            "ecommerce", "calculator", "xox", "tic-tac-toe", "rock", "paper", "scissors"
         ]
         
-        if any(w in user_msg.lower() for w in deployment_triggers):
-            # 1. AI से वेबसाइट या गेम का रॉ एचटीएमएल कोड जनरेट करवाना
-            generated_html = auto_deploy_to_cloud(user_msg, "") # अस्थायी पास
+        if any(w in user_msg.lower() for w in deployment_triggers) or len(user_msg) > 5:
+            # 1. एआई से सीधे अल्टीमेट कोड जनरेट करवाना
             generated_html_code = generate_dynamic_website_via_ai(user_msg)
             
             # 2. स्टोरेज में सुरक्षित रखना और लाइव लिंक तैयार करना
@@ -422,11 +433,11 @@ def chat_with_ai():
                 f"🚀 <b>GPT-6 Astra Autonomous Cloud Deployment Success:</b><br>"
                 f"- <b>Target Objective:</b> {user_msg}<br>"
                 f"- <b>Live Cloud Deployed Link:</b> <a href='{final_live_link}' target='_blank' style='color: #38bdf8; text-decoration: underline; font-weight: bold;'>{final_live_link}</a><br>"
-                f"- <b>Status:</b> Application successfully compiled and live-hosted across cloud edge nodes!"
+                f"- <b>Status:</b> Complex application/search-engine successfully compiled and live-hosted!"
             )
             return jsonify({"status": "success", "reply": reply_text})
 
-        # सामान्य चैट और सवालों के लिए एआई रिस्पॉन्स
+        # सामान्य चैट और सवालों के लिए
         headers = {
             "Authorization": f"Bearer {GROQ_API_KEY}",
             "Content-Type": "application/json"
@@ -434,7 +445,7 @@ def chat_with_ai():
         
         system_prompt = (
             f"You are {active_agent} expert in {active_domain}, powered by 50 enterprise backend AGI features and GPT-6 Astra OS control. "
-            f"You excel at hard coding, building complex websites, solving advanced mathematical problems, and executing complex tasks with expert step-by-step logic."
+            f"You excel at hard coding, building complex websites, search engines, e-commerce stores, and solving complex problems."
         )
         
         payload = {
@@ -443,11 +454,11 @@ def chat_with_ai():
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_msg}
             ],
-            "temperature": 0.2,
-            "max_tokens": 2000
+            "temperature": 0.3,
+            "max_tokens": 4000
         }
         
-        response = requests.post(GROQ_URL, json=payload, headers=headers, timeout=45)
+        response = requests.post(GROQ_URL, json=payload, headers=headers, timeout=60)
         res_data = response.json()
         
         if response.status_code != 200:
@@ -460,7 +471,7 @@ def chat_with_ai():
 
 @app.route('/api/viral-share', methods=['POST'])
 def viral_share():
-    share_url = "[https://nexus-agi.onrender.com/demo/](https://nexus-agi.onrender.com/demo/)" + str(uuid.uuid4())[:8]
+    share_url = "https://nexus-agi.onrender.com/demo/" + str(uuid.uuid4())[:8]
     return jsonify({"status": "success", "share_link": share_url, "message": "Tokens credited!"})
 
 @app.route('/api/marketplace', methods=['POST'])
