@@ -14,8 +14,8 @@ app = Flask(__name__)
 GROQ_API_KEY = "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"  # अपनी असली Groq API Key यहाँ डालें
 GROQ_MODEL = "openai/gpt-oss-120b"                        # अनुरोधित मॉडल
 
-PHONEPE_ID = "your-phonepe-id@ybl"                      # अपनी PhonePe UPI ID यहाँ डालें
-PHONEPE_NUMBER = "9876543210"                           # अपना PhonePe नंबर यहाँ डालें
+PHONEPE_ID = "7355102139@ybl"                      # अपनी PhonePe UPI ID यहाँ डालें
+PHONEPE_NUMBER = "7355102139"                           # अपना PhonePe नंबर यहाँ डालें
 
 # =========================================================================
 # 🤖 2. DYNAMIC AI WEBSITE GENERATOR & PLAYWRIGHT ENGINE
@@ -386,7 +386,7 @@ def chat_with_ai():
             "max_tokens": 2000
         }
         
-        # यहाँ यूआरएल की स्ट्रिंग एरर को पूरी तरह ठीक कर दिया गया है
+        # यहाँ यूआरएल को बिल्कुल सादा रखा गया है ताकि No connection adapters एरर न आए
         response = requests.post("[https://api.groq.com/openai/v1/chat/completions](https://api.groq.com/openai/v1/chat/completions)", json=payload, headers=headers, timeout=45)
         res_data = response.json()
         
