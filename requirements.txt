@@ -6,8 +6,3 @@ playwright==1.42.0
 uvicorn==0.28.0
 pydantic==2.6.4
 gunicorn==21.2.0
-redis==5.0.1
-celery==5.3.6
-numpy==1.26.4
-cryptography==42.0.5
-aiohttp==3.9.3

@@ -1,7 +1,6 @@
 # माइक्रोसॉफ्ट का आधिकारिक Playwright पाइथन इमेज जो क्रोमियम और सभी लिनक्स डिपेंडेंसीज के साथ आता है
 FROM mcr.microsoft.com/playwright/python:v1.42.0-jammy
 
-# आवश्यक सिस्टम डिपेंडेंसीज और टूल्स इंस्टॉल करें
 RUN apt-get update && apt-get install -y \
     curl \
     git \
@@ -21,16 +20,12 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# रिक्वायरमेंट फाइल कॉपी करें और पैकेज इंस्टॉल करें
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Playwright ब्राउज़र बाइनरी को फोर्सफुली इंस्टॉल करें ताकि कोई कमी न रहे
 RUN playwright install chromium
 RUN playwright install-deps chromium
 
-# पूरा प्रोजेक्ट कोड कॉपी करें
 COPY . .
 
-# रेंडर पोर्ट के साथ यूवीकर्न (Uvicorn) सर्वर शुरू करें (फास्ट और नॉन-ब्लॉकिंग)
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "10000"]
