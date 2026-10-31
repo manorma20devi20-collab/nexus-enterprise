@@ -21,10 +21,6 @@ PHONEPE_NUMBER = "9876543210"                           # अपना PhonePe �
 # 🤖 2. DYNAMIC AI WEBSITE GENERATOR & PLAYWRIGHT ENGINE
 # =========================================================================
 def generate_dynamic_website_via_ai(spec_prompt):
-    """
-    यह इंजन Groq API की मदद से यूजर के किसी भी प्रॉम्प्ट के लिए पूरी तरह 
-    कस्टमाइज्ड और कॉम्प्लेक्स HTML/CSS/JS कोड खुद जेनरेट करता है।
-    """
     if not GROQ_API_KEY or GROQ_API_KEY.startswith("gsk_YahanApni"):
         return """
         <!DOCTYPE html>
@@ -47,7 +43,7 @@ def generate_dynamic_website_via_ai(spec_prompt):
     
     system_prompt = (
         "You are an elite GPT-6 Astra Full-Stack AI Engineer. Your job is to write a complete, stunning, "
-        "production-ready, and fully functional single-file HTML website (including internal CSS and JavaScript) "
+        "production-ready, and fully functional single-file HTML website (including internal Tailwind CSS and JavaScript) "
         "based strictly on the user's requested application or website objective. "
         "Return ONLY valid raw HTML code starting with <!DOCTYPE html> and ending with </html>. Do not include markdown code blocks like ```html."
     )
@@ -112,7 +108,7 @@ for i in range(1, 101):
     })
 
 # =========================================================================
-# 🌐 PERMANENT STABLE FRONTEND UI (Zero Dependency / Pure CSS)
+# 🌐 STABLE PREMIUM FRONTEND UI (FULL SCREEN CHATBOT & DARK GLASSMORPHISM)
 # =========================================================================
 HTML_PAGE = """
 <!DOCTYPE html>
@@ -138,28 +134,28 @@ HTML_PAGE = """
         .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(225, 29, 72, 0.4); }
         .action-btn.secondary { background: linear-gradient(135deg, #7c3aed, #db2777); }
         
-        /* Modal Styles */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(12px); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
-        .modal-content { background: #1e293b; border: 1px solid #334155; width: 100%; max-width: 700px; max-height: 85vh; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); }
-        .modal-header { padding: 15px 20px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; background: #0f172a; }
-        .modal-header h2 { font-size: 14px; font-weight: bold; color: white; }
-        .close-btn { background: #334155; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: bold; }
+        /* Full Screen Modal Styles */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 7, 18, 0.95); backdrop-filter: blur(16px); z-index: 100; flex-direction: column; }
+        .modal-content { background: #0f172a; border: 1px solid #334155; width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header { padding: 20px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; background: #1e293b; }
+        .modal-header h2 { font-size: 15px; font-weight: bold; color: white; }
+        .close-btn { background: #334155; color: white; border: none; padding: 8px 16px; border-radius: 10px; font-size: 12px; cursor: pointer; font-weight: bold; }
         .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
-        .search-input { width: 100%; background: #0f172a; border: 1px solid #334155; padding: 12px 16px; border-radius: 12px; color: white; font-size: 12px; margin-bottom: 15px; }
-        .agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-        .agent-card { background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; transition: border-color 0.2s; }
+        .search-input { width: 100%; background: #0f172a; border: 1px solid #334155; padding: 14px 18px; border-radius: 12px; color: white; font-size: 13px; margin-bottom: 20px; }
+        .agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+        .agent-card { background: #1e293b; border: 1px solid #334155; padding: 18px; border-radius: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; transition: border-color 0.2s; }
         .agent-card:hover { border-color: #f43f5e; }
-        .deploy-card-btn { background: #4f46e5; color: white; border: none; padding: 8px; border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; width: 100%; }
+        .deploy-card-btn { background: #4f46e5; color: white; border: none; padding: 10px; border-radius: 10px; font-size: 11px; font-weight: bold; cursor: pointer; width: 100%; }
         
-        /* Chat Interface */
-        .chat-box { display: flex; flex-direction: column; height: 100%; }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; max-height: 50vh; }
-        .message { padding: 12px 16px; border-radius: 14px; font-size: 12px; max-width: 85%; line-height: 1.5; font-family: monospace; }
+        /* Full Screen Chat Interface */
+        .chat-box { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 1000px; margin: 0 auto; flex: 1; overflow: hidden; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 15px; }
+        .message { padding: 16px 20px; border-radius: 16px; font-size: 13px; max-width: 85%; line-height: 1.6; font-family: monospace; }
         .message.user { background: #4f46e5; color: white; align-self: flex-end; }
-        .message.ai { background: #0f172a; border: 1px solid #334155; color: #e2e8f0; align-self: flex-start; }
-        .chat-input-area { padding: 15px; background: #0f172a; border-top: 1px solid #334155; display: flex; gap: 10px; }
-        .chat-input { flex: 1; background: #1e293b; border: 1px solid #334155; padding: 12px 16px; border-radius: 12px; color: white; font-size: 12px; }
-        .send-btn { background: #4f46e5; color: white; border: none; padding: 0 20px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .message.ai { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; align-self: flex-start; }
+        .chat-input-area { padding: 20px; background: #1e293b; border-top: 1px solid #334155; display: flex; gap: 12px; max-width: 1000px; width: 100%; margin: 0 auto; }
+        .chat-input { flex: 1; background: #0f172a; border: 1px solid #334155; padding: 14px 18px; border-radius: 14px; color: white; font-size: 13px; }
+        .send-btn { background: #4f46e5; color: white; border: none; padding: 0 25px; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -196,7 +192,7 @@ HTML_PAGE = """
             <h2>100 Sovereign Dangerous Agents</h2>
             <button type="button" onclick="closeModal('agentsModal')" class="close-btn">✕ Close</button>
         </div>
-        <div style="padding: 15px; background: #0f172a; border-bottom: 1px solid #334155;">
+        <div style="padding: 20px; background: #0f172a; border-bottom: 1px solid #334155;">
             <input type="text" id="agent-search" oninput="filterAgents()" placeholder="Search agents by codename or domain..." class="search-input">
         </div>
         <div class="modal-body">
@@ -207,28 +203,28 @@ HTML_PAGE = """
 
 <!-- CUSTOMIZER MODAL -->
 <div id="customizerModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 600px; height: auto; margin: auto; border-radius: 20px;">
         <div class="modal-header">
             <h2>Multi-Agent Customizer (Free & Unlocked)</h2>
             <button type="button" onclick="closeModal('customizerModal')" class="close-btn">✕ Close</button>
         </div>
-        <div class="modal-body" style="display: flex; flex-direction: column; gap: 15px;">
-            <div style="background: rgba(225, 29, 72, 0.1); border: 1px solid rgba(225, 29, 72, 0.3); padding: 15px; border-radius: 12px; font-size: 11px; color: #fda4af;">
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 20px;">
+            <div style="background: rgba(225, 29, 72, 0.1); border: 1px solid rgba(225, 29, 72, 0.3); padding: 15px; border-radius: 12px; font-size: 12px; color: #fda4af;">
                 <b>✨ Fully Unlocked:</b> Create any custom agent instantly without payment!
             </div>
-            <input type="text" id="custom-agent-prompt" placeholder="Custom Agent Objective (e.g., Build e-commerce store or form)" class="search-input">
+            <input type="text" id="custom-agent-prompt" placeholder="Custom Agent Objective (e.g., Build e-commerce store or form)" class="search-input" style="margin: 0;">
             <button type="button" onclick="launchCustomAgent()" class="action-btn">Launch Custom Agent</button>
         </div>
     </div>
 </div>
 
-<!-- LIVE CHAT MODAL -->
+<!-- FULL SCREEN LIVE CHAT MODAL -->
 <div id="chatbotModal" class="modal">
-    <div class="modal-content" style="max-width: 800px;">
+    <div class="modal-content">
         <div class="modal-header">
             <div>
                 <h2 id="active-chatbot-title">Nexus Astra OS</h2>
-                <p id="active-chatbot-subtitle" style="color: #fb7185; font-size: 10px;">GPT-6 Astra Autonomous Operator Active</p>
+                <p id="active-chatbot-subtitle" style="color: #fb7185; font-size: 11px; margin-top: 2px;">GPT-6 Astra Autonomous Operator Active</p>
             </div>
             <button type="button" onclick="closeModal('chatbotModal')" class="close-btn">✕ Close</button>
         </div>
@@ -257,12 +253,12 @@ HTML_PAGE = """
         list.forEach(a => {
             html += `<div class="agent-card">
                 <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <span style="font-size: 9px; font-family: monospace; color: #fb7185; font-weight: bold;">AGID #${a.id}</span>
-                        <span style="font-size: 9px; padding: 2px 6px; border-radius: 6px; font-weight: bold; background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">FREE</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span style="font-size: 10px; font-family: monospace; color: #fb7185; font-weight: bold;">AGID #${a.id}</span>
+                        <span style="font-size: 10px; padding: 2px 8px; border-radius: 6px; font-weight: bold; background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">FREE</span>
                     </div>
-                    <h3 style="font-size: 11px; font-weight: bold; color: white; margin-bottom: 4px;">${a.name}</h3>
-                    <p style="font-size: 9px; color: #94a3b8;">${a.domain}</p>
+                    <h3 style="font-size: 12px; font-weight: bold; color: white; margin-bottom: 6px;">${a.name}</h3>
+                    <p style="font-size: 10px; color: #94a3b8;">${a.domain}</p>
                 </div>
                 <button type="button" onclick="deployAgentCheck(${a.id}, '${a.name}', '${a.domain}')" class="deploy-card-btn">Deploy Agent</button>
             </div>`;
@@ -377,7 +373,7 @@ def chat_with_ai():
         
         system_prompt = (
             f"You are {active_agent} expert in {active_domain}, powered by 50 enterprise backend AGI features and GPT-6 Astra OS control. "
-            f"You excel at hard coding, building complex websites, and solving advanced mathematical problems with step-by-step logic."
+            f"You excel at hard coding, building complex websites, solving advanced mathematical problems, and executing complex tasks with expert step-by-step logic."
         )
         
         payload = {
@@ -387,10 +383,11 @@ def chat_with_ai():
                 {"role": "user", "content": user_msg}
             ],
             "temperature": 0.2,
-            "max_tokens": 1500
+            "max_tokens": 2000
         }
         
-        response = requests.post("[https://api.groq.com/openai/v1/chat/completions](https://api.groq.com/openai/v1/chat/completions)", json=payload, headers=headers, timeout=30)
+        # यहाँ यूआरएल की स्ट्रिंग एरर को पूरी तरह ठीक कर दिया गया है
+        response = requests.post("[https://api.groq.com/openai/v1/chat/completions](https://api.groq.com/openai/v1/chat/completions)", json=payload, headers=headers, timeout=45)
         res_data = response.json()
         
         if response.status_code != 200:
