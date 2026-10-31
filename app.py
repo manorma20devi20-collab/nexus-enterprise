@@ -112,7 +112,7 @@ for i in range(1, 101):
     })
 
 # =========================================================================
-# 🌐 4. PROFESSIONAL FRONTEND UI (FIXED TAILWIND LINK)
+# 🌐 4. PROFESSIONAL FRONTEND UI (ORIGINAL PREMIUM LOOK RESTORED)
 # =========================================================================
 HTML_PAGE = """
 <!DOCTYPE html>
@@ -125,7 +125,7 @@ HTML_PAGE = """
     <style>
         .glass-panel { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .glass-card { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(51, 65, 85, 0.8); transition: all 0.25s ease; }
-        .glass-card:hover { border-color: rgba(99, 102, 241, 0.5); transform: translateY(-2px); }
+        .glass-card:hover { border-color: rgba(244, 63, 94, 0.5); transform: translateY(-2px); }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -138,19 +138,19 @@ HTML_PAGE = """
         <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-600 via-purple-600 to-indigo-600 flex items-center justify-center font-black text-2xl text-white shadow-lg shadow-rose-900/50">Ω</div>
         <div class="text-left">
             <h1 class="text-sm md:text-base font-black tracking-wider bg-gradient-to-r from-rose-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">NEXUS GPT-6 ASTRA OS</h1>
-            <p class="text-[10px] font-bold text-emerald-400">100 Free Sovereign Agents | Fully Dynamic AI Website Builder</p>
+            <p class="text-[10px] font-bold text-rose-400">100 Dangerous Sovereign Agents | Fully Dynamic AI Website Builder</p>
         </div>
     </div>
-    <div class="px-3 py-1.5 rounded-xl bg-emerald-950/80 border border-emerald-800 text-emerald-300 text-[10px] font-bold flex items-center space-x-1.5 shadow-sm">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span>All Features Unlocked</span>
+    <div class="px-3 py-1.5 rounded-xl bg-rose-950/80 border border-rose-800 text-rose-300 text-[10px] font-bold flex items-center space-x-1.5 shadow-sm">
+        <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+        <span>50 Backend Engines Active</span>
     </div>
 </header>
 
 <section class="w-full max-w-4xl mx-auto px-4 space-y-3 mb-6">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <button type="button" onclick="openModal('agentsModal')" class="py-4 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-rose-600 text-white text-xs font-bold transition shadow-lg flex items-center justify-center space-x-2 cursor-pointer">
-            <span>⚡</span><span>Explore 100 Free Dangerous Agents</span>
+            <span>⚡</span><span>Explore 100 Dangerous Agents (100% Free)</span>
         </button>
         <button type="button" onclick="openModal('customizerModal')" class="py-4 px-4 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold transition shadow-lg flex items-center justify-center space-x-2 cursor-pointer">
             <span>🧬</span><span>Multi-Agent Customizer (100% Free & Unlocked)</span>
@@ -161,7 +161,7 @@ HTML_PAGE = """
 <!-- 100 AGENTS MODAL -->
 <div id="agentsModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
     <div class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between shrink-0">
-        <h2 class="font-bold text-sm text-white">100 Free Sovereign Agents</h2>
+        <h2 class="font-bold text-sm text-white">100 Sovereign Dangerous Agents</h2>
         <button type="button" onclick="closeModal('agentsModal')" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold cursor-pointer">✕ Close</button>
     </div>
     <div class="p-4 bg-slate-950"><input type="text" id="agent-search" oninput="filterAgents()" placeholder="Search agents by codename or domain..." class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2.5 text-xs"></div>
@@ -175,10 +175,10 @@ HTML_PAGE = """
         <button type="button" onclick="closeModal('customizerModal')" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold cursor-pointer">✕ Close</button>
     </div>
     <div class="p-6 max-w-xl mx-auto w-full flex-1 flex flex-col gap-4 overflow-y-auto">
-        <div class="p-4 bg-emerald-950/40 border border-emerald-800 rounded-xl text-xs text-emerald-200">
+        <div class="p-4 bg-rose-950/40 border border-rose-800 rounded-xl text-xs text-rose-200">
             <p class="font-bold mb-1">✨ Fully Unlocked: Create any custom agent instantly without payment!</p>
         </div>
-        <input type="text" id="custom-agent-prompt" placeholder="Custom Agent Objective (e.g., Build e-commerce store or complex calculator)" class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-3 text-xs">
+        <input type="text" id="custom-agent-prompt" placeholder="Custom Agent Objective (e.g., Build e-commerce store or form)" class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-3 text-xs">
         <button type="button" onclick="launchCustomAgent()" class="py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl cursor-pointer shadow-md">Launch Custom Agent</button>
     </div>
 </div>
@@ -217,8 +217,8 @@ HTML_PAGE = """
             html += `<div class="glass-card p-4 rounded-2xl border border-slate-800 bg-slate-900 shadow-sm flex flex-col justify-between">
                 <div>
                     <div class="flex justify-between items-center mb-1">
-                        <span class="text-[9px] font-mono text-emerald-400 font-bold">AGID #${a.id}</span>
-                        <span class="text-[9px] px-2 py-0.5 rounded-full font-bold border bg-emerald-950 text-emerald-300 border-emerald-800">FREE</span>
+                        <span class="text-[9px] font-mono text-rose-400 font-bold">AGID #${a.id}</span>
+                        <span class="text-[9px] px-2 py-0.5 rounded-full font-bold border bg-rose-950 text-rose-300 border-rose-800">FREE</span>
                     </div>
                     <h3 class="font-bold text-xs mb-1 text-white">${a.name}</h3>
                     <p class="text-[10px] text-slate-400 font-semibold mb-2">${a.domain}</p>
