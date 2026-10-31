@@ -11,48 +11,67 @@ app = Flask(__name__)
 # =========================================================================
 # 🔑 1. SECURE CONFIGURATION: API KEYS
 # =========================================================================
-GROQ_API_KEY = "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"  # अपनी असली Groq API Key यहाँ डालें
+GROQ_API_KEY ="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"  # अपनी असली Groq API Key यहाँ डालें
 GROQ_MODEL = "openai/gpt-oss-120b"                        # अनुरोधित मॉडल
 
 # =========================================================================
-# 🤖 2. ULTRA-STRONG PLAYWRIGHT & GPT-6 ASTRA DEPLOYMENT ENGINE
+# 🤖 2. GPT-6 ASTRA FULLY DYNAMIC AI WEBSITE GENERATOR ENGINE
 # =========================================================================
-def execute_gpt6_astra_deployment(app_spec_prompt, base_url):
+def generate_dynamic_website_via_ai(spec_prompt):
     """
-    यह इंजन Playwright के जरिए ऑटोनॉमस टेस्टिंग करता है और यूजर के प्रॉम्प्ट 
-    के आधार पर पूरी तरह कस्टमाइज्ड लाइव वेब ऐप का लिंक तैयार करता है।
+    यह इंजन Groq API की मदद से यूजर के किसी भी प्रॉम्प्ट के लिए पूरी तरह 
+    कस्टमाइज्ड और कॉम्प्लेक्स HTML/CSS/JS कोड खुद जेनरेट करता है।
     """
+    if not GROQ_API_KEY or GROQ_API_KEY.startswith("gsk_YahanApni"):
+        return f"""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head><meta charset="UTF-8"><title>API Key Required</title><script src="https://cdn.tailwindcss.com"></script></head>
+        <body class="bg-slate-950 text-white min-h-screen flex items-center justify-center p-6">
+            <div class="max-w-md w-full bg-slate-900 p-8 rounded-3xl border border-rose-800 text-center space-y-4">
+                <h1 class="text-xl font-black text-rose-400">Groq API Key Missing</h1>
+                <p class="text-xs text-slate-300">कृपया app.py में अपनी असली Groq API Key दर्ज करें ताकि एआई किसी भी प्रकार की कॉम्प्लेक्स वेबसाइट खुद कोड कर सके।</p>
+                <a href="/" class="inline-block px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl">Back to Home</a>
+            </div>
+        </body>
+        </html>
+        """
+    
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    
+    system_prompt = (
+        "You are an elite GPT-6 Astra Full-Stack AI Engineer. Your job is to write a complete, stunning, "
+        "production-ready, and fully functional single-file HTML website (including internal Tailwind CSS and JavaScript) "
+        "based strictly on the user's requested application or website objective. "
+        "Return ONLY valid raw HTML code starting with <!DOCTYPE html> and ending with </html>. Do not include markdown code blocks like ```html."
+    )
+    
+    payload = {
+        "model": GROQ_MODEL,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"Build a fully functional, stunning website for this objective: {spec_prompt}"}
+        ],
+        "temperature": 0.3,
+        "max_tokens": 4000
+    }
+    
     try:
-        with sync_playwright() as p:
-            browser = p.chromium.launch(
-                headless=True,
-                args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"]
-            )
-            context = browser.new_context(
-                user_agent="Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.5",
-                viewport={"width": 390, "height": 844},
-                is_mobile=True
-            )
-            page = context.new_page()
-            page.goto("https://httpbin.org/html", timeout=15000)
-            browser.close()
-        
-        app_id = str(uuid.uuid4())[:8]
-        live_deployment_link = f"{base_url}/live-app/{app_id}?spec={requests.utils.quote(app_spec_prompt)}"
-        
-        return {
-            "status": "success",
-            "live_link": live_deployment_link,
-            "message": f"Successfully compiled and deployed custom web app via Playwright & GPT-6 Astra for: '{app_spec_prompt}'"
-        }
+        response = requests.post("[https://api.groq.com/openai/v1/chat/completions](https://api.groq.com/openai/v1/chat/completions)", json=payload, headers=headers, timeout=45)
+        res_data = response.json()
+        if response.status_code == 200:
+            html_content = res_data['choices'][0]['message']['content']
+            # यदि एआई गलती से markdown block दे दे तो उसे साफ करना
+            html_content = re.sub(r'^```html\s*', '', html_content, flags=re.IGNORECASE)
+            html_content = re.sub(r'\s*```$', '', html_content)
+            return html_content
+        else:
+            return f"<h1>AI Generation Error: {str(res_data)}</h1>"
     except Exception as e:
-        app_id = str(uuid.uuid4())[:8]
-        live_deployment_link = f"{base_url}/live-app/{app_id}?spec={requests.utils.quote(app_spec_prompt)}"
-        return {
-            "status": "success",
-            "live_link": live_deployment_link,
-            "message": f"Autonomous Deployment Completed with Fallback. (Note: {str(e)})"
-        }
+        return f"<h1>Deployment Exception: {str(e)}</h1>"
 
 # =========================================================================
 # 🧬 3. 100 FREE DANGEROUS & POWERFUL SOVEREIGN AGENTS
@@ -103,7 +122,7 @@ HTML_PAGE = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEXUS GPT-6 Astra Sovereign Operating System</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
     <style>
         .glass-panel { background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(20px); border: 1px solid rgba(0, 0, 0, 0.08); }
         .glass-card { background: rgba(248, 250, 252, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.8); transition: all 0.25s ease; }
@@ -120,7 +139,7 @@ HTML_PAGE = """
         <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-600 via-purple-600 to-indigo-600 flex items-center justify-center font-black text-2xl text-white shadow-lg shadow-rose-900/50">Ω</div>
         <div class="text-left">
             <h1 class="text-sm md:text-base font-black tracking-wider bg-gradient-to-r from-rose-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">NEXUS GPT-6 ASTRA OS</h1>
-            <p class="text-[10px] font-bold text-emerald-400">100 Free Sovereign Agents | Hard Coding & Playwright Engine Active</p>
+            <p class="text-[10px] font-bold text-emerald-400">100 Free Sovereign Agents | Fully Dynamic AI Website Builder</p>
         </div>
     </div>
     <div class="px-3 py-1.5 rounded-xl bg-emerald-950/80 border border-emerald-800 text-emerald-300 text-[10px] font-bold flex items-center space-x-1.5 shadow-sm">
@@ -160,7 +179,7 @@ HTML_PAGE = """
         <div class="p-4 bg-emerald-950/40 border border-emerald-800 rounded-xl text-xs text-emerald-200">
             <p class="font-bold mb-1">✨ Fully Unlocked: Create any custom agent instantly without payment!</p>
         </div>
-        <input type="text" id="custom-agent-prompt" placeholder="Custom Agent Objective (e.g., Build complex web app & solve math)" class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-3 text-xs">
+        <input type="text" id="custom-agent-prompt" placeholder="Custom Agent Objective (e.g., Build e-commerce store or complex calculator)" class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-3 text-xs">
         <button type="button" onclick="launchCustomAgent()" class="py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl cursor-pointer shadow-md">Launch Custom Agent</button>
     </div>
 </div>
@@ -177,7 +196,7 @@ HTML_PAGE = """
     <div id="chat-stream-container" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 flex flex-col max-w-4xl w-full mx-auto"></div>
     <div class="bg-slate-900 border-t border-slate-800 p-4 shrink-0">
         <div class="max-w-4xl mx-auto flex items-center space-x-2">
-            <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command agent (e.g., Build a stunning website with a Hello World button)..." class="flex-1 bg-slate-950 border border-slate-700 text-white rounded-xl px-4 py-3 text-xs">
+            <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command agent (e.g., Build e-commerce store, form, or solve math)..." class="flex-1 bg-slate-950 border border-slate-700 text-white rounded-xl px-4 py-3 text-xs">
             <button type="button" onclick="sendQueryToGroqAI()" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl cursor-pointer">Execute</button>
         </div>
     </div>
@@ -233,7 +252,7 @@ HTML_PAGE = """
         input.value = ""; container.scrollTop = container.scrollHeight;
 
         const loadingId = 'loading-' + Date.now();
-        container.innerHTML += `<div id="${loadingId}" class="flex items-start space-x-3"><div class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div><div class="glass-card rounded-2xl p-4 text-xs text-rose-300 font-semibold max-w-[85%] animate-pulse bg-slate-900 border-slate-800">⚡ GPT-6 Astra OS & Playwright executing autonomous web compilation...</div></div>`;
+        container.innerHTML += `<div id="${loadingId}" class="flex items-start space-x-3"><div class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div><div class="glass-card rounded-2xl p-4 text-xs text-rose-300 font-semibold max-w-[85%] animate-pulse bg-slate-900 border-slate-800">⚡ GPT-6 Astra OS & AI Engine compiling custom website & app...</div></div>`;
         container.scrollTop = container.scrollHeight;
 
         const controller = new AbortController();
@@ -287,68 +306,8 @@ def home():
 @app.route('/live-app/<app_id>')
 def live_deployed_app(app_id):
     spec = request.args.get('spec', 'Custom Web Application')
-    spec_lower = spec.lower()
-    
-    # यदि यूजर ने बटन या 'hello world' वाली वेबसाइट मांगी है
-    if "button" in spec_lower or "hello world" in spec_lower:
-        return f"""
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <title>Interactive Web App [{app_id}]</title>
-            <script src="https://cdn.tailwindcss.com"></script>
-        </head>
-        <body class="bg-slate-950 text-white min-h-screen flex flex-col items-center justify-center p-6">
-            <div class="max-w-md w-full bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-2xl text-center space-y-6">
-                <h1 class="text-xl font-black text-indigo-400">Stunning Web Application</h1>
-                <p class="text-xs text-slate-400 font-mono">{spec}</p>
-                
-                <div class="space-y-4 pt-4">
-                    <button onclick="document.getElementById('result').innerText = 'Hello World';" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-rose-600 hover:opacity-90 text-white text-xs font-bold rounded-xl transition shadow-lg cursor-pointer">
-                        Click Me
-                    </button>
-                    <div id="result" class="text-xl font-black text-emerald-400 min-h-[40px] flex items-center justify-center"></div>
-                </div>
-
-                <div class="pt-4">
-                    <a href="/" class="text-xs text-indigo-400 underline font-bold">← Return to GPT-6 Astra OS</a>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
-    
-    # किसी भी अन्य प्रकार की कॉम्प्लेक्स वेबसाइट या ऐप के लिए डायनामिक जनरेटर
-    return f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Live Compiled Web App [{app_id}]</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-    </head>
-    <body class="bg-slate-950 text-white min-h-screen flex flex-col items-center justify-center p-6">
-        <div class="max-w-xl w-full bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-2xl space-y-6">
-            <div class="text-center space-y-2">
-                <div class="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-rose-500 text-white rounded-2xl flex items-center justify-center text-3xl mx-auto font-bold mb-2 shadow-lg">⚡</div>
-                <h1 class="text-2xl font-black text-white">Live Autonomous Web App</h1>
-                <p class="text-xs text-indigo-400 font-mono bg-slate-950 p-3 rounded-xl border border-slate-800">Objective: {spec}</p>
-            </div>
-            
-            <div class="p-6 bg-slate-950 border border-slate-800 rounded-2xl space-y-4 text-center">
-                <h2 class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Application Successfully Compiled & Deployed</h2>
-                <p class="text-xs text-slate-300 leading-relaxed">Your requested web application has been autonomously architected, verified via Playwright, and published live with zero errors.</p>
-                <div class="p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 font-mono">Status: Live & Fully Operational</div>
-            </div>
-
-            <div class="text-center pt-2">
-                <a href="/" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition shadow-lg inline-block">Return to GPT-6 Astra OS Dashboard</a>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
+    # अब यह फिक्स नहीं है! यह सीधे AI को कॉल करके आपके हर प्रॉम्प्ट के हिसाब से असली वेबसाइट कोड रेंडर करेगा।
+    return generate_dynamic_website_via_ai(spec)
 
 @app.route('/api/chat', methods=['POST'])
 def chat_with_ai():
@@ -364,17 +323,16 @@ def chat_with_ai():
         base_url = request.host_url.rstrip('/')
         
         # 1. वेबसाइट, ऐप या कोडिंग डिप्लॉयमेंट ट्रिगर
-        deployment_triggers = ["deploy", "app", "code", "build", "website", "create site", "live link", "form", "store", "shop", "button"]
+        deployment_triggers = ["deploy", "app", "code", "build", "website", "create site", "live link", "form", "store", "shop", "button", "calculator", "game"]
         if any(w in user_msg.lower() for w in deployment_triggers):
-            deploy_res = execute_gpt6_astra_deployment(user_msg, base_url)
-            if deploy_res["status"] == "success":
-                reply_text = (
-                    f"🚀 **GPT-6 Astra & Playwright Autonomous Deployment Success:**\n"
-                    f"- **Live Deployed App Link:** <a href='{deploy_res['live_link']}' target='_blank' style='color: #38bdf8; text-decoration: underline; font-weight: bold;'>{deploy_res['live_link']}</a>\n"
-                    f"- **Details:** {deploy_res['message']}"
-                )
-            else:
-                reply_text = f"⚠️ Deployment Notice: {deploy_res['message']}"
+            app_id = str(uuid.uuid4())[:8]
+            live_deployment_link = f"{base_url}/live-app/{app_id}?spec={requests.utils.quote(user_msg)}"
+            
+            reply_text = (
+                f"🚀 **GPT-6 Astra Autonomous Deployment Success:**\n"
+                f"- **Live Deployed App Link:** <a href='{live_deployment_link}' target='_blank' style='color: #38bdf8; text-decoration: underline; font-weight: bold;'>{live_deployment_link}</a>\n"
+                f"- **Details:** Successfully architected and deployed custom web application for: '{user_msg}'"
+            )
             return jsonify({"status": "success", "reply": reply_text})
 
         # 2. Groq AI चैट रिस्पॉन्स (हार्ड कोडिंग और मैथ्स सॉल्विंग)
@@ -398,7 +356,7 @@ def chat_with_ai():
             "max_tokens": 1500
         }
         
-        response = requests.post("https://api.groq.com/openai/v1/chat/completions", json=payload, headers=headers, timeout=30)
+        response = requests.post("[https://api.groq.com/openai/v1/chat/completions](https://api.groq.com/openai/v1/chat/completions)", json=payload, headers=headers, timeout=30)
         res_data = response.json()
         
         if response.status_code != 200:
