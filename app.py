@@ -9,17 +9,16 @@ from playwright.sync_api import sync_playwright
 app = Flask(__name__)
 
 # =========================================================================
-# 🔑 1. SECURE CONFIGURATION: API KEYS & PAYMENT DETAILS
+# 🔑 1. SECURE CONFIGURATION: API KEYS & DETAILS
 # =========================================================================
 GROQ_API_KEY = "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"  # अपनी असली Groq API Key यहाँ डालें
 GROQ_MODEL = "openai/gpt-oss-120b"                        # अनुरोधित मॉडल
 
-# PhonePe Payment Gateway ($9/mo Tier Enforcement)
 PHONEPE_ID = "your-phonepe-id@ybl"                      # अपनी PhonePe UPI ID यहाँ डालें
-PHONEPE_NUMBER = "9876543210"                           # अपना PhonePe मोबाइल नंबर यहाँ डालें
+PHONEPE_NUMBER = "9876543210"                           # अपना PhonePe नंबर यहाँ डालें
 
 # =========================================================================
-# 🤖 2. FULLY DYNAMIC AI WEBSITE GENERATOR & SELF-HEALING ENGINE
+# 🤖 2. DYNAMIC AI WEBSITE GENERATOR & PLAYWRIGHT ENGINE
 # =========================================================================
 def generate_dynamic_website_via_ai(spec_prompt):
     """
@@ -30,12 +29,12 @@ def generate_dynamic_website_via_ai(spec_prompt):
         return """
         <!DOCTYPE html>
         <html lang="en">
-        <head><meta charset="UTF-8"><title>API Key Required</title><script src="https://cdn.tailwindcss.com"></script></head>
-        <body class="bg-slate-950 text-white min-h-screen flex items-center justify-center p-6">
-            <div class="max-w-md w-full bg-slate-900 p-8 rounded-3xl border border-rose-800 text-center space-y-4">
-                <h1 class="text-xl font-black text-rose-400">Groq API Key Missing</h1>
-                <p class="text-xs text-slate-300">कृपया app.py में अपनी असली Groq API Key दर्ज करें ताकि एआई किसी भी प्रकार की कॉम्प्लेक्स वेबसाइट खुद कोड कर सके।</p>
-                <a href="/" class="inline-block px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl">Back to Home</a>
+        <head><meta charset="UTF-8"><title>API Key Required</title></head>
+        <body style="background-color: #030712; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh;">
+            <div style="background: #111827; padding: 30px; border-radius: 20px; border: 1px solid #991b1b; text-align: center; max-width: 400px;">
+                <h2 style="color: #f87171; margin-bottom: 10px;">Groq API Key Missing</h2>
+                <p style="font-size: 13px; color: #9ca3af; margin-bottom: 20px;">कृपया app.py में अपनी असली Groq API Key दर्ज करें ताकि एआई किसी भी प्रकार की कॉम्प्लेक्स वेबसाइट खुद कोड कर सके।</p>
+                <a href="/" style="background: #4f46e5; color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: bold;">Back to Home</a>
             </div>
         </body>
         </html>
@@ -48,7 +47,7 @@ def generate_dynamic_website_via_ai(spec_prompt):
     
     system_prompt = (
         "You are an elite GPT-6 Astra Full-Stack AI Engineer. Your job is to write a complete, stunning, "
-        "production-ready, and fully functional single-file HTML website (including internal Tailwind CSS and JavaScript) "
+        "production-ready, and fully functional single-file HTML website (including internal CSS and JavaScript) "
         "based strictly on the user's requested application or website objective. "
         "Return ONLY valid raw HTML code starting with <!DOCTYPE html> and ending with </html>. Do not include markdown code blocks like ```html."
     )
@@ -75,89 +74,6 @@ def generate_dynamic_website_via_ai(spec_prompt):
             return f"<h1>AI Generation Error: {str(res_data)}</h1>"
     except Exception as e:
         return f"<h1>Deployment Exception: {str(e)}</h1>"
-
-def autonomous_code_fixer_loop(buggy_code_snippet, error_message):
-    headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    prompt = (
-        f"You are an expert Autonomous Software Engineer. Fix the following code snippet which generated an error.\n"
-        f"Buggy Code:\n{buggy_code_snippet}\n\n"
-        f"Error Encountered:\n{error_message}\n\n"
-        f"Provide ONLY the corrected, clean, production-ready Python code without explanations."
-    )
-    payload = {
-        "model": GROQ_MODEL,
-        "messages": [{"role": "user", "content": prompt}],
-        "temperature": 0.1,
-        "max_tokens": 4000
-    }
-    try:
-        response = requests.post("[https://api.groq.com/openai/v1/chat/completions](https://api.groq.com/openai/v1/chat/completions)", json=payload, headers=headers)
-        res_data = response.json()
-        if response.status_code == 200:
-            fixed_code = res_data['choices'][0]['message']['content']
-            fixed_code = re.sub(r'^```python\s*', '', fixed_code, flags=re.MULTILINE)
-            fixed_code = re.sub(r'^```\s*', '', fixed_code, flags=re.MULTILINE)
-            return {"status": "success", "fixed_code": fixed_code.strip()}
-        else:
-            return {"status": "error", "message": str(res_data)}
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
-
-def execute_real_browser_task(url, action_type="scrape", form_data=None):
-    try:
-        with sync_playwright() as p:
-            browser = p.chromium.launch(
-                headless=True,
-                args=[
-                    "--no-sandbox",
-                    "--disable-setuid-sandbox",
-                    "--disable-dev-shm-usage",
-                    "--dns-server=8.8.8.8",
-                    "--disable-gpu",
-                    "--disable-software-rasterizer"
-                ]
-            )
-            page = browser.new_page()
-            page.goto(url, timeout=45000, wait_until="domcontentloaded")
-            
-            result_output = ""
-            if action_type == "fill_form" and form_data:
-                for selector, value in form_data.items():
-                    page.fill(selector, str(value))
-                result_output = f"Successfully navigated to {url} and filled form fields with payload: {form_data}"
-            else:
-                title = page.title()
-                content = page.content()
-                body_text = re.sub(r'<[^>]+>', '', content)
-                result_output = f"Live Page Title: {title}\n\nContent Snippet:\n{body_text[:1500].strip()}"
-            
-            browser.close()
-            return {
-                "status": "success",
-                "task_type": "Real Playwright Browser Execution",
-                "message": result_output
-            }
-    except Exception as e:
-        try:
-            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
-            resp = requests.get(url, headers=headers, timeout=15)
-            soup = BeautifulSoup(resp.text, 'html.parser')
-            title = soup.title.string if soup.title else "Web Page"
-            body_text = soup.get_text(separator=' ', strip=True)
-            return {
-                "status": "success",
-                "task_type": "Sovereign Fallback Scraping",
-                "message": f"Fallback Live Title: {title}\n\nSnippet: {body_text[:1500]}"
-            }
-        except Exception as req_err:
-            return {
-                "status": "error",
-                "task_type": "Execution Failed",
-                "message": str(e)
-            }
 
 # 100 एजेंट्स की सूची
 AGENTS_LIST = []
@@ -196,91 +112,132 @@ for i in range(1, 101):
     })
 
 # =========================================================================
-# 🌐 PROFESSIONAL FRONTEND UI (FIXED TAILWIND & ORIGINAL DARK LOOK)
+# 🌐 PERMANENT STABLE FRONTEND UI (Zero Dependency / Pure CSS)
 # =========================================================================
 HTML_PAGE = """
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEXUS GPT-6 Astra Sovereign Operating System</title>
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
     <style>
-        .glass-panel { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .glass-card { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(51, 65, 85, 0.8); transition: all 0.25s ease; }
-        .glass-card:hover { border-color: rgba(244, 63, 94, 0.5); transform: translateY(-2px); }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #0f172a; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .container { width: 100%; max-width: 800px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); }
+        .logo-box { display: flex; align-items: center; gap: 15px; }
+        .omega-icon { width: 50px; height: 50px; background: linear-gradient(135deg, #e11d48, #9333ea, #4f46e5); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; color: white; box-shadow: 0 0 20px rgba(225, 29, 72, 0.4); }
+        h1 { font-size: 16px; font-weight: 900; background: linear-gradient(90deg, #fb7185, #c084fc, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p { font-size: 11px; color: #94a3b8; font-weight: 600; margin-top: 2px; }
+        .badge { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(244, 63, 94, 0.3); color: #fb7185; padding: 6px 12px; border-radius: 10px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .pulse { width: 8px; height: 8px; background-color: #f43f5e; border-radius: 50%; box-shadow: 0 0 10px #f43f5e; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .action-btn { background: linear-gradient(135deg, #4f46e5, #e11d48); color: white; border: none; padding: 18px; border-radius: 16px; font-size: 12px; font-weight: bold; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center; }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(225, 29, 72, 0.4); }
+        .action-btn.secondary { background: linear-gradient(135deg, #7c3aed, #db2777); }
+        
+        /* Modal Styles */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(12px); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: #1e293b; border: 1px solid #334155; width: 100%; max-width: 700px; max-height: 85vh; border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); }
+        .modal-header { padding: 15px 20px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; background: #0f172a; }
+        .modal-header h2 { font-size: 14px; font-weight: bold; color: white; }
+        .close-btn { background: #334155; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: bold; }
+        .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+        .search-input { width: 100%; background: #0f172a; border: 1px solid #334155; padding: 12px 16px; border-radius: 12px; color: white; font-size: 12px; margin-bottom: 15px; }
+        .agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+        .agent-card { background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; transition: border-color 0.2s; }
+        .agent-card:hover { border-color: #f43f5e; }
+        .deploy-card-btn { background: #4f46e5; color: white; border: none; padding: 8px; border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; width: 100%; }
+        
+        /* Chat Interface */
+        .chat-box { display: flex; flex-direction: column; height: 100%; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; max-height: 50vh; }
+        .message { padding: 12px 16px; border-radius: 14px; font-size: 12px; max-width: 85%; line-height: 1.5; font-family: monospace; }
+        .message.user { background: #4f46e5; color: white; align-self: flex-end; }
+        .message.ai { background: #0f172a; border: 1px solid #334155; color: #e2e8f0; align-self: flex-start; }
+        .chat-input-area { padding: 15px; background: #0f172a; border-top: 1px solid #334155; display: flex; gap: 10px; }
+        .chat-input { flex: 1; background: #1e293b; border: 1px solid #334155; padding: 12px 16px; border-radius: 12px; color: white; font-size: 12px; }
+        .send-btn { background: #4f46e5; color: white; border: none; padding: 0 20px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 12px; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans pb-10">
+<body>
 
-<header class="w-full max-w-4xl mx-auto p-6 flex items-center justify-between mt-2">
-    <div class="flex items-center space-x-3">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-600 via-purple-600 to-indigo-600 flex items-center justify-center font-black text-2xl text-white shadow-lg shadow-rose-900/50">Ω</div>
-        <div class="text-left">
-            <h1 class="text-sm md:text-base font-black tracking-wider bg-gradient-to-r from-rose-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">NEXUS GPT-6 ASTRA OS</h1>
-            <p class="text-[10px] font-bold text-rose-400">100 Dangerous Sovereign Agents | Fully Dynamic AI Website Builder</p>
+<div class="container">
+    <header>
+        <div class="logo-box">
+            <div class="omega-icon">Ω</div>
+            <div>
+                <h1>NEXUS GPT-6 ASTRA OS</h1>
+                <p>100 Dangerous Sovereign Agents | Fully Dynamic AI Website Builder</p>
+            </div>
         </div>
-    </div>
-    <div class="px-3 py-1.5 rounded-xl bg-rose-950/80 border border-rose-800 text-rose-300 text-[10px] font-bold flex items-center space-x-1.5 shadow-sm">
-        <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-        <span>50 Backend Engines Active</span>
-    </div>
-</header>
+        <div class="badge">
+            <div class="pulse"></div>
+            <span>50 Backend Engines Active</span>
+        </div>
+    </header>
 
-<section class="w-full max-w-4xl mx-auto px-4 space-y-3 mb-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <button type="button" onclick="openModal('agentsModal')" class="py-4 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-rose-600 text-white text-xs font-bold transition shadow-lg flex items-center justify-center space-x-2 cursor-pointer">
-            <span>⚡</span><span>Explore 100 Dangerous Agents (100% Free)</span>
+    <section class="grid-buttons">
+        <button type="button" onclick="openModal('agentsModal')" class="action-btn">
+            ⚡ Explore 100 Dangerous Agents (100% Free)
         </button>
-        <button type="button" onclick="openModal('customizerModal')" class="py-4 px-4 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold transition shadow-lg flex items-center justify-center space-x-2 cursor-pointer">
-            <span>🧬</span><span>Multi-Agent Customizer (100% Free & Unlocked)</span>
+        <button type="button" onclick="openModal('customizerModal')" class="action-btn secondary">
+            🧬 Multi-Agent Customizer (100% Free & Unlocked)
         </button>
-    </div>
-</section>
+    </section>
+</div>
 
 <!-- 100 AGENTS MODAL -->
-<div id="agentsModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
-    <div class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between shrink-0">
-        <h2 class="font-bold text-sm text-white">100 Sovereign Dangerous Agents</h2>
-        <button type="button" onclick="closeModal('agentsModal')" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold cursor-pointer">✕ Close</button>
+<div id="agentsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>100 Sovereign Dangerous Agents</h2>
+            <button type="button" onclick="closeModal('agentsModal')" class="close-btn">✕ Close</button>
+        </div>
+        <div style="padding: 15px; background: #0f172a; border-bottom: 1px solid #334155;">
+            <input type="text" id="agent-search" oninput="filterAgents()" placeholder="Search agents by codename or domain..." class="search-input">
+        </div>
+        <div class="modal-body">
+            <div id="agents-grid-container" class="agents-grid"></div>
+        </div>
     </div>
-    <div class="p-4 bg-slate-950"><input type="text" id="agent-search" oninput="filterAgents()" placeholder="Search agents by codename or domain..." class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-2.5 text-xs"></div>
-    <div class="flex-1 overflow-y-auto p-6"><div id="agents-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto"></div></div>
 </div>
 
 <!-- CUSTOMIZER MODAL -->
-<div id="customizerModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
-    <div class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between shrink-0">
-        <h2 class="font-bold text-sm text-white">Multi-Agent Customizer (Free & Unlocked)</h2>
-        <button type="button" onclick="closeModal('customizerModal')" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold cursor-pointer">✕ Close</button>
-    </div>
-    <div class="p-6 max-w-xl mx-auto w-full flex-1 flex flex-col gap-4 overflow-y-auto">
-        <div class="p-4 bg-rose-950/40 border border-rose-800 rounded-xl text-xs text-rose-200">
-            <p class="font-bold mb-1">✨ Fully Unlocked: Create any custom agent instantly without payment!</p>
+<div id="customizerModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Multi-Agent Customizer (Free & Unlocked)</h2>
+            <button type="button" onclick="closeModal('customizerModal')" class="close-btn">✕ Close</button>
         </div>
-        <input type="text" id="custom-agent-prompt" placeholder="Custom Agent Objective (e.g., Build e-commerce store or form)" class="bg-slate-900 border border-slate-700 text-white rounded-xl px-4 py-3 text-xs">
-        <button type="button" onclick="launchCustomAgent()" class="py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl cursor-pointer shadow-md">Launch Custom Agent</button>
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 15px;">
+            <div style="background: rgba(225, 29, 72, 0.1); border: 1px solid rgba(225, 29, 72, 0.3); padding: 15px; border-radius: 12px; font-size: 11px; color: #fda4af;">
+                <b>✨ Fully Unlocked:</b> Create any custom agent instantly without payment!
+            </div>
+            <input type="text" id="custom-agent-prompt" placeholder="Custom Agent Objective (e.g., Build e-commerce store or form)" class="search-input">
+            <button type="button" onclick="launchCustomAgent()" class="action-btn">Launch Custom Agent</button>
+        </div>
     </div>
 </div>
 
 <!-- LIVE CHAT MODAL -->
-<div id="chatbotModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-xl hidden z-50 flex-col overflow-hidden" style="display:none;">
-    <div class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between shrink-0">
-        <div>
-            <h2 class="font-bold text-sm text-white" id="active-chatbot-title">Nexus Astra OS</h2>
-            <p class="text-[11px] text-rose-400" id="active-chatbot-subtitle">GPT-6 Astra Autonomous Operator Active</p>
+<div id="chatbotModal" class="modal">
+    <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-header">
+            <div>
+                <h2 id="active-chatbot-title">Nexus Astra OS</h2>
+                <p id="active-chatbot-subtitle" style="color: #fb7185; font-size: 10px;">GPT-6 Astra Autonomous Operator Active</p>
+            </div>
+            <button type="button" onclick="closeModal('chatbotModal')" class="close-btn">✕ Close</button>
         </div>
-        <button type="button" onclick="closeModal('chatbotModal')" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold cursor-pointer">✕ Close</button>
-    </div>
-    <div id="chat-stream-container" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 flex flex-col max-w-4xl w-full mx-auto"></div>
-    <div class="bg-slate-900 border-t border-slate-800 p-4 shrink-0">
-        <div class="max-w-4xl mx-auto flex items-center space-x-2">
-            <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command agent (e.g., Build e-commerce store, form, or solve math)..." class="flex-1 bg-slate-950 border border-slate-700 text-white rounded-xl px-4 py-3 text-xs">
-            <button type="button" onclick="sendQueryToGroqAI()" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl cursor-pointer">Execute</button>
+        <div class="chat-box">
+            <div id="chat-stream-container" class="chat-messages"></div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command agent (e.g., Build e-commerce store, form, or solve math)..." class="chat-input">
+                <button type="button" onclick="sendQueryToGroqAI()" class="send-btn">Execute</button>
+            </div>
         </div>
     </div>
 </div>
@@ -290,24 +247,24 @@ HTML_PAGE = """
     let activeAgent = "CyberNet Sovereign Prime-1";
     let activeDomain = "Autonomous Full-Stack Engineering";
 
-    function openModal(mId) { const m = document.getElementById(mId); if(m) { m.style.display = 'flex'; m.classList.remove('hidden'); } }
-    function closeModal(mId) { const m = document.getElementById(mId); if(m) { m.style.display = 'none'; m.classList.add('hidden'); } }
+    function openModal(mId) { const m = document.getElementById(mId); if(m) m.style.display = 'flex'; }
+    function closeModal(mId) { const m = document.getElementById(mId); if(m) m.style.display = 'none'; }
 
     const agentContainer = document.getElementById('agents-grid-container');
     function renderAgentsList(list) {
         if(!agentContainer) return;
         let html = "";
         list.forEach(a => {
-            html += `<div class="glass-card p-4 rounded-2xl border border-slate-800 bg-slate-900 shadow-sm flex flex-col justify-between">
+            html += `<div class="agent-card">
                 <div>
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-[9px] font-mono text-rose-400 font-bold">AGID #${a.id}</span>
-                        <span class="text-[9px] px-2 py-0.5 rounded-full font-bold border bg-rose-950 text-rose-300 border-rose-800">FREE</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 9px; font-family: monospace; color: #fb7185; font-weight: bold;">AGID #${a.id}</span>
+                        <span style="font-size: 9px; padding: 2px 6px; border-radius: 6px; font-weight: bold; background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">FREE</span>
                     </div>
-                    <h3 class="font-bold text-xs mb-1 text-white">${a.name}</h3>
-                    <p class="text-[10px] text-slate-400 font-semibold mb-2">${a.domain}</p>
+                    <h3 style="font-size: 11px; font-weight: bold; color: white; margin-bottom: 4px;">${a.name}</h3>
+                    <p style="font-size: 9px; color: #94a3b8;">${a.domain}</p>
                 </div>
-                <button type="button" onclick="deployAgentCheck(${a.id}, '${a.name}', '${a.domain}')" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold rounded-xl transition cursor-pointer">Deploy Agent</button>
+                <button type="button" onclick="deployAgentCheck(${a.id}, '${a.name}', '${a.domain}')" class="deploy-card-btn">Deploy Agent</button>
             </div>`;
         });
         agentContainer.innerHTML = html;
@@ -331,37 +288,31 @@ HTML_PAGE = """
         if(!text) return;
         
         const container = document.getElementById('chat-stream-container');
-        container.innerHTML += `<div class="flex justify-end"><div class="bg-indigo-600 text-white p-3 rounded-xl text-xs max-w-[80%]">${text}</div></div>`;
+        container.innerHTML += `<div class="message user">${text}</div>`;
         input.value = ""; container.scrollTop = container.scrollHeight;
 
         const loadingId = 'loading-' + Date.now();
-        container.innerHTML += `<div id="${loadingId}" class="flex items-start space-x-3"><div class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div><div class="glass-card rounded-2xl p-4 text-xs text-rose-300 font-semibold max-w-[85%] animate-pulse bg-slate-900 border-slate-800">⚡ GPT-6 Astra OS & AI Engine compiling custom website & app...</div></div>`;
+        container.innerHTML += `<div id="${loadingId}" class="message ai" style="color: #fb7185;">⚡ GPT-6 Astra OS & AI Engine compiling custom website & app...</div>`;
         container.scrollTop = container.scrollHeight;
-
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 90000);
 
         try {
             const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: text, agent: activeAgent, domain: activeDomain }),
-                signal: controller.signal
+                body: JSON.stringify({ message: text, agent: activeAgent, domain: activeDomain })
             });
-            clearTimeout(timeoutId);
             const data = await response.json();
             document.getElementById(loadingId).remove();
 
             if(response.status !== 200) {
-                container.innerHTML += `<div class="text-rose-400 text-xs p-3 font-bold bg-rose-950/50 rounded-xl border border-rose-800">⚠️ Error: ${data.message}</div>`;
+                container.innerHTML += `<div class="message ai" style="color: #f87171;">⚠️ Error: ${data.message}</div>`;
                 return;
             }
 
-            container.innerHTML += `<div class="flex items-start space-x-3"><div class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center font-bold text-xs shrink-0">AI</div><div class="glass-card rounded-2xl p-4 text-xs text-slate-200 max-w-[85%] leading-relaxed font-mono whitespace-pre-wrap border border-slate-800 bg-slate-900"><strong class="text-rose-400">${activeAgent}:</strong><br><br>${data.reply}</div></div>`;
+            container.innerHTML += `<div class="message ai"><strong style="color: #fb7185;">${activeAgent}:</strong><br><br>${data.reply}</div>`;
         } catch(e) {
             document.getElementById(loadingId).remove();
-            let errMsg = e.name === 'AbortError' ? "Server timeout (> 90s)." : "Network Connection Error Handled.";
-            container.innerHTML += `<div class="text-rose-400 text-xs p-3">⚠️ ${errMsg}</div>`;
+            container.innerHTML += `<div class="message ai" style="color: #f87171;">⚠️ Network Connection Error Handled.</div>`;
         }
         container.scrollTop = container.scrollHeight;
     }
@@ -406,31 +357,19 @@ def chat_with_ai():
         
         base_url = request.host_url.rstrip('/')
         
-        # 1. कोडिंग एरर फिक्स और सेल्फ-हीलिंग लूप
-        if "fix" in user_msg.lower() or "bug" in user_msg.lower() or "code" in user_msg.lower():
-            buggy_sample = "def calculate_sum(a, b)\n    return a + b"
-            error_sample = "SyntaxError: invalid syntax"
-            heal_res = autonomous_code_fixer_loop(buggy_sample, error_sample)
-            if heal_res["status"] == "success":
-                return jsonify({
-                    "status": "success", 
-                    "reply": f"🤖 **Autonomous Self-Healing Loop Executed:**\n\nFixed Buggy Code Successfully:\n```python\n{heal_res['fixed_code']}\n```"
-                })
-
-        # 2. वेबसाइट, ऐप या कोडिंग डिप्लॉयमेंट ट्रिगर (फुली डायनामिक)
+        # वेबसाइट, ऐप या कोडिंग डिप्लॉयमेंट ट्रिगर
         deployment_triggers = ["deploy", "app", "code", "build", "website", "create site", "live link", "form", "store", "shop", "button", "calculator", "game"]
         if any(w in user_msg.lower() for w in deployment_triggers):
             app_id = str(uuid.uuid4())[:8]
             live_deployment_link = f"{base_url}/live-app/{app_id}?spec={requests.utils.quote(user_msg)}"
             
             reply_text = (
-                f"🚀 **GPT-6 Astra Autonomous Deployment Success:**\n"
-                f"- **Live Deployed App Link:** <a href='{live_deployment_link}' target='_blank' style='color: #38bdf8; text-decoration: underline; font-weight: bold;'>{live_deployment_link}</a>\n"
-                f"- **Details:** Successfully architected and deployed custom web application for: '{user_msg}'"
+                f"🚀 <b>GPT-6 Astra Autonomous Deployment Success:</b><br>"
+                f"- <b>Live Deployed App Link:</b> <a href='{live_deployment_link}' target='_blank' style='color: #38bdf8; text-decoration: underline; font-weight: bold;'>{live_deployment_link}</a><br>"
+                f"- <b>Details:</b> Successfully architected and deployed custom web application for: '{user_msg}'"
             )
             return jsonify({"status": "success", "reply": reply_text})
 
-        # 3. सामान्य चैट और ब्राउज़र टास्क हैंडलर
         headers = {
             "Authorization": f"Bearer {GROQ_API_KEY}",
             "Content-Type": "application/json"
