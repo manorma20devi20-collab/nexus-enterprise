@@ -11,7 +11,7 @@ app = Flask(__name__)
 # =========================================================================
 # 🔑 1. SECURE CONFIGURATION: API KEYS
 # =========================================================================
-GROQ_API_KEY ="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"  # अपनी असली Groq API Key यहाँ डालें
+GROQ_API_KEY = "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"  # अपनी असली Groq API Key यहाँ डालें
 GROQ_MODEL = "openai/gpt-oss-120b"                        # अनुरोधित मॉडल
 
 # =========================================================================
@@ -64,7 +64,6 @@ def generate_dynamic_website_via_ai(spec_prompt):
         res_data = response.json()
         if response.status_code == 200:
             html_content = res_data['choices'][0]['message']['content']
-            # यदि एआई गलती से markdown block दे दे तो उसे साफ करना
             html_content = re.sub(r'^```html\s*', '', html_content, flags=re.IGNORECASE)
             html_content = re.sub(r'\s*```$', '', html_content)
             return html_content
@@ -113,7 +112,7 @@ for i in range(1, 101):
     })
 
 # =========================================================================
-# 🌐 4. PROFESSIONAL FRONTEND UI
+# 🌐 4. PROFESSIONAL FRONTEND UI (FIXED TAILWIND LINK)
 # =========================================================================
 HTML_PAGE = """
 <!DOCTYPE html>
@@ -124,12 +123,12 @@ HTML_PAGE = """
     <title>NEXUS GPT-6 Astra Sovereign Operating System</title>
     <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
     <style>
-        .glass-panel { background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(20px); border: 1px solid rgba(0, 0, 0, 0.08); }
-        .glass-card { background: rgba(248, 250, 252, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.8); transition: all 0.25s ease; }
+        .glass-panel { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-card { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(51, 65, 85, 0.8); transition: all 0.25s ease; }
         .glass-card:hover { border-color: rgba(99, 102, 241, 0.5); transform: translateY(-2px); }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans pb-10">
@@ -306,7 +305,6 @@ def home():
 @app.route('/live-app/<app_id>')
 def live_deployed_app(app_id):
     spec = request.args.get('spec', 'Custom Web Application')
-    # अब यह फिक्स नहीं है! यह सीधे AI को कॉल करके आपके हर प्रॉम्प्ट के हिसाब से असली वेबसाइट कोड रेंडर करेगा।
     return generate_dynamic_website_via_ai(spec)
 
 @app.route('/api/chat', methods=['POST'])
@@ -322,7 +320,6 @@ def chat_with_ai():
         
         base_url = request.host_url.rstrip('/')
         
-        # 1. वेबसाइट, ऐप या कोडिंग डिप्लॉयमेंट ट्रिगर
         deployment_triggers = ["deploy", "app", "code", "build", "website", "create site", "live link", "form", "store", "shop", "button", "calculator", "game"]
         if any(w in user_msg.lower() for w in deployment_triggers):
             app_id = str(uuid.uuid4())[:8]
@@ -335,7 +332,6 @@ def chat_with_ai():
             )
             return jsonify({"status": "success", "reply": reply_text})
 
-        # 2. Groq AI चैट रिस्पॉन्स (हार्ड कोडिंग और मैथ्स सॉल्विंग)
         headers = {
             "Authorization": f"Bearer {GROQ_API_KEY}",
             "Content-Type": "application/json"
