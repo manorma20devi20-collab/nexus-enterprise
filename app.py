@@ -11,40 +11,33 @@ app = Flask(__name__)
 # =========================================================================
 # 🔑 1. SECURE CONFIGURATION: API KEYS & DETAILS
 # =========================================================================
-GROQ_API_KEY = "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"  # अपनी असली Groq API Key यहाँ डालें
-GROQ_MODEL = "openai/gpt-oss-120b"                        # मुख्य मैसिव मॉडल
+GROQ_API_KEY = "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"
+GROQ_MODEL = "openai/gpt-oss-120b"
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
-GITHUB_TOKEN = "your-github-personal-access-token"       # वैकल्पिक
-GITHUB_USERNAME = "your-github-username"                  # वैकल्पिक
+GITHUB_TOKEN = "your-github-personal-access-token"
+GITHUB_USERNAME = "your-github-username"
 
 PHONEPE_ID = "your-phonepe-id@ybl"
 PHONEPE_NUMBER = "9876543210"
 
-html_storage_db = {}  # सभी डायनामिक ऐप्स और वेबसाइट्स को स्टोर करने के लिए डेटाबेस
+html_storage_db = {}
 
 # =========================================================================
 # 🧠 2. ADVANCED AUTONOMOUS PROMPT OPTIMIZER & SELF-HEALING ENGINE
 # =========================================================================
 def analyze_and_enhance_prompt(user_prompt):
-    """
-    यह इंजन यूजर के प्रॉम्प्ट की कमियों को खुद भांपता है, उसमें जरूरी लॉजिक, 
-    जावास्क्रिप्ट एपीआई हैंडलिंग, मैप्स, एआई चैट इंटीग्रेशन और एरर-फ्री स्ट्रक्चर जोड़ता है।
-    """
     enhancements_noted = []
     enhanced_prompt = user_prompt
     
-    # यदि यूजर मैप या जियोलोकेशन मांग रहा है
     if "map" in user_prompt.lower() or "मैप" in user_prompt:
         enhancements_noted.append("Integrated Leaflet.js Interactive World Map Engine.")
         enhanced_prompt += " (Include fully interactive Leaflet.js world map via CDN with zoom, pan, and search functionality). "
         
-    # यदि यूजर एआई चैट या असिस्टेंट मांग रहा है
     if "ai" in user_prompt.lower() or "assistant" in user_prompt.lower() or "chatbot" in user_prompt.lower():
         enhancements_noted.append("Integrated Full-Screen AI Assistant Chatbot Overlay.")
         enhanced_prompt += " (Include a prominent bottom-right glowing AI button that triggers a full-screen immersive chat interface connected to advanced models). "
 
-    # सामान्य या किसी भी फील्ड की वेबसाइट के लिए यूनिवर्सल एनहांसमेंट
     enhancements_noted.append("Applied Enterprise-Grade Tailwind UI, Full JavaScript Logic, and Zero-Error Loop.")
     enhanced_prompt += " (Ensure complete production-ready single-file HTML structure with Tailwind CSS, responsive layout, and flawless JS interactivity without any placeholders)."
     
@@ -101,7 +94,6 @@ def generate_dynamic_website_via_ai(spec_prompt):
         </html>
         """
     
-    # प्रॉम्प्ट की कमियों को खुद सुधारना और एनहांस करना
     optimized_prompt, notes = analyze_and_enhance_prompt(spec_prompt)
     
     headers = {
@@ -192,7 +184,7 @@ for i in range(1, 101):
     })
 
 # =========================================================================
-# 🌐 STABLE PREMIUM FRONTEND UI (YOUR ORIGINAL LOOK & GLASSMORPHISM)
+# 🌐 STABLE PREMIUM FRONTEND UI
 # =========================================================================
 HTML_PAGE = """
 <!DOCTYPE html>
@@ -432,7 +424,6 @@ def chat_with_ai():
         
         base_url = request.host_url.rstrip('/')
         
-        # यूनिवर्सल ट्रिगर्स: किसी भी प्रकार की वेबसाइट, मैप, गेम या ऐप बनाने के लिए
         deployment_triggers = [
             "deploy", "app", "code", "build", "website", "create site", "live link", 
             "form", "store", "shop", "game", "search engine", "google", "chatbot", 
@@ -440,13 +431,9 @@ def chat_with_ai():
         ]
         
         if any(w in user_msg.lower() for w in deployment_triggers) or len(user_msg) > 3:
-            # 1. प्रॉम्प्ट एनालाइज़र जो हर कमी को खुद ठीक कर देगा
             optimized_prompt, notes = analyze_and_enhance_prompt(user_msg)
-            
-            # 2. एआई से अल्टीमेट कोड जनरेट करवाना
             generated_html_code = generate_dynamic_website_via_ai(user_msg)
             
-            # 3. स्टोरेज और लाइव डिप्लॉयमेंट
             app_id = str(uuid.uuid4())[:8]
             html_storage_db[app_id] = generated_html_code
             
@@ -464,7 +451,6 @@ def chat_with_ai():
             )
             return jsonify({"status": "success", "reply": reply_text})
 
-        # सामान्य चैट के लिए
         headers = {
             "Authorization": f"Bearer {GROQ_API_KEY}",
             "Content-Type": "application/json"
@@ -491,7 +477,7 @@ def chat_with_ai():
         if response.status_code != 200:
             return jsonify({"status": "error", "message": str(res_data)}), 400
         
-        return jsonify({"status": "reply": res_data['choices'][0]['message']['content']})
+        return jsonify({"status": "success", "reply": res_data['choices'][0]['message']['content']})
         
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
