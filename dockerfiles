@@ -34,5 +34,4 @@ COPY . .
 
 EXPOSE 10000
 
-# यहाँ python app.py की जगह Gunicorn का उपयोग करें ताकि 'gunicorn not found' एरर कभी न आए
 CMD ["gunicorn", "--bind", "0.0.0.0:10000", "app:app"]
