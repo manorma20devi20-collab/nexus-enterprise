@@ -1,9 +1,7 @@
 FROM python:3.10-slim
 
-# Working Directory सेट करें
 WORKDIR /app
 
-# सिस्टम की आवश्यक लाइब्रेरीज इंस्टॉल करें ताकि Chromium और Playwright बिना क्रैश के चल सकें
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libnss3 \
     libnspr4 \
@@ -25,19 +23,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Pip को अपग्रेड करें
 RUN pip install --no-cache-dir --upgrade pip
 
-# रिक्वायरमेंट्स फाइल कॉपी करें और लाइब्रेरीज इंस्टॉल करें
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Playwright का Chromium ब्राउज़र बाइनरी इंस्टॉल करें
 RUN playwright install chromium
 
-# प्रोजेक्ट का पूरा कोड कंटेनर में कॉपी करें
 COPY . .
 
-# Render पोर्ट के अनुसार Flask ऐप रन करने की कमांड
 EXPOSE 10000
-CMD python app.py
+
+# यहाँ python app.py की जगह Gunicorn का उपयोग करें ताकि 'gunicorn not found' एरर कभी न आए
+CMD ["gunicorn", "--bind", "0.0.0.0:10000", "app:app"]
