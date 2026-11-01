@@ -1,2 +1,3 @@
-pip install flask requests playwright
-playwright install
+flask
+requests
+playwright

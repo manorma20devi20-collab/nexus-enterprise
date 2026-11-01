@@ -4,6 +4,7 @@ import json
 import uuid
 import re
 import base64
+import os
 
 # Playwright को केवल तभी और वहीं इस्तेमाल किया जाएगा जब ब्राउज़र ऑटोमेशन या टेस्टिंग की जरूरत हो
 try:
@@ -54,7 +55,6 @@ def test_generated_html_with_playwright(html_content):
     """
     जब भी एआई कोई भारी ऐप या सर्च इंजन बनाएगा, प्लेराइट बैकग्राउंड में 
     हेडलेस ब्राउज़र चलाकर चेक करेगा कि कोड में कोई सिंटैक्स या क्रैश एरर तो नहीं है।
-    छोटे-मोटे कामों में इसका इस्तेमाल नहीं होता, केवल रेंडरिंग और वैलिडेशन के लिए होता है।
     """
     if not PLAYWRIGHT_AVAILABLE:
         return True, "Playwright not installed, skipping headless render test."
@@ -63,15 +63,12 @@ def test_generated_html_with_playwright(html_content):
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_context().new_page()
-            # HTML को वर्चुअल ब्राउज़र में लोड करके चेक करना
             page.set_content(html_content, timeout=5000)
-            # बेसिक चेक कि बॉडी लोड हुई या नहीं
             body_handle = page.query_selector("body")
             is_valid = body_handle is not None
             browser.close()
             return is_valid, "Playwright headless verification passed successfully."
     except Exception as e:
-        # अगर कोई माइनर एरर हो तो भी ऐप क्रैश नहीं होने देगा, ऑटो-फिक्स कर देगा
         return True, f"Playwright warning handled: {str(e)}"
 
 # =========================================================================
@@ -158,7 +155,6 @@ def generate_dynamic_website_via_ai(spec_prompt):
             ai_output = re.sub(r'^```html\s*', '', ai_output, flags=re.IGNORECASE)
             ai_output = re.sub(r'\s*```$', '', ai_output)
             
-            # Playwright के जरिए कोड की स्थिरता चेक करना
             test_passed, test_msg = test_generated_html_with_playwright(ai_output)
             
             if "<html" not in ai_output.lower():
@@ -204,7 +200,7 @@ for i in range(1, 101):
     })
 
 # =========================================================================
-# 🌐 STABLE PREMIUM FRONTEND UI (FULL SCREEN CHATBOT & DARK GLASSMORPHISM)
+# 🌐 STABLE PREMIUM FRONTEND UI
 # =========================================================================
 HTML_PAGE = """
 <!DOCTYPE html>
@@ -439,7 +435,6 @@ def chat_with_ai():
         
         base_url = request.host_url.rstrip('/')
         
-        # ट्रिगर्स: जब भी वेबसाइट, सर्च इंजन या ऐप बनाने को कहा जाए
         deployment_triggers = [
             "deploy", "app", "code", "build", "website", "create site", "live link", 
             "form", "store", "shop", "game", "search engine", "google", "azure", 
@@ -447,13 +442,9 @@ def chat_with_ai():
         ]
         
         if any(w in user_msg.lower() for w in deployment_triggers) or len(user_msg) > 5:
-            # 1. प्रॉम्प्ट एनालाइज़र और करेक्टर
             optimized_prompt, notes = analyze_and_enhance_prompt(user_msg)
-            
-            # 2. एआई से कोड जनरेट करना
             generated_html_code = generate_dynamic_website_via_ai(user_msg)
             
-            # 3. स्टोरेज और डिप्लॉयमेंट
             app_id = str(uuid.uuid4())[:8]
             html_storage_db[app_id] = generated_html_code
             cloud_link = auto_deploy_to_cloud(user_msg, generated_html_code)
@@ -470,7 +461,6 @@ def chat_with_ai():
             )
             return jsonify({"status": "success", "reply": reply_text})
 
-        # सामान्य चैट के लिए
         headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
         payload = {
             "model": GROQ_MODEL,
@@ -491,4 +481,5 @@ def chat_with_ai():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port, debug=False)
