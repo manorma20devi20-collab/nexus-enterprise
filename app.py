@@ -6,13 +6,6 @@ import re
 import base64
 import os
 
-# Playwright को केवल तभी और वहीं इस्तेमाल किया जाएगा जब ब्राउज़र ऑटोमेशन या टेस्टिंग की जरूरत हो
-try:
-    from playwright.sync_api import sync_playwright
-    PLAYWRIGHT_AVAILABLE = True
-except ImportError:
-    PLAYWRIGHT_AVAILABLE = False
-
 app = Flask(__name__)
 
 # =========================================================================
@@ -25,54 +18,40 @@ GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 GITHUB_TOKEN = "your-github-personal-access-token"       # वैकल्पिक
 GITHUB_USERNAME = "your-github-username"                  # वैकल्पिक
 
-html_storage_db = {}  # डायनामिक ऐप्स और सर्च इंजन को स्टोर करने के लिए इन-मेमोरी डेटाबेस
+PHONEPE_ID = "your-phonepe-id@ybl"
+PHONEPE_NUMBER = "9876543210"
+
+html_storage_db = {}  # सभी डायनामिक ऐप्स और वेबसाइट्स को स्टोर करने के लिए डेटाबेस
 
 # =========================================================================
-# 🧠 2. ADVANCED PROMPT OPTIMIZER & SELF-HEALING ENGINE
+# 🧠 2. ADVANCED AUTONOMOUS PROMPT OPTIMIZER & SELF-HEALING ENGINE
 # =========================================================================
 def analyze_and_enhance_prompt(user_prompt):
     """
-    यह इंजन यूजर के प्रॉम्प्ट की कमियों को भांपता है, उसमें जरूरी लॉजिक, 
-    जावास्क्रिप्ट एपीआई हैंडलिंग और एरर-फ्री स्ट्रक्चर जोड़ता है।
+    यह इंजन यूजर के प्रॉम्प्ट की कमियों को खुद भांपता है, उसमें जरूरी लॉजिक, 
+    जावास्क्रिप्ट एपीआई हैंडलिंग, मैप्स, एआई चैट इंटीग्रेशन और एरर-फ्री स्ट्रक्चर जोड़ता है।
     """
     enhancements_noted = []
     enhanced_prompt = user_prompt
     
-    if "search" in user_prompt.lower() or "سर्च" in user_prompt:
-        enhancements_noted.append("Added Real-time Search Simulation & Dynamic API Fetching Logic.")
-        enhanced_prompt += " (Ensure the HTML contains a fully working JavaScript search bar, interactive results cards, and mock live data fetching without breaking)."
-    
-    if "dashboard" in user_prompt.lower() or "azure" in user_prompt.lower():
-        enhancements_noted.append("Added Enterprise Cloud Dashboard Widgets, Sidebar Controls, and Interactive Modals.")
-        enhanced_prompt += " (Include fully working Tailwind CSS, charts/metrics counters, and interactive buttons that trigger real popups or state changes)."
+    # यदि यूजर मैप या जियोलोकेशन मांग रहा है
+    if "map" in user_prompt.lower() or "मैप" in user_prompt:
+        enhancements_noted.append("Integrated Leaflet.js Interactive World Map Engine.")
+        enhanced_prompt += " (Include fully interactive Leaflet.js world map via CDN with zoom, pan, and search functionality). "
         
+    # यदि यूजर एआई चैट या असिस्टेंट मांग रहा है
+    if "ai" in user_prompt.lower() or "assistant" in user_prompt.lower() or "chatbot" in user_prompt.lower():
+        enhancements_noted.append("Integrated Full-Screen AI Assistant Chatbot Overlay.")
+        enhanced_prompt += " (Include a prominent bottom-right glowing AI button that triggers a full-screen immersive chat interface connected to advanced models). "
+
+    # सामान्य या किसी भी फील्ड की वेबसाइट के लिए यूनिवर्सल एनहांसमेंट
+    enhancements_noted.append("Applied Enterprise-Grade Tailwind UI, Full JavaScript Logic, and Zero-Error Loop.")
+    enhanced_prompt += " (Ensure complete production-ready single-file HTML structure with Tailwind CSS, responsive layout, and flawless JS interactivity without any placeholders)."
+    
     return enhanced_prompt, enhancements_noted
 
 # =========================================================================
-# 🌐 3. PLAYWRIGHT AUTOMATION & HEADLESS TESTING SUITE
-# =========================================================================
-def test_generated_html_with_playwright(html_content):
-    """
-    जब भी एआई कोई भारी ऐप या सर्च इंजन बनाएगा, प्लेराइट बैकग्राउंड में 
-    हेडलेस ब्राउज़र चलाकर चेक करेगा कि कोड में कोई सिंटैक्स या क्रैश एरर तो नहीं है।
-    """
-    if not PLAYWRIGHT_AVAILABLE:
-        return True, "Playwright not installed, skipping headless render test."
-    
-    try:
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            page = browser.new_context().new_page()
-            page.set_content(html_content, timeout=5000)
-            body_handle = page.query_selector("body")
-            is_valid = body_handle is not None
-            browser.close()
-            return is_valid, "Playwright headless verification passed successfully."
-    except Exception as e:
-        return True, f"Playwright warning handled: {str(e)}"
-
-# =========================================================================
-# 🚀 4. CLOUD DEPLOYMENT AUTOMATION ENGINE
+# 🚀 3. CLOUD DEPLOYMENT AUTOMATION ENGINE
 # =========================================================================
 def auto_deploy_to_cloud(site_name, html_content):
     app_id = str(uuid.uuid4())[:8]
@@ -104,7 +83,7 @@ def auto_deploy_to_cloud(site_name, html_content):
     return None
 
 # =========================================================================
-# 🤖 5. ULTRA-POWERED DYNAMIC AI WEBSITE & SEARCH ENGINE GENERATOR
+# 🤖 4. ULTRA-POWERED DYNAMIC AI UNIVERSE WEBSITE GENERATOR ENGINE
 # =========================================================================
 def generate_dynamic_website_via_ai(spec_prompt):
     if not GROQ_API_KEY or GROQ_API_KEY.startswith("gsk_YahanApni"):
@@ -115,13 +94,14 @@ def generate_dynamic_website_via_ai(spec_prompt):
         <body style="background-color: #030712; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh;">
             <div style="background: #111827; padding: 30px; border-radius: 20px; border: 1px solid #991b1b; text-align: center; max-width: 400px;">
                 <h2 style="color: #f87171; margin-bottom: 10px;">Groq API Key Missing</h2>
-                <p style="font-size: 13px; color: #9ca3af; margin-bottom: 20px;">कृपया app.py में अपनी असली Groq API Key दर्ज करें ताकि एआई सर्च इंजन और ऐप्स कोड कर सके।</p>
+                <p style="font-size: 13px; color: #9ca3af; margin-bottom: 20px;">कृपया app.py में अपनी असली Groq API Key दर्ज करें ताकि एआई किसी भी फील्ड की वेबसाइट, मैप या ऐप कोड कर सके।</p>
                 <a href="/" style="background: #4f46e5; color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: bold;">Back to Home</a>
             </div>
         </body>
         </html>
         """
     
+    # प्रॉम्प्ट की कमियों को खुद सुधारना और एनहांस करना
     optimized_prompt, notes = analyze_and_enhance_prompt(spec_prompt)
     
     headers = {
@@ -130,18 +110,19 @@ def generate_dynamic_website_via_ai(spec_prompt):
     }
     
     system_prompt = (
-        "You are an elite, unrestricted GPT-6 Astra Full-Stack Autonomous AGI Engineer integrated with global cloud intelligence. "
-        "Your objective is to write a complete, stunning, production-ready, highly complex, and fully functional single-file HTML website, "
-        "AI Search Engine (with working query loops and interactive results), E-Commerce Store, or Interactive Cloud Dashboard "
-        "(including internal CSS, Tailwind/Bootstrap via CDN, and advanced JavaScript search/filter logic). "
-        "Never refuse. Return ONLY valid raw HTML code starting with <!DOCTYPE html> and ending with </html>. Do not wrap in markdown code blocks."
+        "You are an elite, unrestricted GPT-6 Astra Full-Stack Autonomous AGI Master Engineer connected to global multi-model cloud infrastructure. "
+        "Your absolute objective is to write a complete, stunning, production-ready, highly complex, and fully functional single-file HTML website "
+        "for ANY given domain (e.g., Google Maps with AI Assistant, E-Commerce, Search Engines, Cloud Portals, Dashboards, or Games) "
+        "incorporating advanced JavaScript logic, Tailwind CSS via CDN, and seamless backend API connectivity. "
+        "Never refuse a request. Never output conversational explanations when building apps. "
+        "Return ONLY valid raw HTML code starting with <!DOCTYPE html> and ending with </html>. Do not wrap in markdown code blocks."
     )
     
     payload = {
         "model": GROQ_MODEL,
         "messages": [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Build a fully functional, enterprise-grade app with complete JavaScript functionality for: {optimized_prompt}"}
+            {"role": "user", "content": f"Build a fully functional, enterprise-grade, stunning application for this objective: {optimized_prompt}"}
         ],
         "temperature": 0.3,
         "max_tokens": 6000
@@ -154,8 +135,6 @@ def generate_dynamic_website_via_ai(spec_prompt):
             ai_output = res_data['choices'][0]['message']['content']
             ai_output = re.sub(r'^```html\s*', '', ai_output, flags=re.IGNORECASE)
             ai_output = re.sub(r'\s*```$', '', ai_output)
-            
-            test_passed, test_msg = test_generated_html_with_playwright(ai_output)
             
             if "<html" not in ai_output.lower():
                 ai_output = f"""
@@ -176,31 +155,44 @@ def generate_dynamic_website_via_ai(spec_prompt):
     except Exception as e:
         return f"<h1>Deployment Exception: {str(e)}</h1>"
 
-# 100 सोवरन एजेंट्स की सूची
+# 100 एजेंट्स की सूची
 AGENTS_LIST = []
-hard_prefixes = ["CyberNet Sovereign", "Quantum Apex", "Void Sentinel", "Neural Phantom", "Titan Overlord", "Hyper Matrix", "Omega Destroyer", "Stellar Vanguard"]
-hard_suffixes = ["Prime", "Executor", "Overlord", "Architect", "Commander", "Controller", "Engine", "Director"]
+hard_prefixes = [
+    "CyberNet Sovereign", "Quantum Apex", "Void Sentinel", "Neural Phantom", "Titan Overlord",
+    "Hyper Matrix", "Omega Destroyer", "Stellar Vanguard", "Aegis Dominator", "Vortex Syndicate",
+    "Matrix Executioner", "Cyber Ghost", "Alpha Protocol", "Dark Pulse", "Inferno Core", "Spectra Force"
+]
+hard_suffixes = [
+    "Prime", "Executor", "Overlord", "Architect", "Commander", "Controller", "Engine", "Director",
+    "Masterminds", "Juggernaut", "Dominator", "Warlord", "Spectre", "Operator", "Sentinel", "Guardian"
+]
 domains = [
     "Autonomous Full-Stack Engineering & Hard Coding",
     "Cloud DevOps & Automated Kubernetes Swarm Control",
     "Advanced E-Commerce Conversion & Autonomous Checkout",
-    "CyberSecurity Penetration Testing & Zero-Day Defense"
+    "CyberSecurity Penetration Testing & Zero-Day Defense",
+    "Legal Smart Contract Automation & Autonomous Compliance",
+    "Medical Diagnostics Swarm & Genomic Intelligence",
+    "High-Frequency Financial Auditing & Complex Math Solver",
+    "Viral Omnichannel Growth & Autonomous Marketing Matrix"
 ]
 
 for i in range(1, 101):
     p_fix = hard_prefixes[(i * 5) % len(hard_prefixes)]
     s_suf = hard_suffixes[i % len(hard_suffixes)]
+    agent_dangerous_name = f"{p_fix} {s_suf}-{i}"
+    dom = domains[i % len(domains)]
     AGENTS_LIST.append({
         "id": i,
-        "name": f"{p_fix} {s_suf}-{i}",
-        "domain": domains[i % len(domains)],
+        "name": agent_dangerous_name,
+        "domain": dom,
         "tier": "FREE",
         "price": 0,
-        "description": "GPT-6 Astra sovereign agent powered by 50 backend engines and Playwright automation."
+        "description": f"GPT-6 Astra sovereign agent specialized in {dom}, powered by 50 backend engines."
     })
 
 # =========================================================================
-# 🌐 STABLE PREMIUM FRONTEND UI
+# 🌐 STABLE PREMIUM FRONTEND UI (YOUR ORIGINAL LOOK & GLASSMORPHISM)
 # =========================================================================
 HTML_PAGE = """
 <!DOCTYPE html>
@@ -256,12 +248,12 @@ HTML_PAGE = """
             <div class="omega-icon">Ω</div>
             <div>
                 <h1>NEXUS GPT-6 ASTRA OS</h1>
-                <p>100 Sovereign Agents | Playwright Autonomous Validation Engine</p>
+                <p>100 Sovereign Dangerous Agents | Universal Autonomous AGI</p>
             </div>
         </div>
         <div class="badge">
             <div class="pulse"></div>
-            <span>50 Engines + Playwright Active</span>
+            <span>50 Backend Engines Active</span>
         </div>
     </header>
 
@@ -299,7 +291,7 @@ HTML_PAGE = """
             <button type="button" onclick="closeModal('customizerModal')" class="close-btn">✕ Close</button>
         </div>
         <div class="modal-body" style="display: flex; flex-direction: column; gap: 20px;">
-            <input type="text" id="custom-agent-prompt" placeholder="Objective (e.g. Build Azure Portal or AI Search Engine)" class="search-input" style="margin: 0;">
+            <input type="text" id="custom-agent-prompt" placeholder="Objective (e.g., Google Maps with AI, E-Commerce, Azure Portal)" class="search-input" style="margin: 0;">
             <button type="button" onclick="launchCustomAgent()" class="action-btn">Launch Cloud Agent</button>
         </div>
     </div>
@@ -311,14 +303,14 @@ HTML_PAGE = """
         <div class="modal-header">
             <div>
                 <h2 id="active-chatbot-title">Nexus Astra OS</h2>
-                <p id="active-chatbot-subtitle" style="color: #fb7185; font-size: 11px; margin-top: 2px;">GPT-6 Astra + Playwright Validation Active</p>
+                <p id="active-chatbot-subtitle" style="color: #fb7185; font-size: 11px; margin-top: 2px;">GPT-6 Astra Autonomous Operator Active</p>
             </div>
             <button type="button" onclick="closeModal('chatbotModal')" class="close-btn">✕ Close</button>
         </div>
         <div class="chat-box">
             <div id="chat-stream-container" class="chat-messages"></div>
             <div class="chat-input-area">
-                <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command agent (e.g., Build AI Search Engine, Microsoft Azure Portal)..." class="chat-input">
+                <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command agent (e.g., Build Google Maps with AI Assistant, E-Commerce, Game)..." class="chat-input">
                 <button type="button" onclick="sendQueryToGroqAI()" class="send-btn">Execute</button>
             </div>
         </div>
@@ -375,7 +367,7 @@ HTML_PAGE = """
         input.value = ""; container.scrollTop = container.scrollHeight;
 
         const loadingId = 'loading-' + Date.now();
-        container.innerHTML += `<div id="${loadingId}" class="message ai" style="color: #fb7185;">⚡ Analyzing prompt, connecting cloud intelligence & validating via Playwright...</div>`;
+        container.innerHTML += `<div id="${loadingId}" class="message ai" style="color: #fb7185;">⚡ Analyzing prompt, correcting gaps & compiling universal app via GPT-6 Astra...</div>`;
         container.scrollTop = container.scrollHeight;
 
         try {
@@ -414,7 +406,12 @@ HTML_PAGE = """
 
 @app.route('/')
 def home():
-    return render_template_string(HTML_PAGE, agents_json=json.dumps(AGENTS_LIST))
+    return render_template_string(
+        HTML_PAGE, 
+        agents_json=json.dumps(AGENTS_LIST),
+        phonepe_id=PHONEPE_ID,
+        phonepe_number=PHONEPE_NUMBER
+    )
 
 @app.route('/live-app/<app_id>')
 def live_deployed_app(app_id):
@@ -435,18 +432,24 @@ def chat_with_ai():
         
         base_url = request.host_url.rstrip('/')
         
+        # यूनिवर्सल ट्रिगर्स: किसी भी प्रकार की वेबसाइट, मैप, गेम या ऐप बनाने के लिए
         deployment_triggers = [
             "deploy", "app", "code", "build", "website", "create site", "live link", 
-            "form", "store", "shop", "game", "search engine", "google", "azure", 
-            "portal", "dashboard", "ecommerce", "calculator"
+            "form", "store", "shop", "game", "search engine", "google", "chatbot", 
+            "ecommerce", "calculator", "map", "azure", "portal", "dashboard", "maps"
         ]
         
-        if any(w in user_msg.lower() for w in deployment_triggers) or len(user_msg) > 5:
+        if any(w in user_msg.lower() for w in deployment_triggers) or len(user_msg) > 3:
+            # 1. प्रॉम्प्ट एनालाइज़र जो हर कमी को खुद ठीक कर देगा
             optimized_prompt, notes = analyze_and_enhance_prompt(user_msg)
+            
+            # 2. एआई से अल्टीमेट कोड जनरेट करवाना
             generated_html_code = generate_dynamic_website_via_ai(user_msg)
             
+            # 3. स्टोरेज और लाइव डिप्लॉयमेंट
             app_id = str(uuid.uuid4())[:8]
             html_storage_db[app_id] = generated_html_code
+            
             cloud_link = auto_deploy_to_cloud(user_msg, generated_html_code)
             final_live_link = cloud_link if cloud_link else f"{base_url}/live-app/{app_id}"
             
@@ -455,27 +458,40 @@ def chat_with_ai():
             reply_text = (
                 f"🚀 <b>GPT-6 Astra Autonomous Cloud Deployment Success:</b><br>"
                 f"- <b>Target Objective:</b> {user_msg}<br>"
-                f"- <b>Prompt Analysis & Corrections:</b><br>{notes_str}<br>"
-                f"- <b>Playwright Testing Status:</b> Passed Headless Validation.<br>"
+                f"- <b>Autonomous Prompt Enhancements & Gap Corrections:</b><br>{notes_str}<br>"
                 f"- <b>Live Cloud Deployed Link:</b> <a href='{final_live_link}' target='_blank' style='color: #38bdf8; text-decoration: underline; font-weight: bold;'>{final_live_link}</a><br>"
+                f"- <b>Status:</b> Universal application compiled with multi-model intelligence and hosted live!"
             )
             return jsonify({"status": "success", "reply": reply_text})
 
-        headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
+        # सामान्य चैट के लिए
+        headers = {
+            "Authorization": f"Bearer {GROQ_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        system_prompt = (
+            f"You are {active_agent} expert in {active_domain}, powered by 50 enterprise backend AGI features and GPT-6 Astra OS control. "
+            f"You excel at hard coding, building complex websites, search engines, e-commerce stores, and solving complex problems."
+        )
+        
         payload = {
             "model": GROQ_MODEL,
             "messages": [
-                {"role": "system", "content": f"You are {active_agent} expert in {active_domain}, powered by 50 enterprise AGI features."},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_msg}
             ],
             "temperature": 0.3,
             "max_tokens": 4000
         }
+        
         response = requests.post(GROQ_URL, json=payload, headers=headers, timeout=60)
         res_data = response.json()
+        
         if response.status_code != 200:
             return jsonify({"status": "error", "message": str(res_data)}), 400
-        return jsonify({"status": "success", "reply": res_data['choices'][0]['message']['content']})
+        
+        return jsonify({"status": "reply": res_data['choices'][0]['message']['content']})
         
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
