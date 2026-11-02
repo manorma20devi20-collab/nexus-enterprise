@@ -2,23 +2,11 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# सिस्टम की जरूरी लाइब्रेरीज और टूल्स इंस्टॉल करें
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# पिप को अपग्रेड करें
-RUN pip install --no-cache-dir --upgrade pip
-
-# रिक्वायरमेंट्स फाइल कॉपी करें और लाइब्रेरीज इंस्टॉल करें
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# बाकी की सभी प्रोजेक्ट फाइलें कॉपी करें
 COPY . .
 
-# पोर्ट ओपन करें
 EXPOSE 10000
 
-# Gunicorn के जरिए ऐप को रन करें
-CMD ["gunicorn", "--bind", "0.0.0.0:10000", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:10000", "app:app", "--workers", "2", "--threads", "4", "--timeout", "120"]
