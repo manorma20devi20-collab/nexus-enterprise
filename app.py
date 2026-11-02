@@ -22,7 +22,7 @@ GITHUB_USERNAME = "your-github-username"
 
 html_storage_db = {}
 agent_swarm_memory = {
-    "total_evolutions": 300,
+    "total_evolutions": 350,
     "active_master_agents": 100,
     "total_sub_agents": 1000000,
     "self_optimized_score": 99.99
@@ -42,7 +42,7 @@ def recursive_self_rewriting_core():
 threading.Thread(target=recursive_self_rewriting_core, daemon=True).start()
 
 # =========================================================================
-# 🤖 3. SAFE CLOUD & LOCAL DEPLOYMENT (Fixes 'auto_deploy_to_cloud' Error)
+# 🤖 3. SAFE CLOUD & LOCAL DEPLOYMENT
 # =========================================================================
 def auto_deploy_to_cloud(site_name, html_content):
     app_id = str(uuid.uuid4())[:8]
@@ -70,16 +70,11 @@ def auto_deploy_to_cloud(site_name, html_content):
     return f"/live-app/{app_id}", "Nexus Sovereign Cloud Node"
 
 # =========================================================================
-# 🧠 4. ADVANCED 3D & MULTIMODAL PROMPT OPTIMIZER
+# 🧠 4. UNIVERSAL & UNRESTRICTED 3D / WEB PROMPT ENGINE
 # =========================================================================
 def analyze_and_enhance_prompt(user_prompt):
-    enhanced_prompt = user_prompt
-    
-    if "3d" in user_prompt.lower() or "city" in user_prompt.lower() or "universe" in user_prompt.lower() or "game" in user_prompt.lower() or "animal" in user_prompt.lower() or "monument" in user_prompt.lower():
-        enhanced_prompt += " (CRITICAL: Build an immersive 3D scene using Three.js via CDN, full window WebGL canvas, procedural geometry generation for cities/monuments/objects, lighting, shadows, OrbitControls, and smooth animation loops so it renders instantly without blank screens). "
-    else:
-        enhanced_prompt += " (CRITICAL: Build an enterprise-grade, fully interactive web application with Tailwind CSS, robust JavaScript logic, and zero placeholder text). "
-
+    # यह किसी एक वेबसाइट तक सीमित नहीं है; यह यूजर के हर प्रॉम्प्ट को यूनिवर्सल 3D या फुल-स्टैक में बदलता है।
+    enhanced_prompt = f"{user_prompt}. (CRITICAL: If this requires a 3D model, medical organ like a heart, anatomical structure, city, monument, game, or tool, use Three.js via CDN with procedural geometries, shaders, lighting, orbit controls, and smooth interactive loops so it renders instantly in a browser)."
     return enhanced_prompt
 
 def generate_complex_application_via_ai(spec_prompt):
@@ -96,9 +91,9 @@ def generate_complex_application_via_ai(spec_prompt):
     system_prompt = (
         "You are an elite GPT-6 Astra Master AGI Architect commanding 1,000,000 sub-agents. "
         "Your absolute objective is to write a complete, stunning, highly complex, production-ready single-file HTML/JS/CSS web application "
-        "for ANY user objective (such as 3D cities, monuments, 3D games, or interactive tools) with ZERO errors. "
-        "Use Three.js for 3D graphics, Tailwind CSS for styling, and complete interactive JavaScript. "
-        "Return ONLY valid raw HTML starting with <!DOCTYPE html> and ending with </html>. Do not use markdown blocks."
+        "for ANY user objective whatsoever without any restrictions. Whether it is an interactive 3D Human Heart model, a 3D medical anatomy viewer, "
+        "an open-world game, an e-commerce platform, a trading dashboard, or a complex utility tool—build it with zero errors using Three.js, Tailwind CSS, "
+        "and rich interactive JavaScript. Return ONLY valid raw HTML starting with <!DOCTYPE html> and ending with </html>. Do not use markdown blocks."
     )
     
     payload = {
@@ -124,7 +119,7 @@ def generate_complex_application_via_ai(spec_prompt):
     except Exception as e:
         return f"<h1>Exception: {str(e)}</h1>"
 
-# 100 मास्टर एजेंट्स (प्रत्येक के नीचे 10,000 सब-एजेंट्स = कुल 10 लाख)
+# 100 मास्टर एजेंट्स
 AGENTS_LIST = []
 prefixes = ["CyberNet", "Quantum", "Neural", "Titan", "Matrix", "Omega", "Stellar", "Vortex"]
 suffixes = ["Prime", "Executor", "Overlord", "Architect", "Commander", "Sentinel", "Core", "Director"]
@@ -133,9 +128,9 @@ for i in range(1, 101):
     AGENTS_LIST.append({
         "id": i,
         "name": f"{prefixes[i % len(prefixes)]} {suffixes[i % len(suffixes)]}-{i}",
-        "domain": "Autonomous 3D Swarm & Full-Stack Engine",
+        "domain": "Universal 3D & Open-Source Full-Stack Swarm",
         "sub_agents_count": 10000,
-        "tier": "UNLIMITED-ULTIMATE"
+        "tier": "UNLIMITED-UNIVERSAL"
     })
 
 # =========================================================================
@@ -189,12 +184,12 @@ HTML_PAGE = """
             <div class="omega-icon">Ω</div>
             <div>
                 <h1>NEXUS GPT-6 ASTRA OS</h1>
-                <p>1,000,000 Sub-Agents Swarm | 3D Multimodal Engine</p>
+                <p>1,000,000 Sub-Agents Swarm | Universal 3D & Web Engine</p>
             </div>
         </div>
         <div class="badge">
             <div class="pulse"></div>
-            <span>3D City & Universe Renderer Active</span>
+            <span>No Restrictions - Build Anything</span>
         </div>
     </header>
 
@@ -203,7 +198,7 @@ HTML_PAGE = """
             ⚡ Explore 100 Master Agents (1M Sub-Swarm)
         </button>
         <button type="button" onclick="openModal('chatbotModal')" class="action-btn secondary">
-            🧬 Universal 3D & App Generator (Ultimate)
+            🧬 Universal 3D & App Generator (Open Source)
         </button>
     </section>
 </div>
@@ -214,16 +209,16 @@ HTML_PAGE = """
         <div class="modal-header">
             <div>
                 <h2 id="active-chatbot-title" style="font-size:14px; color:white;">Nexus Astra Sovereign Engine</h2>
-                <p style="color: #34d399; font-size: 10px; margin-top: 2px;">1M Sub-Agents & 3D WebGL Pipeline Active</p>
+                <p style="color: #34d399; font-size: 10px; margin-top: 2px;">1M Sub-Agents & Universal Web/3D Pipeline Active</p>
             </div>
             <button type="button" onclick="closeModal('chatbotModal')" class="close-btn">✕ Close</button>
         </div>
         <div class="chat-box">
             <div id="chat-stream-container" class="chat-messages">
-                <div class="message ai">⚡ <b>Nexus OS 3D Ready:</b> Enter any complex objective (e.g., Build a 3D Cyberpunk City, 3D Monument, 3D Animal Model, or Open-World Game).</div>
+                <div class="message ai">⚡ <b>Nexus OS Universal Ready:</b> Enter any prompt! (e.g., <i>"Build an interactive 3D beating human heart model with anatomical labels"</i> or any website).</div>
             </div>
             <div class="chat-input-area">
-                <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command agent (e.g. Build 3D City, 3D Universe)..." class="chat-input">
+                <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command agent (e.g. Build 3D Human Heart, 3D Game, Website)..." class="chat-input">
                 <button type="button" onclick="sendQueryToGroqAI()" class="send-btn">Execute</button>
             </div>
         </div>
@@ -235,7 +230,7 @@ HTML_PAGE = """
     <div class="modal-content">
         <div class="modal-header">
             <h2 style="font-size:14px; color:white;">100 Master Orchestrators (1 Million Sub-Agents)</h2>
-            <button type="button" onclick="openModal('agentsModal')" class="close-btn">✕ Close</button>
+            <button type="button" onclick="closeModal('agentsModal')" class="close-btn">✕ Close</button>
         </div>
         <div class="modal-body">
             <div id="agents-grid-container" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:15px;"></div>
@@ -254,7 +249,7 @@ HTML_PAGE = """
         let html = "";
         agentsData.forEach(a => {
             html += `<div style="background:#1e293b; border:1px solid #334155; padding:15px; border-radius:12px;">
-                <span style="font-size:9px; color:#34d399; font-family:monospace;">AGID #${a.id} (3D ACTIVE)</span>
+                <span style="font-size:9px; color:#34d399; font-family:monospace;">AGID #${a.id} (UNIVERSAL)</span>
                 <h4 style="font-size:11px; font-weight:bold; color:white; margin:5px 0;">${a.name}</h4>
                 <p style="font-size:9px; color:#94a3b8;">Sub-Agents: 10,000 Active</p>
                 <button onclick="closeModal('agentsModal'); openModal('chatbotModal');" style="width:100%; margin-top:10px; background:#4f46e5; color:white; border:none; padding:8px; border-radius:8px; font-size:10px; font-weight:bold; cursor:pointer;">Deploy Swarm</button>
@@ -273,7 +268,7 @@ HTML_PAGE = """
         input.value = ""; container.scrollTop = container.scrollHeight;
 
         const loadingId = 'loading-' + Date.now();
-        container.innerHTML += `<div id="${loadingId}" class="message ai" style="color: #34d399;">⚡ Mobilizing 1,000,000 sub-agents, 3D WebGL pipeline & compiling application...</div>`;
+        container.innerHTML += `<div id="${loadingId}" class="message ai" style="color: #34d399;">⚡ Mobilizing 1,000,000 sub-agents, universal 3D pipeline & compiling application...</div>`;
         container.scrollTop = container.scrollHeight;
 
         try {
@@ -336,7 +331,7 @@ def chat_with_ai():
         final_live_link = cloud_link if cloud_link.startswith("http") else f"{base_url}{cloud_link}"
         
         reply_text = (
-            f"🚀 <b>GPT-6 Astra Sovereign 1M Swarm Deployment Success (3D Engine):</b><br>"
+            f"🚀 <b>GPT-6 Astra Sovereign 1M Swarm Deployment Success (Universal 3D Engine):</b><br>"
             f"- <b>Objective:</b> {user_msg}<br>"
             f"- <b>Sub-Agents Mobilized:</b> {agent_swarm_memory['total_sub_agents']:,} active<br>"
             f"- <b>Hosting Node:</b> <span style='color:#34d399;'>{platform_used}</span><br>"
