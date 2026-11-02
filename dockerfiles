@@ -2,17 +2,25 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
+# सिस्टम डिपेंडेंसीज और टूल्स इंस्टॉल करें
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+# पिप को अपग्रेड करें और रिक्वायरमेंट्स इंस्टॉल करें
 RUN pip install --no-cache-dir --upgrade pip
-
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# प्लेराइट और क्रोमियम बाइंडिंग्स को सही तरीके से इंस्टॉल करें
+RUN pip install playwright
+RUN playwright install --with-deps chromium
+
+# बाकी की सभी प्रोजेक्ट फाइलें कॉपी करें
 COPY . .
 
+# पोर्ट ओपन करें
 EXPOSE 10000
 
+# Gunicorn के जरिए ऐप को रन करें
 CMD ["gunicorn", "--bind", "0.0.0.0:10000", "app:app"]
