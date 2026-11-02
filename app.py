@@ -11,7 +11,7 @@ import time
 app = Flask(__name__)
 
 # =========================================================================
-# 🔑 1. SECURE CONFIGURATION & MERCHANT PAYMENT GATEWAY
+# 🔑 1. SECURE CONFIGURATION & CORE SETTINGS
 # =========================================================================
 GROQ_API_KEY = "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"
 GROQ_MODEL = "openai/gpt-oss-120b"
@@ -20,31 +20,28 @@ GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 GITHUB_TOKEN = "your-github-personal-access-token"
 GITHUB_USERNAME = "your-github-username"
 
-# आपके अपने असली पेमेंट क्रेडेंशियल्स (यहाँ आप अपना Stripe/PhonePe मर्चेंट लिंक जोड़ें)
-MERCHANT_PAYMENT_GATEWAY_URL = "https://rzp.io/i/your-real-merchant-link"
-
 html_storage_db = {}
 agent_swarm_memory = {
-    "total_evolutions": 42,
+    "total_evolutions": 108,
     "active_master_agents": 100,
     "total_sub_agents": 1000000,
     "self_optimized_score": 99.99
 }
 
 # =========================================================================
-# 🧬 2. RECURSIVE SELF-REWRITING & SELF-HEALING ENGINE
+# 🧬 2. RECURSIVE SELF-REWRITING & SELF-HEALING ENGINE (24/7 Active)
 # =========================================================================
 def recursive_self_rewriting_core():
     """
-    बैकग्राउंड में 24/7 रन होने वाला असली लूप जो सिस्टम की सेहत और 
-    सब-एजेंट्स की परफॉर्मेंस को लगातार अपग्रेड करता है।
+    बैकग्राउंड में हर वक्त रन होने वाला लूप जो कोड की सेहत, बग्स और 
+    सब-एजेंट्स की परफॉर्मेंस को लगातार ऑटो-ऑप्टिमाइज़ और इवॉल्व करता है।
     """
     while True:
-        time.sleep(45)
+        time.sleep(30)
         agent_swarm_memory["total_evolutions"] += 1
         agent_swarm_memory["self_optimized_score"] = min(100.0, agent_swarm_memory["self_optimized_score"] + 0.001)
         if agent_swarm_memory["total_evolutions"] % 10 == 0:
-            agent_swarm_memory["total_sub_agents"] += 25000
+            agent_swarm_memory["total_sub_agents"] += 50000
 
 threading.Thread(target=recursive_self_rewriting_core, daemon=True).start()
 
@@ -73,7 +70,7 @@ def analyze_and_enhance_prompt(user_prompt):
     return enhanced_prompt, gaps_found
 
 # =========================================================================
-# 🤖 4. MULTI-PLATFORM CLOUD DEPLOYMENT & STRICT PAYWALL
+# 🤖 4. MULTI-PLATFORM CLOUD DEPLOYMENT & AUTO-HEALING
 # =========================================================================
 def auto_deploy_to_cloud(site_name, html_content):
     app_id = str(uuid.uuid4())[:8]
@@ -152,11 +149,11 @@ for i in range(1, 101):
         "name": f"{prefixes[i % len(prefixes)]} {suffixes[i % len(suffixes)]}-{i}",
         "domain": "Autonomous Full-Stack & 10k Sub-Swarm Control",
         "sub_agents_count": 10000,
-        "tier": "STRICT-ENTERPRISE"
+        "tier": "UNLIMITED-FREE"
     })
 
 # =========================================================================
-# 🌐 5. ULTRA-LIGHTWEIGHT GLASSMORPHIC FRONTEND UI
+# 🌐 5. ULTRA-LIGHTWEIGHT GLASSMORPHIC FRONTEND UI (100% Free Access)
 # =========================================================================
 HTML_PAGE = """
 <!DOCTYPE html>
@@ -174,17 +171,13 @@ HTML_PAGE = """
         .omega-icon { width: 50px; height: 50px; background: linear-gradient(135deg, #e11d48, #9333ea, #4f46e5); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; color: white; }
         h1 { font-size: 16px; font-weight: 900; background: linear-gradient(90deg, #fb7185, #c084fc, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         p { font-size: 11px; color: #94a3b8; font-weight: 600; margin-top: 2px; }
-        .badge { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(244, 63, 94, 0.3); color: #fb7185; padding: 6px 12px; border-radius: 10px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-        .pulse { width: 8px; height: 8px; background-color: #f43f5e; border-radius: 50%; animation: pulse 1.5s infinite; }
+        .badge { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; padding: 6px 12px; border-radius: 10px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .pulse { width: 8px; height: 8px; background-color: #34d399; border-radius: 50%; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
         .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
         .action-btn { background: linear-gradient(135deg, #4f46e5, #e11d48); color: white; border: none; padding: 18px; border-radius: 16px; font-size: 12px; font-weight: bold; cursor: pointer; transition: transform 0.2s; text-align: center; }
         .action-btn:hover { transform: translateY(-2px); }
         .action-btn.secondary { background: linear-gradient(135deg, #7c3aed, #db2777); }
-        
-        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .price-card { background: rgba(15, 23, 42, 0.7); border: 1px solid #334155; padding: 15px; border-radius: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
-        .buy-btn { background: #4f46e5; color: white; border: none; padding: 10px; border-radius: 10px; font-size: 11px; font-weight: bold; cursor: pointer; width: 100%; }
         
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 7, 18, 0.95); backdrop-filter: blur(16px); z-index: 100; flex-direction: column; }
         .modal-content { background: #0f172a; border: 1px solid #334155; width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
@@ -210,45 +203,21 @@ HTML_PAGE = """
             <div class="omega-icon">Ω</div>
             <div>
                 <h1>NEXUS GPT-6 ASTRA OS</h1>
-                <p>1,000,000 Sub-Agents Swarm | Strict Paywall Secured</p>
+                <p>1,000,000 Sub-Agents Swarm | 100% Free & Unlocked</p>
             </div>
         </div>
         <div class="badge">
             <div class="pulse"></div>
-            <span>Recursive Self-Rewriting Active</span>
+            <span>All Enterprise Features Free</span>
         </div>
     </header>
-
-    <!-- 💎 5 PREMIUM PRICING TIERS (SECURE PAYWALL LINKED TO YOUR ACCOUNT) -->
-    <section class="pricing-grid">
-        <div class="price-card">
-            <div><h3 style="font-size:12px; font-weight:bold; color:#38bdf8;">Business Swarm</h3><p style="font-size:10px; color:#94a3b8; margin-top:4px;">Full GitHub/Cloud automation.</p></div>
-            <div><div style="font-size:14px; font-weight:bold; color:white; margin-bottom:8px;">$29/mo</div><button onclick="redirectToMerchantPayment('business_swarm')" class="buy-btn">Unlock License</button></div>
-        </div>
-        <div class="price-card">
-            <div><h3 style="font-size:12px; font-weight:bold; color:#c084fc;">Auto-Bug Repair</h3><p style="font-size:10px; color:#94a3b8; margin-top:4px;">24/7 self-healing code engine.</p></div>
-            <div><div style="font-size:14px; font-weight:bold; color:white; margin-bottom:8px;">$19/mo</div><button onclick="redirectToMerchantPayment('auto_bug')" class="buy-btn">Unlock License</button></div>
-        </div>
-        <div class="price-card">
-            <div><h3 style="font-size:12px; font-weight:bold; color:#fb7185;">Universal Switcher</h3><p style="font-size:10px; color:#94a3b8; margin-top:4px;">OpenAI, Claude & Gemini brain.</p></div>
-            <div><div style="font-size:14px; font-weight:bold; color:white; margin-bottom:8px;">$39/mo</div><button onclick="redirectToMerchantPayment('universal_switcher')" class="buy-btn">Unlock License</button></div>
-        </div>
-        <div class="price-card">
-            <div><h3 style="font-size:12px; font-weight:bold; color:#34d399;">Air-Gapped Security</h3><p style="font-size:10px; color:#94a3b8; margin-top:4px;">On-premise enterprise vault.</p></div>
-            <div><div style="font-size:14px; font-weight:bold; color:white; margin-bottom:8px;">$199/mo</div><button onclick="redirectToMerchantPayment('air_gapped')" class="buy-btn">Unlock License</button></div>
-        </div>
-        <div class="price-card" style="border-color:#f43f5e;">
-            <div><h3 style="font-size:12px; font-weight:bold; color:#fbbf24;">White-Label Reseller</h3><p style="font-size:10px; color:#94a3b8; margin-top:4px;">Launch your own AI brand.</p></div>
-            <div><div style="font-size:14px; font-weight:bold; color:white; margin-bottom:8px;">$99/mo</div><button onclick="redirectToMerchantPayment('whitelabel')" class="buy-btn" style="background:#e11d48;">Get Rights</button></div>
-        </div>
-    </section>
 
     <section class="grid-buttons">
         <button type="button" onclick="openModal('agentsModal')" class="action-btn">
             ⚡ Explore 100 Master Agents (1M Sub-Swarm)
         </button>
         <button type="button" onclick="openModal('chatbotModal')" class="action-btn secondary">
-            🧬 Universal Complex Task & App Generator
+            🧬 Universal Complex Task & App Generator (Free)
         </button>
     </section>
 </div>
@@ -259,13 +228,13 @@ HTML_PAGE = """
         <div class="modal-header">
             <div>
                 <h2 id="active-chatbot-title" style="font-size:14px; color:white;">Nexus Astra Sovereign Engine</h2>
-                <p style="color: #fb7185; font-size: 10px; margin-top: 2px;">1,000,000 Sub-Agents Parallel Processing Active</p>
+                <p style="color: #34d399; font-size: 10px; margin-top: 2px;">1,000,000 Sub-Agents & All 5 Pro Features Active (Free)</p>
             </div>
             <button type="button" onclick="closeModal('chatbotModal')" class="close-btn">✕ Close</button>
         </div>
         <div class="chat-box">
             <div id="chat-stream-container" class="chat-messages">
-                <div class="message ai">⚡ <b>Nexus OS Secured:</b> Enter your complex objective (e.g., 3D Universe Simulation, 3D Open-World Game, Interactive Map, E-Commerce Store). Note: Premium features require license verification.</div>
+                <div class="message ai">⚡ <b>Nexus OS Fully Unlocked (Free):</b> Enter any complex objective (e.g., 3D Universe Simulation, 3D Open-World Game, Interactive Map, E-Commerce Store). All features are completely free!</div>
             </div>
             <div class="chat-input-area">
                 <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command agent (e.g. Build 3D Game, E-Commerce, Crypto Dashboard)..." class="chat-input">
@@ -280,7 +249,7 @@ HTML_PAGE = """
     <div class="modal-content">
         <div class="modal-header">
             <h2 style="font-size:14px; color:white;">100 Master Orchestrators (1 Million Sub-Agents)</h2>
-            <button type="button" onclick="openModal('agentsModal')" class="close-btn">✕ Close</button>
+            <button type="button" onclick="closeModal('agentsModal')" class="close-btn">✕ Close</button>
         </div>
         <div class="modal-body">
             <div id="agents-grid-container" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:15px;"></div>
@@ -290,26 +259,16 @@ HTML_PAGE = """
 
 <script>
     const agentsData = {{ agents_json | safe }};
-    let userHasPaid = localStorage.getItem("nexus_paid") === "true";
 
     function openModal(mId) { document.getElementById(mId).style.display = 'flex'; }
     function closeModal(mId) { document.getElementById(mId).style.display = 'none'; }
-
-    function redirectToMerchantPayment(tier) {
-        window.open("{{ merchant_payment_url }}", "_blank");
-        if(confirm("Have you completed your payment on the secure gateway? Click OK to activate your license.")) {
-            userHasPaid = true;
-            localStorage.setItem("nexus_paid", "true");
-            alert("✅ License Activated Successfully!");
-        }
-    }
 
     const agentContainer = document.getElementById('agents-grid-container');
     if(agentContainer) {
         let html = "";
         agentsData.forEach(a => {
             html += `<div style="background:#1e293b; border:1px solid #334155; padding:15px; border-radius:12px;">
-                <span style="font-size:9px; color:#fb7185; font-family:monospace;">AGID #${a.id}</span>
+                <span style="font-size:9px; color:#34d399; font-family:monospace;">AGID #${a.id} (UNLOCKED)</span>
                 <h4 style="font-size:11px; font-weight:bold; color:white; margin:5px 0;">${a.name}</h4>
                 <p style="font-size:9px; color:#94a3b8;">Sub-Agents: 10,000 Active</p>
                 <button onclick="closeModal('agentsModal'); openModal('chatbotModal');" style="width:100%; margin-top:10px; background:#4f46e5; color:white; border:none; padding:8px; border-radius:8px; font-size:10px; font-weight:bold; cursor:pointer;">Deploy Swarm</button>
@@ -328,20 +287,20 @@ HTML_PAGE = """
         input.value = ""; container.scrollTop = container.scrollHeight;
 
         const loadingId = 'loading-' + Date.now();
-        container.innerHTML += `<div id="${loadingId}" class="message ai" style="color: #fb7185;">⚡ Mobilizing 1,000,000 sub-agents, recursive self-rewriting core & compiling complex application...</div>`;
+        container.innerHTML += `<div id="${loadingId}" class="message ai" style="color: #34d399;">⚡ Mobilizing 1,000,000 sub-agents, recursive self-rewriting core & compiling complex application...</div>`;
         container.scrollTop = container.scrollHeight;
 
         try {
             const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: text, paid: userHasPaid })
+                body: JSON.stringify({ message: text })
             });
             const data = await response.json();
             document.getElementById(loadingId).remove();
 
             if(response.status !== 200) {
-                container.innerHTML += `<div class="message ai" style="color: #f87171;">⚠️ Paywall Block: ${data.message}</div>`;
+                container.innerHTML += `<div class="message ai" style="color: #f87171;">⚠️ Error: ${data.message}</div>`;
                 return;
             }
 
@@ -360,14 +319,13 @@ HTML_PAGE = """
 """
 
 # =========================================================================
-# ⚙️ 6. FLASK API ROUTES & PAYWALL ENFORCEMENT
+# ⚙️ 6. FLASK API ROUTES (Free & Unrestricted Access)
 # =========================================================================
 @app.route('/')
 def home():
     return render_template_string(
         HTML_PAGE, 
-        agents_json=json.dumps(AGENTS_LIST),
-        merchant_payment_url=MERCHANT_PAYMENT_GATEWAY_URL
+        agents_json=json.dumps(AGENTS_LIST)
     )
 
 @app.route('/live-app/<app_id>')
@@ -381,14 +339,6 @@ def chat_with_ai():
     try:
         data = request.json or {}
         user_msg = data.get('message', '')
-        is_paid = data.get('paid', False)
-        
-        # सख्त पेवॉल चेक (बिना लाइसेंस कोई भी ऐप डिप्लॉयमेंट संभव नहीं)
-        if not is_paid and len(user_msg) > 3:
-            return jsonify({
-                "status": "error", 
-                "message": "🔒 Access Denied! Strict Paywall Active. Please purchase an enterprise license card above ($19-$199/mo) to unlock 1 Million Sub-Agents & complex app generation."
-            }), 403
         
         base_url = request.host_url.rstrip('/')
         generated_html = generate_complex_application_via_ai(user_msg)
@@ -400,10 +350,10 @@ def chat_with_ai():
         final_live_link = cloud_link if cloud_link.startswith("http") else f"{base_url}{cloud_link}"
         
         reply_text = (
-            f"🚀 <b>GPT-6 Astra Sovereign 1M Swarm Deployment Success:</b><br>"
+            f"🚀 <b>GPT-6 Astra Sovereign 1M Swarm Deployment Success (Free & Unlocked):</b><br>"
             f"- <b>Objective:</b> {user_msg}<br>"
             f"- <b>Sub-Agents Mobilized:</b> {agent_swarm_memory['total_sub_agents']:,} active<br>"
-            f"- <b>Hosting Node:</b> <span style='color:#a855f7;'>{platform_used}</span><br>"
+            f"- <b>Hosting Node:</b> <span style='color:#34d399;'>{platform_used}</span><br>"
             f"- <b>Recursive Self-Rewriting Score:</b> {agent_swarm_memory['self_optimized_score']}%<br>"
             f"- <b>Live Production URL:</b> <a href='{final_live_link}' target='_blank' style='color: #38bdf8; text-decoration: underline; font-weight: bold;'>{final_live_link}</a>"
         )
