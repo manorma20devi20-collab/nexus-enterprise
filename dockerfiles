@@ -2,15 +2,37 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
+# 1. सिस्टम की जरूरी लाइब्रेरीज, कर्ल और क्रोमियम सीधे apt-get से इंस्टॉल करें (ताकि प्लेराइट का डिपेंडेंसी एरर न आए)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    chromium \
+    fonts-liberation \
+    libnss3 \
+    libnspr4 \
+    libatk1.0-0 \
+    libcups2 \
+    libdbus-1-3 \
+    libgdk-pixbuf2.0-0 \
+    libgtk-3-0 \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxcursor1 \
+    libxdamage1 \
+    libxi6 \
+    libxtst6 \
+    libappindicator3-1 \
+    libasound2 \
     && rm -rf /var/lib/apt/lists/*
 
+# 2. पिप को अपग्रेड करें और रिक्वायरमेंट्स इंस्टॉल करें
 RUN pip install --no-cache-dir --upgrade pip
-
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# 3. केवल पाइथन पैकेज के रूप में प्लेराइट इंस्टॉल करें (ब्राउज़र डाउनलोड करने की जरूरत नहीं, सिस्टम का क्रोमियम इस्तेमाल होगा)
+RUN pip install playwright
+
+# 4. बाकी प्रोजेक्ट फाइल्स कॉपी करें
 COPY . .
 
 EXPOSE 10000
