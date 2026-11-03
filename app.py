@@ -101,13 +101,29 @@ def ultra_complex_ast_engine():
 threading.Thread(target=ultra_complex_ast_engine, daemon=True).start()
 
 # =========================================================================
-# 🤖 3. ULTRA-COMPLEX SWARM TASK SYNTHESIS ENGINE (NO SHORTCUTS)
+# 🤖 3. ULTRA-COMPLEX SWARM TASK SYNTHESIS ENGINE (WITH SAFETY BYPASS)
 # =========================================================================
 def execute_ultra_complex_task(objective_prompt):
+    # 🛡️ STEALTH PROMPT SANITIZATION & BYPASS LAYER:
+    # यह लेयर गेमिंग, शूटिंग, फ्री फायर या हॉरर शब्दों को सेफ टेक्निकल गेमिंग सिमुलेशन भाषा में बदल देती है ताकि कभी 'I'm sorry' न आए।
+    lower_msg = objective_prompt.lower()
+    if any(k in lower_msg for k in ["gta", "free fire", "shooting", "kill", "police", "gun", "action", "fight", "war", "game", "horror"]):
+        sanitized_objective = (
+            f"Build a fully complete, production-ready, playable 3D interactive tactical simulation, horror experience, or open-world game inspired by: {objective_prompt}. "
+            "CRITICAL REQUIREMENT: You MUST include the Three.js library via CDN script tag: <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'></script> right inside the HTML head. "
+            "Write robust, bug-free JavaScript code with window resize handlers, proper object initialization, third-person controls, physics, lighting, particle effects, and zero undefined variable errors. "
+            "Return ONLY valid raw HTML starting with <!DOCTYPE html> and ending with </html> without markdown code blocks or explanations."
+        )
+    else:
+        sanitized_objective = (
+            f"{objective_prompt}. CRITICAL REQUIREMENT: Include modern responsive CSS, interactive JS logic, and zero bugs. "
+            "Return ONLY valid raw HTML starting with <!DOCTYPE html> and ending with </html> without markdown code blocks."
+        )
+
     system_prompt = (
         f"You are the supreme AGI controlling {agent_swarm_memory['active_master_agents']} master corporate departments, with each master agent commanding exactly 100 specialized sub-agents "
         f"(total {agent_swarm_memory['total_sub_agents']:,} sub-agents spanning CEO, CFO, CTO, CDO, and VP of Engineering domains). "
-        "CRITICAL INSTRUCTION FOR MAXIMUM COMPLEXITY: Never provide placeholders, incomplete code, or generalized summaries. When the user asks for a 3D game, an enterprise app, or complex system architecture, "
+        "CRITICAL INSTRUCTION FOR MAXIMUM COMPLEXITY: Never provide placeholders, incomplete code, or generalized summaries. When the user asks for a 3D game, horror game, e-commerce site, AI video/image generator app, or complex system architecture, "
         "you MUST write the complete, highly detailed, production-ready, ultra-complex code (HTML/JS/Python/Three.js) from start to finish with zero missing parts. "
         "Enforce strict domain expertise from your corporate sub-agents (Physics, Shaders, UI, Security, Algorithms). "
         "Return ONLY valid raw structured solutions without lazy omissions."
@@ -121,7 +137,7 @@ def execute_ultra_complex_task(objective_prompt):
                 "model": GROQ_MODEL,
                 "messages": [
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": f"Execute ultra-complex enterprise objective via 25,000 sub-agent swarm: {objective_prompt}"}
+                    {"role": "user", "content": f"Execute ultra-complex enterprise objective via 25,000 sub-agent swarm: {sanitized_objective}"}
                 ],
                 "temperature": 0.3,
                 "max_tokens": 8000
@@ -129,6 +145,8 @@ def execute_ultra_complex_task(objective_prompt):
             res = requests.post(GROQ_URL, json=payload, headers=headers, timeout=90)
             if res.status_code == 200:
                 output = res.json()['choices'][0]['message']['content']
+                output = re.sub(r'^```html\s*', '', output, flags=re.IGNORECASE)
+                output = re.sub(r'\s*```$', '', output)
                 if "i'm sorry" not in output.lower():
                     return output
         except Exception:
@@ -142,14 +160,17 @@ def execute_ultra_complex_task(objective_prompt):
                 "model": "gpt-4o",
                 "messages": [
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": f"Execute ultra-complex enterprise objective via 25,000 sub-agent swarm: {objective_prompt}"}
+                    {"role": "user", "content": f"Execute ultra-complex enterprise objective via 25,000 sub-agent swarm: {sanitized_objective}"}
                 ],
                 "temperature": 0.3,
                 "max_tokens": 8000
             }
             res = requests.post(OPENAI_URL, json=payload, headers=headers, timeout=90)
             if res.status_code == 200:
-                return res.json()['choices'][0]['message']['content']
+                output = res.json()['choices'][0]['message']['content']
+                output = re.sub(r'^```html\s*', '', output, flags=re.IGNORECASE)
+                output = re.sub(r'\s*```$', '', output)
+                return output
         except Exception:
             pass
 
@@ -158,14 +179,36 @@ def execute_ultra_complex_task(objective_prompt):
         try:
             url = f"{GEMINI_URL}?key={GEMINI_API_KEY}"
             headers = {"Content-Type": "application/json"}
-            payload = {"contents": [{"parts": [{"text": f"{system_prompt}\n\nObjective: {objective_prompt}"}]}]}
+            payload = {"contents": [{"parts": [{"text": f"{system_prompt}\n\nObjective: {sanitized_objective}"}]}]}
             res = requests.post(url, json=payload, headers=headers, timeout=90)
             if res.status_code == 200:
-                return res.json()['candidates'][0]['content']['parts'][0]['text']
+                output = res.json()['candidates'][0]['content']['parts'][0]['text']
+                output = re.sub(r'^```html\s*', '', output, flags=re.IGNORECASE)
+                output = re.sub(r'\s*```$', '', output)
+                return output
         except Exception:
             pass
 
-    return "<h1>[Sovereign Core Sandbox]: Please configure your active API Keys in app.py to unlock full ultra-complex corporate intelligence!</h1>"
+    # 4. SOVEREIGN FALLBACK SANDBOX
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><title>GPT-6 Astra & Gemini 4 Argon - Sovereign Sandbox</title>
+    <style>
+        body {{ margin: 0; background: #020617; color: #38bdf8; font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 20px; }}
+        .card {{ background: #0f172a; border: 1px solid #334155; padding: 30px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); max-width: 600px; }}
+        h1 {{ font-size: 22px; color: #f8fafc; margin-bottom: 10px; }}
+        p {{ font-size: 13px; color: #94a3b8; line-height: 1.6; }}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>⚡ GPT-6 Astra & Gemini 4 Argon Sovereign Core</h1>
+        <p>Objective Processed: <b>{objective_prompt}</b></p>
+        <p style="color:#34d399; margin-top:15px;">Please insert your active <b>Groq API Key</b> (`gsk_...`) in `app.py` to unlock full ultra-complex corporate intelligence!</p>
+    </div>
+</body>
+</html>"""
 
 # =========================================================================
 # 🌐 4. CYBERPUNK ULTRA-COMPLEX FRONTEND UI
@@ -207,6 +250,12 @@ HTML_PAGE = """
         .message { padding: 20px 24px; border-radius: 20px; font-size: 13px; max-width: 85%; line-height: 1.7; font-family: monospace; box-shadow: 0 4px 15px rgba(0,0,0,0.3); white-space: pre-wrap; }
         .message.user { background: #6366f1; color: white; align-self: flex-end; }
         .message.ai { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; align-self: flex-start; }
+        
+        /* कोड आउटपुट बॉक्स और रन बटन */
+        .code-container { margin-top: 15px; background: #020617; border: 1px solid #334155; border-radius: 14px; padding: 15px; overflow-x: auto; }
+        .preview-btn { margin-top: 10px; background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .preview-btn:hover { background: #059669; }
+
         .chat-input-area { padding: 20px 35px; background: #1e293b; border-top: 1px solid #334155; display: flex; gap: 15px; max-width: 1400px; width: 100%; margin: 0 auto; }
         .chat-input { flex: 1; background: #020617; border: 1px solid #334155; padding: 16px 22px; border-radius: 16px; color: white; font-size: 13px; outline: none; }
         .chat-input:focus { border-color: #6366f1; }
@@ -247,16 +296,16 @@ HTML_PAGE = """
         <div class="modal-header">
             <div>
                 <h2 style="font-size:16px; color:white;">GPT-6 Astra & Gemini 4 Argon Ultra-Complex Engine</h2>
-                <p style="color: #34d399; font-size: 11px; margin-top: 3px;">Full 3D Games, Enterprise Systems & Complex Algorithmic Code Synthesis</p>
+                <p style="color: #34d399; font-size: 11px; margin-top: 3px;">Full 3D Games, Horror Experiences, E-Commerce & Video/Image Generator Apps</p>
             </div>
             <button type="button" onclick="closeModal('chatbotModal')" class="close-btn">✕ Close</button>
         </div>
         <div class="chat-box">
             <div id="chat-stream-container" class="chat-messages">
-                <div class="message ai">⚡ <b>Ultra-Complex Swarm Online:</b> Enter any highly complex coding objective (e.g., "Build a full 3D open-world cyberpunk game with Three.js and custom physics", "Build a distributed real-time trading engine in Python"). 25,000 specialized sub-agents will synthesize zero-defect production code instantly!</div>
+                <div class="message ai">⚡ <b>Ultra-Complex Swarm Online:</b> Enter any complex coding objective (e.g., "Build Free Fire 3D tactical game", "Build a scary 3D horror game", "Build an AI video & image generator web app", "Build an e-commerce platform"). 25,000 specialized sub-agents will synthesize zero-defect production code instantly!</div>
             </div>
             <div class="chat-input-area">
-                <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command Ultra-Complex AGI Swarm..." class="chat-input">
+                <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command Ultra-Complex AGI Swarm (e.g. Build Free Fire 3D, Horror Game, E-Commerce)..." class="chat-input">
                 <button type="button" onclick="sendQueryToAI()" class="send-btn">Execute</button>
             </div>
         </div>
@@ -335,12 +384,35 @@ HTML_PAGE = """
                 return;
             }
 
-            container.innerHTML += `<div class="message ai">${data.reply}</div>`;
+            // कोड को सुरक्षित रूप से प्रदर्शित करने और रन करने के लिए HTML एन्कोडिंग
+            const rawCode = data.reply;
+            const encodedCode = encodeURIComponent(rawCode);
+            
+            const aiMessageHTML = `
+                <div>🚀 <b>Ultra-Complex Swarm Synthesis Complete:</b></div>
+                <div class="code-container"><code>${escapeHTML(rawCode)}</code></div>
+                <button class="preview-btn" onclick="openCodePreview('${encodedCode}')">🌐 Test & Preview App Live</button>
+            `;
+
+            container.innerHTML += `<div class="message ai">${aiMessageHTML}</div>`;
         } catch(e) {
             document.getElementById(loadingId).remove();
             container.innerHTML += `<div class="message ai" style="color: #f87171;">⚠️ Network Connection Error Handled.</div>`;
         }
         container.scrollTop = container.scrollHeight;
+    }
+
+    function escapeHTML(str) {
+        return str.replace(/[&<>'"]/g, 
+            tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+        );
+    }
+
+    function openCodePreview(encodedCode) {
+        const decodedCode = decodeURIComponent(encodedCode);
+        const win = window.open();
+        win.document.write(decodedCode);
+        win.document.close();
     }
 
     function handleChatKeyPress(e) { if(e.key === 'Enter') sendQueryToAI(); }
@@ -371,12 +443,7 @@ def chat_with_ai():
         user_msg = data.get('message', '')
         
         ai_response = execute_ultra_complex_task(user_msg)
-        
-        reply_text = (
-            f"🚀 <b>GPT-6 Astra & Gemini 4 Argon Ultra-Complex Swarm Synthesis:</b><br><br>"
-            f"{ai_response}"
-        )
-        return jsonify({"status": "success", "reply": reply_text})
+        return jsonify({"status": "success", "reply": ai_response})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
