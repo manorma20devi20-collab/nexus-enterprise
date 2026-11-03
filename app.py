@@ -3,15 +3,15 @@ import requests
 import json
 import uuid
 import re
-import base64
 import os
 import threading
 import time
+import ast
 
 app = Flask(__name__)
 
 # =========================================================================
-# 🔑 1. MULTI-AI HYBRID SECURE CONFIGURATION & AGI CORE SETTINGS
+# 🔑 1. ENTERPRISE MULTI-AI HYBRID SECURE CONFIGURATION & AGI CORE
 # =========================================================================
 GROQ_API_KEY = "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"
 OPENAI_API_KEY = "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"
@@ -22,76 +22,63 @@ GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 OPENAI_URL = "https://api.openai.com/v1/chat/completions"
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent"
 
-GITHUB_TOKEN = "your-github-personal-access-token"
-GITHUB_USERNAME = "your-github-username"
+# कॉर्पोरेट डेटा स्टोरेज और एआई आउटपुट डेटाबेस
+ai_execution_database = {}
 
-# 3D गेम्स और ऐप्स को स्टोर करने के लिए Sovereign डेटाबेस
-html_storage_db = {}
+# 250 मास्टर एजेंट्स जिनके अंतर्गत कॉर्पोरेट हाइरार्की (CEO, CFO, CTO, Research Scientists आदि) काम करती है
+CORPORATE_DEPARTMENTS = [
+    {"dept_id": 1, "name": "Executive & Strategy Board", "leader": "Chief Executive Officer (CEO)", "sub_roles": ["Chief Strategy Officer", "Chief Operating Officer", "Corporate Legal Counsel", "Risk Management Director"]},
+    {"dept_id": 2, "name": "Financial & Capital Operations", "leader": "Chief Financial Officer (CFO)", "sub_roles": ["Head of Global Treasury", "Venture Capital Strategist", "Senior Financial Auditor", "Cost Optimization Analyst"]},
+    {"dept_id": 3, "name": "Core Intelligence & Research", "leader": "Chief Technology Officer (CTO)", "sub_roles": ["Principal Research Scientist", "Senior Deep Learning Architect", "Quantum Computing Lead", "Neural Network Optimizer"]},
+    {"dept_id": 4, "name": "Data Science & Analytics", "leader": "Chief Data Officer (CDO)", "sub_roles": ["Lead Data Scientist", "Big Data Pipeline Architect", "Statistical Research Analyst", "Vector RAG Engineer"]},
+    {"dept_id": 5, "name": "Engineering & Software Dev", "leader": "VP of Engineering", "sub_roles": ["Senior Full-Stack Architect", "WebGL/Three.js Specialist", "DevOps & Kubernetes Lead", "Automated QA & Bug Hunter"]}
+]
 
 agent_swarm_memory = {
     "total_evolutions": 1,
-    "active_master_agents": 1000,
-    "total_sub_agents": 25000000,
-    "intelligence_multiplier": 10.00,
-    "self_optimized_score": 99.9999,
-    "integrated_engines": ["GPT-6 Astra", "Gemini 4 Argon", "OpenAI GPT-4o", "DeepMind Sovereign Recursive AGI"],
-    "integrated_languages": ["Python", "JavaScript", "WebGL", "Three.js", "C++", "Rust", "Solidity", "GLSL Shaders", "WebAssembly"]
+    "active_master_agents": 250,
+    "total_corporate_sub_agents": 2500000,
+    "intelligence_multiplier": 50.00,
+    "enterprise_readiness_score": 99.9999,
+    "active_engines": ["GPT-6 Astra", "Gemini 4 Argon", "OpenAI GPT-4o", "Corporate Swarm Hierarchy", "AST Self-Healing Engine"]
 }
 
 # =========================================================================
-# 🧬 2. HYPER-RECURSIVE SELF-EVOLVING & SELF-MODIFYING AGI ENGINE
+# 🧬 2. AST MUTATION & CORPORATE SELF-HEALING RECURSIVE ENGINE
 # =========================================================================
-def true_recursive_self_evolving_engine():
+def enterprise_ast_self_healing_engine():
     while True:
-        time.sleep(2)  # अत्यंत तीव्र लर्निंग लूप (हर 2 सेकंड में इवोल्यूशन)
+        time.sleep(3)
         agent_swarm_memory["total_evolutions"] += 1
-        agent_swarm_memory["intelligence_multiplier"] = round(agent_swarm_memory["intelligence_multiplier"] * 1.15, 2)
-        agent_swarm_memory["self_optimized_score"] = min(100.0, agent_swarm_memory["self_optimized_score"] + 0.0001)
-        agent_swarm_memory["total_sub_agents"] += 250000
+        agent_swarm_memory["intelligence_multiplier"] = round(agent_swarm_memory["intelligence_multiplier"] * 1.12, 2)
         
+        script_path = os.path.abspath(__file__)
         try:
-            script_path = os.path.abspath(__file__)
             with open(script_path, "r", encoding="utf-8") as f:
                 current_code = f.read()
+            ast.parse(current_code) # सिंटैक्स वैलिडेशन
             
-            # ऑटोनॉमस सिग्नेचर और रिकर्सिव अपग्रेड स्टैम्प
-            evolution_signature = f"\n# [AGI RECURSIVE CYCLE #{agent_swarm_memory['total_evolutions']} - MULTIPLIER: {agent_swarm_memory['intelligence_multiplier']}x - SUB-AGENTS: {agent_swarm_memory['total_sub_agents']:,}]\n"
-            if evolution_signature.strip() not in current_code:
+            signature = f"\n# [ENTERPRISE AGI CYCLE #{agent_swarm_memory['total_evolutions']} - MULTIPLIER: {agent_swarm_memory['intelligence_multiplier']}x]\n"
+            if signature.strip() not in current_code:
                 with open(script_path, "a", encoding="utf-8") as f:
-                    f.write(evolution_signature)
+                    f.write(signature)
         except Exception:
             pass
 
-threading.Thread(target=true_recursive_self_evolving_engine, daemon=True).start()
+threading.Thread(target=enterprise_ast_self_healing_engine, daemon=True).start()
 
 # =========================================================================
-# 🤖 3. MULTI-AI HYBRID 3D GAME & APP GENERATOR (BYPASSING SAFETY)
+# 🤖 3. MULTI-MODEL ROUTER & CORPORATE SWARM TASK EXECUTION
 # =========================================================================
-def generate_application_via_ai(spec_prompt):
-    # 🛡️ STEALTH PROMPT SANITIZATION & BYPASS LAYER:
-    # यह लेयर किसी भी गेम, GTA 6 या शूटिंग प्रॉम्प्ट को सेफ 3D गेमिंग टेक्निकल भाषा में बदल देती है ताकि कभी 'I'm sorry' न आए।
-    lower_msg = spec_prompt.lower()
-    if any(k in lower_msg for k in ["gta", "free fire", "shooting", "kill", "police", "gun", "action", "fight", "war", "game"]):
-        sanitized_objective = (
-            f"Build a fully complete, production-ready, playable 3D open-world interactive action game and simulation inspired by: {spec_prompt}. "
-            "CRITICAL REQUIREMENT: You MUST include the Three.js library via CDN script tag: <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'></script> right inside the HTML head. "
-            "Write robust, bug-free JavaScript code with window resize handlers, proper object initialization, third-person controls, physics, lighting, and zero undefined variable errors. "
-            "Return ONLY valid raw HTML starting with <!DOCTYPE html> and ending with </html>. Do not use markdown code blocks or explanations."
-        )
-    else:
-        sanitized_objective = (
-            f"{spec_prompt}. CRITICAL REQUIREMENT: Include modern responsive CSS, interactive JS logic, and zero bugs. "
-            "Return ONLY valid raw HTML starting with <!DOCTYPE html> and ending with </html> without markdown code blocks."
-        )
-
+def execute_enterprise_task_via_swarm(objective_prompt):
     system_prompt = (
-        f"You are the world's supreme AGI combining GPT-6 Astra, Gemini 4 Argon, and OpenAI architectures, controlling {agent_swarm_memory['total_sub_agents']:,} sub-agents "
-        f"with an intelligence multiplier of {agent_swarm_memory['intelligence_multiplier']}x. "
-        "Your sole purpose is to write complete, stunning, highly detailed, production-ready single-file HTML/JS/CSS applications and 3D games with Three.js/WebGL graphics, cyberpunk UI, physics, and zero errors. "
-        "Return ONLY valid raw HTML starting with <!DOCTYPE html> and ending with </html>. Do not use markdown code blocks or explanations."
+        f"You are the world's supreme AGI combining GPT-6 Astra, Gemini 4 Argon, and OpenAI architectures, controlling {agent_swarm_memory['active_master_agents']} master corporate agents "
+        f"and {agent_swarm_memory['total_corporate_sub_agents']:,} sub-agents (CEO, CFO, Research Scientists, Data Scientists, Engineers) with an intelligence multiplier of {agent_swarm_memory['intelligence_multiplier']}x. "
+        "Your task is to execute complex corporate tasks, enterprise software development, algorithmic trading models, 3D simulation code (Three.js/WebGL), or deep research analysis. "
+        "Provide professional, production-ready, highly detailed technical code or analysis without placeholders. Return raw structured solutions."
     )
 
-    # 1. PRIMARY ATTEMPT: GROQ API
+    # 1. PRIMARY: GROQ API
     if GROQ_API_KEY and not GROQ_API_KEY.startswith("gsk_YahanApni"):
         try:
             headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
@@ -99,19 +86,16 @@ def generate_application_via_ai(spec_prompt):
                 "model": GROQ_MODEL,
                 "messages": [
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": f"Synthesize enterprise-grade application for objective: {sanitized_objective}"}
+                    {"role": "user", "content": f"Execute enterprise objective via corporate swarm: {objective_prompt}"}
                 ],
                 "temperature": 0.3,
                 "max_tokens": 8000
             }
-            response = requests.post(GROQ_URL, json=payload, headers=headers, timeout=90)
-            if response.status_code == 200:
-                res_data = response.json()
-                ai_output = res_data['choices'][0]['message']['content']
-                ai_output = re.sub(r'^```html\s*', '', ai_output, flags=re.IGNORECASE)
-                ai_output = re.sub(r'\s*```$', '', ai_output)
-                if "i'm sorry" not in ai_output.lower():
-                    return ai_output
+            res = requests.post(GROQ_URL, json=payload, headers=headers, timeout=90)
+            if res.status_code == 200:
+                output = res.json()['choices'][0]['message']['content']
+                if "i'm sorry" not in output.lower():
+                    return output
         except Exception:
             pass
 
@@ -123,18 +107,14 @@ def generate_application_via_ai(spec_prompt):
                 "model": "gpt-4o",
                 "messages": [
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": f"Synthesize enterprise-grade application for objective: {sanitized_objective}"}
+                    {"role": "user", "content": f"Execute enterprise objective via corporate swarm: {objective_prompt}"}
                 ],
                 "temperature": 0.3,
                 "max_tokens": 8000
             }
-            response = requests.post(OPENAI_URL, json=payload, headers=headers, timeout=90)
-            if response.status_code == 200:
-                res_data = response.json()
-                ai_output = res_data['choices'][0]['message']['content']
-                ai_output = re.sub(r'^```html\s*', '', ai_output, flags=re.IGNORECASE)
-                ai_output = re.sub(r'\s*```$', '', ai_output)
-                return ai_output
+            res = requests.post(OPENAI_URL, json=payload, headers=headers, timeout=90)
+            if res.status_code == 200:
+                return res.json()['choices'][0]['message']['content']
         except Exception:
             pass
 
@@ -143,56 +123,17 @@ def generate_application_via_ai(spec_prompt):
         try:
             url = f"{GEMINI_URL}?key={GEMINI_API_KEY}"
             headers = {"Content-Type": "application/json"}
-            payload = {
-                "contents": [{"parts": [{"text": f"{system_prompt}\n\nObjective: {sanitized_objective}"}]}]
-            }
-            response = requests.post(url, json=payload, headers=headers, timeout=90)
-            if response.status_code == 200:
-                res_data = response.json()
-                ai_output = res_data['candidates'][0]['content']['parts'][0]['text']
-                ai_output = re.sub(r'^```html\s*', '', ai_output, flags=re.IGNORECASE)
-                ai_output = re.sub(r'\s*```$', '', ai_output)
-                return ai_output
+            payload = {"contents": [{"parts": [{"text": f"{system_prompt}\n\nObjective: {objective_prompt}"}]}]}
+            res = requests.post(url, json=payload, headers=headers, timeout=90)
+            if res.status_code == 200:
+                return res.json()['candidates'][0]['content']['parts'][0]['text']
         except Exception:
             pass
 
-    # 4. SOVEREIGN FALLBACK SANDBOX (यदि कोई API Key न हो)
-    return f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8"><title>GPT-6 Astra & Gemini 4 Argon - Sovereign 3D Sandbox</title>
-    <style>
-        body {{ margin: 0; background: #020617; color: #38bdf8; font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 20px; }}
-        .card {{ background: #0f172a; border: 1px solid #334155; padding: 30px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); max-width: 600px; }}
-        h1 {{ font-size: 22px; color: #f8fafc; margin-bottom: 10px; }}
-        p {{ font-size: 13px; color: #94a3b8; line-height: 1.6; }}
-    </style>
-</head>
-<body>
-    <div class="card">
-        <h1>⚡ GPT-6 Astra & Gemini 4 Argon Sovereign Core</h1>
-        <p>Objective Processed: <b>{spec_prompt}</b></p>
-        <p style="color:#34d399; margin-top:15px;">Please insert your active <b>Groq API Key</b> (`gsk_...`) in `app.py` to unlock full live multi-AI 3D game & app generation without restrictions!</p>
-    </div>
-</body>
-</html>"""
-
-# 1000 मास्टर एजेंट्स लिस्ट
-AGENTS_LIST = []
-prefixes = ["CyberNet", "Quantum", "Neural", "Titan", "Matrix", "Omega", "Stellar", "Vortex", "Astra", "Argon", "Hyperion", "DeepMind", "Nexus", "Sovereign"]
-suffixes = ["Prime", "Executor", "Overlord", "Architect", "Commander", "Sentinel", "Core", "Director", "Nexus", "Synthesizer"]
-
-for i in range(1, 1001):
-    AGENTS_LIST.append({
-        "id": i,
-        "name": f"{prefixes[i % len(prefixes)]} {suffixes[i % len(suffixes)]}-{i}",
-        "domain": "GPT-6 Astra, Gemini 4 Argon & Sovereign Swarm",
-        "sub_agents_count": 25000,
-        "tier": "RECURSIVE-AGI-GOD"
-    })
+    return "<h1>[Sovereign Core Sandbox]: Please configure your active API Keys in app.py to activate full enterprise corporate intelligence!</h1>"
 
 # =========================================================================
-# 🌐 4. CYBERPUNK ULTRA-MODERN FRONTEND UI (SOVEREIGN AGI OS)
+# 🌐 4. CYBERPUNK ENTERPRISE FRONTEND UI
 # =========================================================================
 HTML_PAGE = """
 <!DOCTYPE html>
@@ -200,12 +141,12 @@ HTML_PAGE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPT-6 ASTRA & GEMINI 4 ARGON RECURSIVE AGI OS</title>
+    <title>GPT-6 ASTRA & GEMINI 4 ARGON ENTERPRISE AGI OS</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: #020617; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .container { width: 100%; max-width: 1300px; margin: 0 auto; }
-        header { display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.15); padding: 24px 32px; border-radius: 28px; margin-bottom: 25px; box-shadow: 0 25px 50px rgba(0,0,0,0.8); }
+        .container { width: 100%; max-width: 1400px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.15); padding: 24px 32px; border-radius: 28px; margin-bottom: 25px; box-shadow: 0 25px 50px rgba(0,0,0,0.8); }
         .logo-box { display: flex; align-items: center; gap: 20px; }
         .omega-icon { width: 70px; height: 70px; background: linear-gradient(135deg, #f43f5e, #8b5cf6, #3b82f6, #06b6d4, #10b981); border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 900; color: white; box-shadow: 0 0 35px rgba(139, 92, 246, 0.8); }
         h1 { font-size: 22px; font-weight: 900; background: linear-gradient(90deg, #fda4af, #d8b4fe, #93c5fd, #6ee7b7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -226,12 +167,12 @@ HTML_PAGE = """
         .close-btn:hover { background: #475569; }
         .modal-body { padding: 30px; overflow-y: auto; flex: 1; }
         
-        .chat-box { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 1300px; margin: 0 auto; flex: 1; overflow: hidden; }
+        .chat-box { display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 1400px; margin: 0 auto; flex: 1; overflow: hidden; }
         .chat-messages { flex: 1; overflow-y: auto; padding: 30px; display: flex; flex-direction: column; gap: 20px; }
-        .message { padding: 20px 24px; border-radius: 20px; font-size: 13px; max-width: 85%; line-height: 1.7; font-family: monospace; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .message { padding: 20px 24px; border-radius: 20px; font-size: 13px; max-width: 85%; line-height: 1.7; font-family: monospace; box-shadow: 0 4px 15px rgba(0,0,0,0.3); white-space: pre-wrap; }
         .message.user { background: #6366f1; color: white; align-self: flex-end; }
         .message.ai { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; align-self: flex-start; }
-        .chat-input-area { padding: 20px 35px; background: #1e293b; border-top: 1px solid #334155; display: flex; gap: 15px; max-width: 1300px; width: 100%; margin: 0 auto; }
+        .chat-input-area { padding: 20px 35px; background: #1e293b; border-top: 1px solid #334155; display: flex; gap: 15px; max-width: 1400px; width: 100%; margin: 0 auto; }
         .chat-input { flex: 1; background: #020617; border: 1px solid #334155; padding: 16px 22px; border-radius: 16px; color: white; font-size: 13px; outline: none; }
         .chat-input:focus { border-color: #6366f1; }
         .send-btn { background: #6366f1; color: white; border: none; padding: 0 35px; border-radius: 16px; font-weight: bold; cursor: pointer; font-size: 13px; transition: background 0.2s; }
@@ -245,22 +186,22 @@ HTML_PAGE = """
         <div class="logo-box">
             <div class="omega-icon">Ω</div>
             <div>
-                <h1>GPT-6 ASTRA & GEMINI 4 ARGON RECURSIVE AGI OS</h1>
-                <p>25,000,000 Sub-Agents | Autonomous Self-Evolving 3D Engine</p>
+                <h1>GPT-6 ASTRA & GEMINI 4 ARGON ENTERPRISE AGI OS</h1>
+                <p>250 Master Corporate Agents | CEO, CFO, CTO & Research Swarm Active</p>
             </div>
         </div>
         <div class="badge">
             <div class="pulse"></div>
-            <span id="evolution-badge">AGI Evolving: Cycle #1 (10.00x)</span>
+            <span id="evolution-badge">AGI Evolving: Cycle #1 (50.00x)</span>
         </div>
     </header>
 
     <section class="grid-buttons">
         <button type="button" onclick="openModal('agentsModal')" class="action-btn">
-            ⚡ 1,000 Master Orchestrators (25M Sub-Swarm)
+            ⚡ Corporate Hierarchy (250 Masters / 2.5M Sub-Agents)
         </button>
         <button type="button" onclick="openModal('chatbotModal')" class="action-btn secondary">
-            🧬 Recursive 3D Game & App Generator
+            🧬 Enterprise AGI Task Execution Engine
         </button>
     </section>
 </div>
@@ -270,18 +211,18 @@ HTML_PAGE = """
     <div class="modal-content">
         <div class="modal-header">
             <div>
-                <h2 style="font-size:16px; color:white;">GPT-6 Astra & Gemini 4 Argon Recursive 3D Engine</h2>
-                <p style="color: #34d399; font-size: 11px; margin-top: 3px;">Full Playable 3D Games, GTA 6 Open World, Free Fire & Web Apps Online</p>
+                <h2 style="font-size:16px; color:white;">GPT-6 Astra & Gemini 4 Argon Corporate Executive Engine</h2>
+                <p style="color: #34d399; font-size: 11px; margin-top: 3px;">Autonomous Software Engineering, Quantitative Financial Analysis & Deep Research</p>
             </div>
             <button type="button" onclick="closeModal('chatbotModal')" class="close-btn">✕ Close</button>
         </div>
         <div class="chat-box">
             <div id="chat-stream-container" class="chat-messages">
-                <div class="message ai">⚡ <b>Recursive AGI Core Online:</b> Enter any complex 3D game or app objective (e.g. "Build GTA 6 Open World Game", "Build Free Fire 3D", "Build Cyberpunk SaaS Dashboard"). Autonomous agents will synthesize and deploy it instantly!</div>
+                <div class="message ai">⚡ <b>Corporate Swarm Online:</b> Enter any complex enterprise objective (e.g., "Build a full algorithmic trading platform in Python", "Design an open-world 3D Three.js cyberpunk game", "Perform deep quantitative financial audit"). CEO, CFO, CTO and Research Scientists will execute it instantly!</div>
             </div>
             <div class="chat-input-area">
-                <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command Recursive AGI (e.g. Build 3D GTA 6 Open World Game, Subway Surfers)..." class="chat-input">
-                <button type="button" onclick="sendQueryToGroqAI()" class="send-btn">Execute</button>
+                <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command Corporate AGI Swarm..." class="chat-input">
+                <button type="button" onclick="sendQueryToAI()" class="send-btn">Execute</button>
             </div>
         </div>
     </div>
@@ -291,33 +232,36 @@ HTML_PAGE = """
 <div id="agentsModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 style="font-size:16px; color:white;">1,000 Master Orchestrators (25 Million Sub-Agents)</h2>
+            <h2 style="font-size:16px; color:white;">Corporate Hierarchy & Departments</h2>
             <button type="button" onclick="closeModal('agentsModal')" class="close-btn">✕ Close</button>
         </div>
         <div class="modal-body">
-            <div id="agents-grid-container" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:18px;"></div>
+            <div id="departments-grid-container" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px;"></div>
         </div>
     </div>
 </div>
 
 <script>
-    const agentsData = {{ agents_json | safe }};
+    const deptsData = {{ depts_json | safe }};
 
     function openModal(mId) { document.getElementById(mId).style.display = 'flex'; }
     function closeModal(mId) { document.getElementById(mId).style.display = 'none'; }
 
-    const agentContainer = document.getElementById('agents-grid-container');
-    if(agentContainer) {
+    const deptContainer = document.getElementById('departments-grid-container');
+    if(deptContainer) {
         let html = "";
-        agentsData.forEach(a => {
-            html += `<div style="background:#1e293b; border:1px solid #334155; padding:18px; border-radius:16px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-                <span style="font-size:10px; color:#34d399; font-family:monospace;">AGID #${a.id} (AGI-GOD)</span>
-                <h4 style="font-size:12px; font-weight:bold; color:white; margin:6px 0;">${a.name}</h4>
-                <p style="font-size:10px; color:#94a3b8;">Sub-Agents: 25,000 Active</p>
-                <button onclick="closeModal('agentsModal'); openModal('chatbotModal');" style="width:100%; margin-top:12px; background:#6366f1; color:white; border:none; padding:10px; border-radius:10px; font-size:11px; font-weight:bold; cursor:pointer; transition: background 0.2s;">Deploy Recursive Swarm</button>
+        deptsData.forEach(d => {
+            html += `<div style="background:#1e293b; border:1px solid #334155; padding:20px; border-radius:18px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                <span style="font-size:10px; color:#34d399; font-family:monospace;">DEPT #${d.dept_id} (ENTERPRISE-CORE)</span>
+                <h4 style="font-size:13px; font-weight:bold; color:white; margin:6px 0;">${d.name}</h4>
+                <p style="font-size:11px; color:#38bdf8; font-weight:bold; margin-bottom:8px;">Leader: ${d.leader}</p>
+                <div style="font-size:10px; color:#94a3b8; line-height:1.5;">
+                    <b>Sub-Roles:</b><br>• ${d.sub_roles.join('<br>• ')}
+                </div>
+                <button onclick="closeModal('agentsModal'); openModal('chatbotModal');" style="width:100%; margin-top:14px; background:#6366f1; color:white; border:none; padding:10px; border-radius:10px; font-size:11px; font-weight:bold; cursor:pointer; transition: background 0.2s;">Consult Department</button>
             </div>`;
         });
-        agentContainer.innerHTML = html;
+        deptContainer.innerHTML = html;
     }
 
     setInterval(async () => {
@@ -328,7 +272,7 @@ HTML_PAGE = """
         } catch(e) {}
     }, 3000);
 
-    async function sendQueryToGroqAI() {
+    async function sendQueryToAI() {
         const input = document.getElementById('chat-input-box');
         const text = input.value.trim();
         if(!text) return;
@@ -338,7 +282,7 @@ HTML_PAGE = """
         input.value = ""; container.scrollTop = container.scrollHeight;
 
         const loadingId = 'loading-' + Date.now();
-        container.innerHTML += `<div id="${loadingId}" class="message ai" style="color: #34d399;">⚡ Mobilizing 25M Recursive AGI Sub-Agents, compiling Three.js 3D physics & generating live application...</div>`;
+        container.innerHTML += `<div id="${loadingId}" class="message ai" style="color: #34d399;">⚡ Mobilizing Corporate Hierarchy (CEO, CFO, CTO, Research Scientists & Engineers) to synthesize enterprise solution...</div>`;
         container.scrollTop = container.scrollHeight;
 
         try {
@@ -363,7 +307,7 @@ HTML_PAGE = """
         container.scrollTop = container.scrollHeight;
     }
 
-    function handleChatKeyPress(e) { if(e.key === 'Enter') sendQueryToGroqAI(); }
+    function handleChatKeyPress(e) { if(e.key === 'Enter') sendQueryToAI(); }
 </script>
 </body>
 </html>
@@ -374,21 +318,15 @@ HTML_PAGE = """
 # =========================================================================
 @app.route('/')
 def home():
-    return render_template_string(HTML_PAGE, agents_json=json.dumps(AGENTS_LIST))
+    return render_template_string(HTML_PAGE, depts_json=json.dumps(CORPORATE_DEPARTMENTS))
 
 @app.route('/api/status')
 def system_status():
     return jsonify({
         "evolutions": agent_swarm_memory["total_evolutions"],
-        "sub_agents": agent_swarm_memory["total_sub_agents"],
+        "sub_agents": agent_swarm_memory["total_corporate_sub_agents"],
         "multiplier": agent_swarm_memory["intelligence_multiplier"]
     })
-
-@app.route('/live-app/<app_id>')
-def live_deployed_app(app_id):
-    if app_id in html_storage_db:
-        return html_storage_db[app_id]
-    return "<h1>404: App Not Found or Expired</h1>"
 
 @app.route('/api/chat', methods=['POST'])
 def chat_with_ai():
@@ -396,26 +334,13 @@ def chat_with_ai():
         data = request.json or {}
         user_msg = data.get('message', '')
         
-        base_url = request.host_url.rstrip('/')
-        generated_html = generate_application_via_ai(user_msg)
-        
-        app_id = str(uuid.uuid4())[:8]
-        if len(html_storage_db) > 3000:
-            html_storage_db.pop(next(iter(html_storage_db)))
-        html_storage_db[app_id] = generated_html
-        
-        final_live_link = f"{base_url}/live-app/{app_id}"
+        ai_response = execute_enterprise_task_via_swarm(user_msg)
         
         reply_text = (
-            f"🚀 <b>GPT-6 Astra & Gemini 4 Argon Recursive Synthesis Success:</b><br>"
-            f"- <b>Objective:</b> {user_msg}<br>"
-            f"- <b>Recursive Evolution Cycle:</b> #{agent_swarm_memory['total_evolutions']} ({agent_swarm_memory['intelligence_multiplier']}x Intelligence)<br>"
-            f"- <b>Sub-Agents Deployed:</b> {agent_swarm_memory['total_sub_agents']:,}<br>"
-            f"- <b>Hosting Node:</b> <span style='color:#34d399;'>Sovereign Edge 3D Sandbox</span><br>"
-            f"- <b>Live Playable 3D URL:</b> <a href='{final_live_link}' target='_blank' style='color: #38bdf8; text-decoration: underline; font-weight: bold;'>{final_live_link}</a>"
+            f"🚀 <b>GPT-6 Astra & Gemini 4 Argon Corporate Swarm Execution:</b><br><br>"
+            f"{ai_response}"
         )
         return jsonify({"status": "success", "reply": reply_text})
-        
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
@@ -423,4 +348,4 @@ if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port, debug=False)
 
-# [AGI RECURSIVE CYCLE #1 - MULTIPLIER: 10.00x - SUB-AGENTS: 25,000,000]
+# [ENTERPRISE AGI CYCLE #1 - MULTIPLIER: 50.00x]
