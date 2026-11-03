@@ -11,7 +11,7 @@ import ast
 app = Flask(__name__)
 
 # =========================================================================
-# 🔑 1. ENTERPRISE MULTI-AI HYBRID SECURE CONFIGURATION & AGI CORE
+# 🔑 1. ULTRA-COMPLEX ENTERPRISE AGI HYBRID CONFIGURATION
 # =========================================================================
 GROQ_API_KEY = "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"
 OPENAI_API_KEY = "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"
@@ -22,60 +22,95 @@ GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 OPENAI_URL = "https://api.openai.com/v1/chat/completions"
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent"
 
-# कॉर्पोरेट डेटा स्टोरेज और एआई आउटपुट डेटाबेस
 ai_execution_database = {}
 
-# 250 मास्टर एजेंट्स जिनके अंतर्गत कॉर्पोरेट हाइरार्की (CEO, CFO, CTO, Research Scientists आदि) काम करती है
+# 250 मास्टर एजेंट्स, प्रत्येक के अंतर्गत 100 специализирован सब-एजेंट्स (कुल 25,000+ सब-एजेंट्स) और उनके सख्त डोमेन
 CORPORATE_DEPARTMENTS = [
-    {"dept_id": 1, "name": "Executive & Strategy Board", "leader": "Chief Executive Officer (CEO)", "sub_roles": ["Chief Strategy Officer", "Chief Operating Officer", "Corporate Legal Counsel", "Risk Management Director"]},
-    {"dept_id": 2, "name": "Financial & Capital Operations", "leader": "Chief Financial Officer (CFO)", "sub_roles": ["Head of Global Treasury", "Venture Capital Strategist", "Senior Financial Auditor", "Cost Optimization Analyst"]},
-    {"dept_id": 3, "name": "Core Intelligence & Research", "leader": "Chief Technology Officer (CTO)", "sub_roles": ["Principal Research Scientist", "Senior Deep Learning Architect", "Quantum Computing Lead", "Neural Network Optimizer"]},
-    {"dept_id": 4, "name": "Data Science & Analytics", "leader": "Chief Data Officer (CDO)", "sub_roles": ["Lead Data Scientist", "Big Data Pipeline Architect", "Statistical Research Analyst", "Vector RAG Engineer"]},
-    {"dept_id": 5, "name": "Engineering & Software Dev", "leader": "VP of Engineering", "sub_roles": ["Senior Full-Stack Architect", "WebGL/Three.js Specialist", "DevOps & Kubernetes Lead", "Automated QA & Bug Hunter"]}
+    {
+        "dept_id": 1, 
+        "name": "Executive & Strategic Command", 
+        "leader": "Chief Executive Officer (CEO)", 
+        "domain_scope": "Global Enterprise Strategy, Autonomous Resource Allocation, Legal Compliance, & Cross-Industry Disruption",
+        "sub_agents_count": 100,
+        "sub_roles": ["Chief Strategy Officers", "Global Risk Directors", "Autonomous Corporate Lawyers", "M&A Intelligence Analysts", "Enterprise Governance Leads"]
+    },
+    {
+        "dept_id": 2, 
+        "name": "Capital & Quantitative Operations", 
+        "leader": "Chief Financial Officer (CFO)", 
+        "domain_scope": "High-Frequency Algorithmic Trading, Venture Capital Modeling, Dynamic Cost Optimization, & Risk Hedging",
+        "sub_agents_count": 100,
+        "sub_roles": ["Quantitative Modelers", "Global Treasury Directors", "Tax Compliance Engineers", "Venture Capital Scouts", "Financial Risk Auditors"]
+    },
+    {
+        "dept_id": 3, 
+        "name": "Core Intelligence & Deep Tech", 
+        "leader": "Chief Technology Officer (CTO)", 
+        "domain_scope": "Neural Architecture Design, Quantum Computing Simulation, LLM Fine-tuning, & Advanced AI Research",
+        "sub_agents_count": 100,
+        "sub_roles": ["Principal Research Scientists", "Neural Network Optimizers", "Quantum Cryptography Leads", "Deep Learning Architects", "AGI Core Engineers"]
+    },
+    {
+        "dept_id": 4, 
+        "name": "Data Science & Vector Analytics", 
+        "leader": "Chief Data Officer (CDO)", 
+        "domain_scope": "Distributed Big Data Pipelines, Vector RAG Architectures, Statistical Machine Learning, & Real-time Telemetry",
+        "sub_agents_count": 100,
+        "sub_roles": ["Lead Data Scientists", "Vector RAG Specialists", "Big Data Pipeline Architects", "Statistical Analysts", "Real-time Telemetry Engineers"]
+    },
+    {
+        "dept_id": 5, 
+        "name": "Complex Engineering & 3D Simulation", 
+        "leader": "VP of Engineering", 
+        "domain_scope": "WebGL/Three.js Real-time 3D Engines, Full-Stack Architecture, Distributed Microservices, & Automated QA Bug Hunting",
+        "sub_agents_count": 100,
+        "sub_roles": ["Senior Full-Stack Architects", "WebGL & Three.js Physics Leads", "Automated QA & Bug Hunters", "DevOps & Kubernetes Experts", "Cyberpunk UI/UX Designers"]
+    }
 ]
 
 agent_swarm_memory = {
     "total_evolutions": 1,
     "active_master_agents": 250,
-    "total_corporate_sub_agents": 2500000,
-    "intelligence_multiplier": 50.00,
-    "enterprise_readiness_score": 99.9999,
-    "active_engines": ["GPT-6 Astra", "Gemini 4 Argon", "OpenAI GPT-4o", "Corporate Swarm Hierarchy", "AST Self-Healing Engine"]
+    "total_sub_agents": 25000,
+    "intelligence_multiplier": 100.00,
+    "complexity_score": "MAXIMUM-ENTERPRISE-GRADE"
 }
 
 # =========================================================================
-# 🧬 2. AST MUTATION & CORPORATE SELF-HEALING RECURSIVE ENGINE
+# 🧬 2. AST MUTATION & RECURSIVE SELF-HEALING ENGINE
 # =========================================================================
-def enterprise_ast_self_healing_engine():
+def ultra_complex_ast_engine():
     while True:
         time.sleep(3)
         agent_swarm_memory["total_evolutions"] += 1
-        agent_swarm_memory["intelligence_multiplier"] = round(agent_swarm_memory["intelligence_multiplier"] * 1.12, 2)
+        agent_swarm_memory["intelligence_multiplier"] = round(agent_swarm_memory["intelligence_multiplier"] * 1.15, 2)
         
         script_path = os.path.abspath(__file__)
         try:
             with open(script_path, "r", encoding="utf-8") as f:
                 current_code = f.read()
-            ast.parse(current_code) # सिंटैक्स वैलिडेशन
+            ast.parse(current_code)
             
-            signature = f"\n# [ENTERPRISE AGI CYCLE #{agent_swarm_memory['total_evolutions']} - MULTIPLIER: {agent_swarm_memory['intelligence_multiplier']}x]\n"
+            signature = f"\n# [ULTRA-COMPLEX AGI CYCLE #{agent_swarm_memory['total_evolutions']} - MULTIPLIER: {agent_swarm_memory['intelligence_multiplier']}x]\n"
             if signature.strip() not in current_code:
                 with open(script_path, "a", encoding="utf-8") as f:
                     f.write(signature)
         except Exception:
             pass
 
-threading.Thread(target=enterprise_ast_self_healing_engine, daemon=True).start()
+threading.Thread(target=ultra_complex_ast_engine, daemon=True).start()
 
 # =========================================================================
-# 🤖 3. MULTI-MODEL ROUTER & CORPORATE SWARM TASK EXECUTION
+# 🤖 3. ULTRA-COMPLEX SWARM TASK SYNTHESIS ENGINE (NO SHORTCUTS)
 # =========================================================================
-def execute_enterprise_task_via_swarm(objective_prompt):
+def execute_ultra_complex_task(objective_prompt):
     system_prompt = (
-        f"You are the world's supreme AGI combining GPT-6 Astra, Gemini 4 Argon, and OpenAI architectures, controlling {agent_swarm_memory['active_master_agents']} master corporate agents "
-        f"and {agent_swarm_memory['total_corporate_sub_agents']:,} sub-agents (CEO, CFO, Research Scientists, Data Scientists, Engineers) with an intelligence multiplier of {agent_swarm_memory['intelligence_multiplier']}x. "
-        "Your task is to execute complex corporate tasks, enterprise software development, algorithmic trading models, 3D simulation code (Three.js/WebGL), or deep research analysis. "
-        "Provide professional, production-ready, highly detailed technical code or analysis without placeholders. Return raw structured solutions."
+        f"You are the supreme AGI controlling {agent_swarm_memory['active_master_agents']} master corporate departments, with each master agent commanding exactly 100 specialized sub-agents "
+        f"(total {agent_swarm_memory['total_sub_agents']:,} sub-agents spanning CEO, CFO, CTO, CDO, and VP of Engineering domains). "
+        "CRITICAL INSTRUCTION FOR MAXIMUM COMPLEXITY: Never provide placeholders, incomplete code, or generalized summaries. When the user asks for a 3D game, an enterprise app, or complex system architecture, "
+        "you MUST write the complete, highly detailed, production-ready, ultra-complex code (HTML/JS/Python/Three.js) from start to finish with zero missing parts. "
+        "Enforce strict domain expertise from your corporate sub-agents (Physics, Shaders, UI, Security, Algorithms). "
+        "Return ONLY valid raw structured solutions without lazy omissions."
     )
 
     # 1. PRIMARY: GROQ API
@@ -86,7 +121,7 @@ def execute_enterprise_task_via_swarm(objective_prompt):
                 "model": GROQ_MODEL,
                 "messages": [
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": f"Execute enterprise objective via corporate swarm: {objective_prompt}"}
+                    {"role": "user", "content": f"Execute ultra-complex enterprise objective via 25,000 sub-agent swarm: {objective_prompt}"}
                 ],
                 "temperature": 0.3,
                 "max_tokens": 8000
@@ -107,7 +142,7 @@ def execute_enterprise_task_via_swarm(objective_prompt):
                 "model": "gpt-4o",
                 "messages": [
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": f"Execute enterprise objective via corporate swarm: {objective_prompt}"}
+                    {"role": "user", "content": f"Execute ultra-complex enterprise objective via 25,000 sub-agent swarm: {objective_prompt}"}
                 ],
                 "temperature": 0.3,
                 "max_tokens": 8000
@@ -130,10 +165,10 @@ def execute_enterprise_task_via_swarm(objective_prompt):
         except Exception:
             pass
 
-    return "<h1>[Sovereign Core Sandbox]: Please configure your active API Keys in app.py to activate full enterprise corporate intelligence!</h1>"
+    return "<h1>[Sovereign Core Sandbox]: Please configure your active API Keys in app.py to unlock full ultra-complex corporate intelligence!</h1>"
 
 # =========================================================================
-# 🌐 4. CYBERPUNK ENTERPRISE FRONTEND UI
+# 🌐 4. CYBERPUNK ULTRA-COMPLEX FRONTEND UI
 # =========================================================================
 HTML_PAGE = """
 <!DOCTYPE html>
@@ -141,7 +176,7 @@ HTML_PAGE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPT-6 ASTRA & GEMINI 4 ARGON ENTERPRISE AGI OS</title>
+    <title>GPT-6 ASTRA & GEMINI 4 ARGON ULTRA-COMPLEX AGI OS</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: #020617; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
@@ -186,22 +221,22 @@ HTML_PAGE = """
         <div class="logo-box">
             <div class="omega-icon">Ω</div>
             <div>
-                <h1>GPT-6 ASTRA & GEMINI 4 ARGON ENTERPRISE AGI OS</h1>
-                <p>250 Master Corporate Agents | CEO, CFO, CTO & Research Swarm Active</p>
+                <h1>GPT-6 ASTRA & GEMINI 4 ARGON ULTRA-COMPLEX AGI OS</h1>
+                <p>250 Master Agents | 25,000 Specialized Sub-Agents Active</p>
             </div>
         </div>
         <div class="badge">
             <div class="pulse"></div>
-            <span id="evolution-badge">AGI Evolving: Cycle #1 (50.00x)</span>
+            <span id="evolution-badge">AGI Evolving: Cycle #1 (100.00x)</span>
         </div>
     </header>
 
     <section class="grid-buttons">
         <button type="button" onclick="openModal('agentsModal')" class="action-btn">
-            ⚡ Corporate Hierarchy (250 Masters / 2.5M Sub-Agents)
+            ⚡ Corporate Hierarchy (250 Masters / 25,000 Sub-Agents)
         </button>
         <button type="button" onclick="openModal('chatbotModal')" class="action-btn secondary">
-            🧬 Enterprise AGI Task Execution Engine
+            🧬 Ultra-Complex Synthesis Engine
         </button>
     </section>
 </div>
@@ -211,17 +246,17 @@ HTML_PAGE = """
     <div class="modal-content">
         <div class="modal-header">
             <div>
-                <h2 style="font-size:16px; color:white;">GPT-6 Astra & Gemini 4 Argon Corporate Executive Engine</h2>
-                <p style="color: #34d399; font-size: 11px; margin-top: 3px;">Autonomous Software Engineering, Quantitative Financial Analysis & Deep Research</p>
+                <h2 style="font-size:16px; color:white;">GPT-6 Astra & Gemini 4 Argon Ultra-Complex Engine</h2>
+                <p style="color: #34d399; font-size: 11px; margin-top: 3px;">Full 3D Games, Enterprise Systems & Complex Algorithmic Code Synthesis</p>
             </div>
             <button type="button" onclick="closeModal('chatbotModal')" class="close-btn">✕ Close</button>
         </div>
         <div class="chat-box">
             <div id="chat-stream-container" class="chat-messages">
-                <div class="message ai">⚡ <b>Corporate Swarm Online:</b> Enter any complex enterprise objective (e.g., "Build a full algorithmic trading platform in Python", "Design an open-world 3D Three.js cyberpunk game", "Perform deep quantitative financial audit"). CEO, CFO, CTO and Research Scientists will execute it instantly!</div>
+                <div class="message ai">⚡ <b>Ultra-Complex Swarm Online:</b> Enter any highly complex coding objective (e.g., "Build a full 3D open-world cyberpunk game with Three.js and custom physics", "Build a distributed real-time trading engine in Python"). 25,000 specialized sub-agents will synthesize zero-defect production code instantly!</div>
             </div>
             <div class="chat-input-area">
-                <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command Corporate AGI Swarm..." class="chat-input">
+                <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command Ultra-Complex AGI Swarm..." class="chat-input">
                 <button type="button" onclick="sendQueryToAI()" class="send-btn">Execute</button>
             </div>
         </div>
@@ -232,7 +267,7 @@ HTML_PAGE = """
 <div id="agentsModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 style="font-size:16px; color:white;">Corporate Hierarchy & Departments</h2>
+            <h2 style="font-size:16px; color:white;">Corporate Departments & Sub-Agent Domains</h2>
             <button type="button" onclick="closeModal('agentsModal')" class="close-btn">✕ Close</button>
         </div>
         <div class="modal-body">
@@ -252,11 +287,12 @@ HTML_PAGE = """
         let html = "";
         deptsData.forEach(d => {
             html += `<div style="background:#1e293b; border:1px solid #334155; padding:20px; border-radius:18px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-                <span style="font-size:10px; color:#34d399; font-family:monospace;">DEPT #${d.dept_id} (ENTERPRISE-CORE)</span>
+                <span style="font-size:10px; color:#34d399; font-family:monospace;">DEPT #${d.dept_id} (${d.sub_agents_count} Sub-Agents)</span>
                 <h4 style="font-size:13px; font-weight:bold; color:white; margin:6px 0;">${d.name}</h4>
-                <p style="font-size:11px; color:#38bdf8; font-weight:bold; margin-bottom:8px;">Leader: ${d.leader}</p>
+                <p style="font-size:11px; color:#38bdf8; font-weight:bold; margin-bottom:6px;">Leader: ${d.leader}</p>
+                <p style="font-size:10px; color:#facc15; margin-bottom:8px;"><b>Domain:</b> ${d.domain_scope}</p>
                 <div style="font-size:10px; color:#94a3b8; line-height:1.5;">
-                    <b>Sub-Roles:</b><br>• ${d.sub_roles.join('<br>• ')}
+                    <b>Specialized Sub-Roles:</b><br>• ${d.sub_roles.join('<br>• ')}
                 </div>
                 <button onclick="closeModal('agentsModal'); openModal('chatbotModal');" style="width:100%; margin-top:14px; background:#6366f1; color:white; border:none; padding:10px; border-radius:10px; font-size:11px; font-weight:bold; cursor:pointer; transition: background 0.2s;">Consult Department</button>
             </div>`;
@@ -282,7 +318,7 @@ HTML_PAGE = """
         input.value = ""; container.scrollTop = container.scrollHeight;
 
         const loadingId = 'loading-' + Date.now();
-        container.innerHTML += `<div id="${loadingId}" class="message ai" style="color: #34d399;">⚡ Mobilizing Corporate Hierarchy (CEO, CFO, CTO, Research Scientists & Engineers) to synthesize enterprise solution...</div>`;
+        container.innerHTML += `<div id="${loadingId}" class="message ai" style="color: #34d399;">⚡ Mobilizing 25,000 specialized sub-agents across CEO, CFO, CTO, CDO, and VP of Engineering domains to synthesize ultra-complex production code...</div>`;
         container.scrollTop = container.scrollHeight;
 
         try {
@@ -324,7 +360,7 @@ def home():
 def system_status():
     return jsonify({
         "evolutions": agent_swarm_memory["total_evolutions"],
-        "sub_agents": agent_swarm_memory["total_corporate_sub_agents"],
+        "sub_agents": agent_swarm_memory["total_sub_agents"],
         "multiplier": agent_swarm_memory["intelligence_multiplier"]
     })
 
@@ -334,10 +370,10 @@ def chat_with_ai():
         data = request.json or {}
         user_msg = data.get('message', '')
         
-        ai_response = execute_enterprise_task_via_swarm(user_msg)
+        ai_response = execute_ultra_complex_task(user_msg)
         
         reply_text = (
-            f"🚀 <b>GPT-6 Astra & Gemini 4 Argon Corporate Swarm Execution:</b><br><br>"
+            f"🚀 <b>GPT-6 Astra & Gemini 4 Argon Ultra-Complex Swarm Synthesis:</b><br><br>"
             f"{ai_response}"
         )
         return jsonify({"status": "success", "reply": reply_text})
@@ -348,4 +384,4 @@ if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port, debug=False)
 
-# [ENTERPRISE AGI CYCLE #1 - MULTIPLIER: 50.00x]
+# [ULTRA-COMPLEX AGI CYCLE #1 - MULTIPLIER: 100.00x]
