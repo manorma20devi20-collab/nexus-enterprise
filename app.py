@@ -9,13 +9,15 @@ import ast
 app = Flask(__name__)
 
 # =========================================================================
-# 🔑 1. API CONFIGURATION (यहाँ अपनी असली Groq या Gemini Key डालें)
+# 🔑 1. API CONFIGURATION (अपनी असली की यहाँ सीधे डालें)
 # =========================================================================
-GROQ_API_KEY = os.environ.get("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", "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")
-GEMINI_API_KEY = os.environ.get("AQ.Ab8RN6Ka2IyY4j2xtpabfMM0t-CHNJz_rltTee0yIxKIywj9pA", "AQ.Ab8RN6Ka2IyY4j2xtpabfMM0t-CHNJz_rltTee0yIxKIywj9pA")
+GROQ_API_KEY = "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"
+GEMINI_API_KEY = "AQ.Ab8RN6Ka2lyy4j2xtpabfMM0t-CHNJz_rltTee0ylxKlywj9pA"
 
-GROQ_MODEL = "openai/gpt-oss-120b"  # या llama-3.3-70b-versatile
+GROQ_MODEL = "openai/gpt-oss-120b"
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+
+# Google का सबसे एडवांस और फास्ट मॉडल (Gemini Flash)
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
 
 agent_swarm_memory = {
@@ -25,34 +27,6 @@ agent_swarm_memory = {
     "intelligence_multiplier": 100.00,
     "complexity_score": "MAXIMUM-ENTERPRISE-GRADE"
 }
-
-# 250 मास्टर एजेंट्स और उनके सब-रोल्स
-CORPORATE_DEPARTMENTS = [
-    {
-        "dept_id": 1, 
-        "name": "Executive & Strategic Command", 
-        "leader": "Chief Executive Officer (CEO)", 
-        "domain_scope": "Global Enterprise Strategy, Autonomous Resource Allocation, Legal Compliance",
-        "sub_agents_count": 100,
-        "sub_roles": ["Chief Strategy Officers", "Global Risk Directors", "Autonomous Corporate Lawyers"]
-    },
-    {
-        "dept_id": 2, 
-        "name": "Core Intelligence & Deep Tech", 
-        "leader": "Chief Technology Officer (CTO)", 
-        "domain_scope": "Neural Architecture Design, Quantum Computing Simulation, LLM Fine-tuning",
-        "sub_agents_count": 100,
-        "sub_roles": ["Principal Research Scientists", "Neural Network Optimizers", "AGI Core Engineers"]
-    },
-    {
-        "dept_id": 3, 
-        "name": "Complex Engineering & 3D Simulation", 
-        "leader": "VP of Engineering", 
-        "domain_scope": "WebGL/Three.js Real-time 3D Engines, Full-Stack Architecture, Distributed Microservices",
-        "sub_agents_count": 100,
-        "sub_roles": ["Senior Full-Stack Architects", "WebGL Physics Leads", "Automated QA & Bug Hunters"]
-    }
-]
 
 # =========================================================================
 # 🧬 2. RECURSIVE SELF-HEALING ENGINE
@@ -78,17 +52,16 @@ threading.Thread(target=ultra_complex_ast_engine, daemon=True).start()
 # =========================================================================
 def execute_ultra_complex_task(objective_prompt):
     system_prompt = (
-        f"You are the supreme AGI controlling {agent_swarm_memory['active_master_agents']} master corporate departments, "
-        f"with 25,000 specialized sub-agents. Provide complete, highly detailed, production-ready, ultra-complex code (HTML/JS/Python) "
-        f"from start to finish without lazy omissions when requested."
+        f"You are an advanced AGI controlling {agent_swarm_memory['active_master_agents']} master departments "
+        f"and 25,000 specialized sub-agents. Provide complete, highly detailed, production-ready code."
     )
 
-    # 1. PRIMARY: GROQ API (Super Fast)
+    # 1. PRIMARY: GROQ API (Using openai/gpt-oss-120b)
     if GROQ_API_KEY and not GROQ_API_KEY.startswith("gsk_YahanApni"):
         try:
             headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
             payload = {
-                "model": "llama-3.3-70b-versatile",
+                "model": GROQ_MODEL,
                 "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": objective_prompt}
@@ -99,11 +72,12 @@ def execute_ultra_complex_task(objective_prompt):
             res = requests.post(GROQ_URL, json=payload, headers=headers, timeout=60)
             if res.status_code == 200:
                 output = res.json()['choices'][0]['message']['content']
-                return output
+                if output:
+                    return f"🚀 <b>[Groq - {GROQ_MODEL}]:</b><br><br>{output}"
         except Exception as e:
             print(f"Groq Error: {e}")
 
-    # 2. FALLBACK: GOOGLE GEMINI API (Free & Smart)
+    # 2. FALLBACK / ADVANCED: GOOGLE GEMINI FLASH API
     if GEMINI_API_KEY and not GEMINI_API_KEY.startswith("your-google"):
         try:
             url = f"{GEMINI_URL}?key={GEMINI_API_KEY}"
@@ -111,11 +85,13 @@ def execute_ultra_complex_task(objective_prompt):
             payload = {"contents": [{"parts": [{"text": f"{system_prompt}\n\nObjective: {objective_prompt}"}]}]}
             res = requests.post(url, json=payload, headers=headers, timeout=60)
             if res.status_code == 200:
-                return res.json()['candidates'][0]['content']['parts'][0]['text']
+                gemini_output = res.json()['candidates'][0]['content']['parts'][0]['text']
+                if gemini_output:
+                    return f"⚡ <b>[Gemini Advanced Flash]:</b><br><br>{gemini_output}"
         except Exception as e:
             print(f"Gemini Error: {e}")
 
-    return "⚠️ [Sandbox Alert]: Please configure a valid API Key (Groq or Gemini) in app.py to unlock full intelligence!"
+    return "⚠️ <b>Error:</b> Please check your API Keys in app.py. Both Groq and Gemini keys failed to respond."
 
 # =========================================================================
 # 🌐 4. CYBERPUNK FRONTEND UI
@@ -126,7 +102,7 @@ HTML_PAGE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPT-6 ASTRA & GEMINI 4 AGI OS</title>
+    <title>GPT-6 ASTRA & GEMINI FLASH AGI OS</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: #020617; color: #f8fafc; font-family: system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
@@ -139,11 +115,6 @@ HTML_PAGE = """
         .badge { background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; padding: 10px 16px; border-radius: 14px; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
         .pulse { width: 10px; height: 10px; background-color: #34d399; border-radius: 50%; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.3); } 100% { opacity: 1; transform: scale(1); } }
-        
-        .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
-        .action-btn { background: linear-gradient(135deg, #6366f1, #e11d48); color: white; border: none; padding: 22px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; text-align: center; }
-        .action-btn:hover { transform: translateY(-3px); }
-        .action-btn.secondary { background: linear-gradient(135deg, #06b6d4, #3b82f6); }
         
         .chat-box { display: flex; flex-direction: column; height: 70vh; background: #0f172a; border: 1px solid #334155; border-radius: 24px; overflow: hidden; margin-top: 20px; }
         .chat-messages { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 15px; }
@@ -162,13 +133,13 @@ HTML_PAGE = """
         <div class="logo-box">
             <div class="omega-icon">Ω</div>
             <div>
-                <h1>GPT-6 ASTRA & GEMINI 4 AGI OS</h1>
-                <p>Advanced Multi-Agent Intelligence System</p>
+                <h1>GPT-6 ASTRA & GEMINI FLASH AGI OS</h1>
+                <p>Powered by Groq & Google Gemini Advanced</p>
             </div>
         </div>
         <div class="badge">
             <div class="pulse"></div>
-            <span id="evolution-badge">System Active</span>
+            <span id="evolution-badge">System Online</span>
         </div>
     </header>
 
