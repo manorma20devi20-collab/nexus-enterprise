@@ -11,12 +11,12 @@ app = Flask(__name__)
 # =========================================================================
 # 🔑 1. API CONFIGURATION (यहाँ अपनी असली Groq या Gemini Key डालें)
 # =========================================================================
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "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")
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AQ.Ab8RN6JkQuYALT_Ou1tI4u4k-v5r0icXPK-g3uSUhIRgTp61Rg")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "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")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "AQ.Ab8RN6Ka2IyY4j2xtpabfMM0t-CHNJz_rltTee0yIxKIywj9pA")
 
 GROQ_MODEL = "openai/gpt-oss-120b"  # या llama-3.3-70b-versatile
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
-GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
 
 agent_swarm_memory = {
     "total_evolutions": 1,
