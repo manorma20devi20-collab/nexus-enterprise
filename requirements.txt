@@ -2,7 +2,6 @@ Flask
 requests
 playwright
 gunicorn
-numpy
-pandas
-cadquery; platform_system != 'Windows'
-kicad-parser
+pyautogui
+opencv-python-headless
+pillow

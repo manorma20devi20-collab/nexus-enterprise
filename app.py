@@ -5,17 +5,12 @@ import os
 import threading
 import time
 import ast
-
-# Playwright integration for advanced web automation & software control
-try:
-    from playwright.sync_api import sync_playwright
-except ImportError:
-    sync_playwright = None
+import subprocess
 
 app = Flask(__name__)
 
 # =========================================================================
-# 🔑 1. API CONFIGURATION (यहाँ अपनी असली Groq API Key डालें)
+# 🔑 1. ORION-X AGI CONFIGURATION
 # =========================================================================
 GROQ_API_KEY = "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"
 GROQ_MODEL = "openai/gpt-oss-120b"
@@ -23,52 +18,60 @@ GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 ai_execution_database = {}
 
-# 250 मास्टर एजेंट्स, जिनमें सॉफ्टवेयर, 3D गेम्स, CAD और हार्डवेयर/सर्कित्स शामिल हैं
+# 500 मास्टर एजेंट्स जो हर तरह के सॉफ्टवेयर, 3D गेम्स, वेबसाइट्स और ऑटोमेशन में माहिर हैं
 CORPORATE_DEPARTMENTS = [
     {
         "dept_id": 1, 
-        "name": "Software & Full-Stack Architecture", 
+        "name": "Universal Software & Web Architecture", 
         "leader": "Chief Technology Officer (CTO)", 
-        "domain_scope": "Full-Stack Web Apps, Distributed Microservices, & High-Performance Engines",
+        "domain_scope": "Full-Stack Web Apps, Mobile Platforms, SaaS Tools, & Enterprise Software",
         "sub_agents_count": 100,
-        "sub_roles": ["Senior Full-Stack Architects", "Distributed Systems Leads", "UI/UX Cyberpunk Designers"]
+        "sub_roles": ["Senior Full-Stack Architects", "Next.js & React Specialists", "UI/UX Cyberpunk Designers"]
     },
     {
         "dept_id": 2, 
-        "name": "3D Physics & GTA-Style Game Engines", 
+        "name": "Advanced 3D & Open-World Game Engines", 
         "leader": "VP of Game Engineering", 
-        "domain_scope": "WebGL/Three.js Real-time 3D Engines, Vehicle Physics, Collision Detection, & Open-World Worlds",
+        "domain_scope": "Three.js/WebGL 3D Games, Physics Engines, Collision Detection, & Open-World Environments",
         "sub_agents_count": 100,
-        "sub_roles": ["Three.js Physics Leads", "Shader Programmers", "Open-World Mechanics Experts"]
+        "sub_roles": ["Three.js Physics Leads", "Shader Programmers", "Gameplay Mechanics Experts"]
     },
     {
         "dept_id": 3, 
-        "name": "Hardware, CAD & Circuit Design", 
-        "leader": "Chief Hardware Architect", 
-        "domain_scope": "FreeCAD 3D Body Design, KiCad PCB Schematics, & CFD Aerodynamics Simulation",
+        "name": "Autonomous Agentic Loop & Terminal Execution", 
+        "leader": "Chief AI Architect", 
+        "domain_scope": "Subprocess Terminal Control, Automated Python Script Execution, & Self-Debugging Loops",
         "sub_agents_count": 100,
-        "sub_roles": ["CAD/CAM Engineers", "PCB Layout Specialists", "Hardware Integration Leads"]
+        "sub_roles": ["Terminal Automation Engineers", "Error Debuggers", "Execution Loop Leads"]
     },
     {
         "dept_id": 4, 
-        "name": "Embedded Firmware & IoT Systems", 
-        "leader": "Head of Embedded Systems", 
-        "domain_scope": "C/C++, MicroPython, Arduino/ESP32 Drivers, & Real-time Hardware Control",
+        "name": "Perception & Action Automation Module", 
+        "leader": "Head of Automation (OpenCV/PyAutoGUI)", 
+        "domain_scope": "Screen Capturing, Visual Telemetry, Mouse/Keyboard Automation, & UI Interaction",
         "sub_agents_count": 100,
-        "sub_roles": ["Firmware Engineers", "IoT Protocol Specialists", "Hardware Testers"]
+        "sub_roles": ["Computer Vision Engineers", "GUI Action Specialists", "Telemetry Analysts"]
+    },
+    {
+        "dept_id": 5, 
+        "name": "Hardware, CAD & Embedded Firmware", 
+        "leader": "Chief Hardware Architect", 
+        "domain_scope": "CAD 3D Enclosures, PCB Schematics Logic, & C/C++ Microcontroller Firmware",
+        "sub_agents_count": 100,
+        "sub_roles": ["CAD Modelers", "PCB Layout Experts", "Embedded Firmware Engineers"]
     }
 ]
 
 agent_swarm_memory = {
     "total_evolutions": 1,
-    "active_master_agents": 400,
-    "total_sub_agents": 40000,
-    "intelligence_multiplier": 150.00,
-    "complexity_score": "MAXIMUM-HARDWARE-SOFTWARE-AGI"
+    "active_master_agents": 500,
+    "total_sub_agents": 50000,
+    "intelligence_multiplier": 200.00,
+    "complexity_score": "ORION-X-UNIVERSAL-AGI-CORE"
 }
 
 # =========================================================================
-# 🧬 2. RECURSIVE SELF-HEALING & MUTATION ENGINE
+# 🧬 2. RECURSIVE SELF-HEALING & AST ENGINE
 # =========================================================================
 def ultra_complex_ast_engine():
     while True:
@@ -82,7 +85,7 @@ def ultra_complex_ast_engine():
                 current_code = f.read()
             ast.parse(current_code)
             
-            signature = f"\n# [AGI CYCLE #{agent_swarm_memory['total_evolutions']} - MULTIPLIER: {agent_swarm_memory['intelligence_multiplier']}x]\n"
+            signature = f"\n# [ORION-X AGI CYCLE #{agent_swarm_memory['total_evolutions']} - MULTIPLIER: {agent_swarm_memory['intelligence_multiplier']}x]\n"
             if signature.strip() not in current_code:
                 with open(script_path, "a", encoding="utf-8") as f:
                     f.write(signature)
@@ -92,15 +95,16 @@ def ultra_complex_ast_engine():
 threading.Thread(target=ultra_complex_ast_engine, daemon=True).start()
 
 # =========================================================================
-# 🤖 3. MULTI-DOMAIN HARDWARE & SOFTWARE SYNTHESIS ENGINE
+# 🤖 3. UNIVERSAL TASK SYNTHESIS ENGINE (Orion-X Core)
 # =========================================================================
 def execute_ultra_complex_task(objective_prompt):
     system_prompt = (
-        f"You are the supreme AGI controlling {agent_swarm_memory['active_master_agents']} master departments "
-        f"and {agent_swarm_memory['total_sub_agents']:,} specialized sub-agents spanning Software, 3D GTA-style Game Engines, "
-        f"FreeCAD Hardware Design, KiCad Circuits, and C/C++ Embedded Firmware. "
-        "CRITICAL INSTRUCTION: When the user asks for software, a 3D open-world game (Three.js), a hardware casing (CAD/Python), "
-        "or microchip firmware, you MUST write complete, highly detailed, production-ready code from start to finish with zero missing parts."
+        f"You are Orion-X, the supreme AGI controlling {agent_swarm_memory['active_master_agents']} master departments "
+        f"and {agent_swarm_memory['total_sub_agents']:,} specialized sub-agents. You are not limited to any single field; "
+        f"you are a universal creator capable of building any software, 3D game (Three.js/WebGL), website, mobile app, "
+        f"Python automation script, or hardware design. "
+        "CRITICAL INSTRUCTION: When the user asks for code, a game, a website, or a software tool, you MUST write "
+        "complete, highly detailed, production-ready code from start to finish with zero missing parts."
     )
 
     if GROQ_API_KEY and not GROQ_API_KEY.startswith("gsk_YahanApni"):
@@ -110,7 +114,7 @@ def execute_ultra_complex_task(objective_prompt):
                 "model": GROQ_MODEL,
                 "messages": [
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": f"Execute multi-domain hardware & software objective via 40,000 sub-agents: {objective_prompt}"}
+                    {"role": "user", "content": f"Execute objective across 50,000 Orion-X sub-agents: {objective_prompt}"}
                 ],
                 "temperature": 0.3,
                 "max_tokens": 8000
@@ -121,14 +125,14 @@ def execute_ultra_complex_task(objective_prompt):
                 if output:
                     return output
             else:
-                return f"⚠️ Groq API Error: Status code {res.status_code}. Please check your Groq API Key."
+                return f"⚠️ Groq API Error: Status code {res.status_code}. Please verify your Groq API Key."
         except Exception as e:
             return f"⚠️ Exception occurred: {str(e)}"
 
-    return "<h1>[Sovereign Core Sandbox]: Please configure your active Groq API Key in app.py to unlock full hardware-software intelligence!</h1>"
+    return "<h1>[Orion-X Sandbox]: Please configure your active Groq API Key in app.py to unlock full universal intelligence!</h1>"
 
 # =========================================================================
-# 🌐 4. CYBERPUNK FRONTEND UI (Software + Hardware Command Center)
+# 🌐 4. CYBERPUNK FRONTEND UI (Orion-X Command Center)
 # =========================================================================
 HTML_PAGE = """
 <!DOCTYPE html>
@@ -136,7 +140,7 @@ HTML_PAGE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPT-6 ASTRA AGI OS (Software & Hardware Unified)</title>
+    <title>ORION-X AGI OS (Universal Software & Game Creator)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: #020617; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
@@ -179,24 +183,24 @@ HTML_PAGE = """
 <div class="container">
     <header>
         <div class="logo-box">
-            <div class="omega-icon">Ω</div>
+            <div class="omega-icon">⎈</div>
             <div>
-                <h1>GPT-6 ASTRA UNIFIED AGI OS</h1>
-                <p>40,000 Sub-Agents Active | Software, 3D Games, CAD & Hardware Design</p>
+                <h1>ORION-X AGI OS</h1>
+                <p>50,000 Sub-Agents | Universal Software, 3D Games, Websites & Hardware Creator</p>
             </div>
         </div>
         <div class="badge">
             <div class="pulse"></div>
-            <span id="evolution-badge">AGI Evolving: Cycle #1 (150.00x)</span>
+            <span id="evolution-badge">Orion-X Evolving: Cycle #1 (200.00x)</span>
         </div>
     </header>
 
     <section class="grid-buttons">
         <button type="button" onclick="openModal('agentsModal')" class="action-btn">
-            ⚡ Corporate & Engineering Departments (40,000 Agents)
+            ⚡ Universal Engineering Departments (50,000 Agents)
         </button>
         <button type="button" onclick="openModal('chatbotModal')" class="action-btn secondary">
-            🧬 Software, 3D GTA-6 Games & Hardware Synthesis Engine
+            🧬 Orion-X Universal Synthesis Engine (Games, Web & Apps)
         </button>
     </section>
 </div>
@@ -206,17 +210,17 @@ HTML_PAGE = """
     <div class="modal-content">
         <div class="modal-header">
             <div>
-                <h2 style="font-size:16px; color:white;">GPT-6 Astra Unified Engine</h2>
-                <p style="color: #34d399; font-size: 11px; margin-top: 3px;">Full 3D Games (Three.js), CAD Hardware Design & Embedded Firmware Code</p>
+                <h2 style="font-size:16px; color:white;">Orion-X Universal Synthesis Engine</h2>
+                <p style="color: #34d399; font-size: 11px; margin-top: 3px;">Build 3D Games, Websites, Full-Stack Software & Hardware Firmware Instantly</p>
             </div>
             <button type="button" onclick="closeModal('chatbotModal')" class="close-btn">✕ Close</button>
         </div>
         <div class="chat-box">
             <div id="chat-stream-container" class="chat-messages">
-                <div class="message ai">⚡ <b>Unified AGI Swarm Online:</b> Enter any complex software or hardware objective (e.g., "Build a full 3D open-world GTA-style game", "Design a CAD 3D enclosure and write Arduino firmware for an IoT smart sensor"). 40,000 sub-agents ready!</div>
+                <div class="message ai">⚡ <b>Orion-X Swarm Online:</b> Ask me to build anything—a 3D racing game, a modern e-commerce website, a Python automation tool, or IoT firmware. 50,000 sub-agents are ready!</div>
             </div>
             <div class="chat-input-area">
-                <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command Hardware & Software AGI..." class="chat-input">
+                <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command Orion-X Universal AGI..." class="chat-input">
                 <button type="button" onclick="sendQueryToAI()" class="send-btn">Execute</button>
             </div>
         </div>
@@ -227,7 +231,7 @@ HTML_PAGE = """
 <div id="agentsModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 style="font-size:16px; color:white;">Engineering Departments & Domains</h2>
+            <h2 style="font-size:16px; color:white;">Orion-X Engineering Departments & Domains</h2>
             <button type="button" onclick="closeModal('agentsModal')" class="close-btn">✕ Close</button>
         </div>
         <div class="modal-body">
@@ -264,7 +268,7 @@ HTML_PAGE = """
         try {
             const res = await fetch("/api/status");
             const data = await res.json();
-            document.getElementById('evolution-badge').innerText = `AGI Evolving: Cycle #${data.evolutions} (${data.multiplier}x | Sub-Agents: ${data.sub_agents.toLocaleString()})`;
+            document.getElementById('evolution-badge').innerText = `Orion-X Evolving: Cycle #${data.evolutions} (${data.multiplier}x | Sub-Agents: ${data.sub_agents.toLocaleString()})`;
         } catch(e) {}
     }, 3000);
 
@@ -278,7 +282,7 @@ HTML_PAGE = """
         input.value = ""; container.scrollTop = container.scrollHeight;
 
         const loadingId = 'loading-' + Date.now();
-        container.innerHTML += `<div id="${loadingId}" class="message ai" style="color: #34d399;">⚡ Mobilizing 40,000 software, 3D game & hardware sub-agents...</div>`;
+        container.innerHTML += `<div id="${loadingId}" class="message ai" style="color: #34d399;">⚡ Mobilizing 50,000 Orion-X universal sub-agents across all engineering domains...</div>`;
         container.scrollTop = container.scrollHeight;
 
         try {
@@ -333,7 +337,7 @@ def chat_with_ai():
         ai_response = execute_ultra_complex_task(user_msg)
         
         reply_text = (
-            f"🚀 <b>GPT-6 Astra Unified Hardware & Software Swarm Synthesis:</b><br><br>"
+            f"🚀 <b>Orion-X Universal Swarm Synthesis:</b><br><br>"
             f"{ai_response}"
         )
         return jsonify({"status": "success", "reply": reply_text})
