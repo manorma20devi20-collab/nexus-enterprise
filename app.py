@@ -23,44 +23,52 @@ GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 ai_execution_database = {}
 
-# 250 मास्टर एजेंट्स, प्रत्येक के अंतर्गत 100 специализирован सब-एजेंट्स (कुल 25,000+ सब-एजेंट्स)
+# 250 मास्टर एजेंट्स, जिनमें सॉफ्टवेयर, 3D गेम्स, CAD और हार्डवेयर/सर्कित्स शामिल हैं
 CORPORATE_DEPARTMENTS = [
     {
         "dept_id": 1, 
-        "name": "Executive & Strategic Command", 
-        "leader": "Chief Executive Officer (CEO)", 
-        "domain_scope": "Global Enterprise Strategy, Autonomous Resource Allocation, Software Control",
+        "name": "Software & Full-Stack Architecture", 
+        "leader": "Chief Technology Officer (CTO)", 
+        "domain_scope": "Full-Stack Web Apps, Distributed Microservices, & High-Performance Engines",
         "sub_agents_count": 100,
-        "sub_roles": ["Chief Strategy Officers", "Global Risk Directors", "Autonomous Corporate Lawyers"]
+        "sub_roles": ["Senior Full-Stack Architects", "Distributed Systems Leads", "UI/UX Cyberpunk Designers"]
     },
     {
         "dept_id": 2, 
-        "name": "Core Intelligence & Deep Tech", 
-        "leader": "Chief Technology Officer (CTO)", 
-        "domain_scope": "Neural Architecture Design, Quantum Computing Simulation, LLM Fine-tuning",
+        "name": "3D Physics & GTA-Style Game Engines", 
+        "leader": "VP of Game Engineering", 
+        "domain_scope": "WebGL/Three.js Real-time 3D Engines, Vehicle Physics, Collision Detection, & Open-World Worlds",
         "sub_agents_count": 100,
-        "sub_roles": ["Principal Research Scientists", "Neural Network Optimizers", "AGI Core Engineers"]
+        "sub_roles": ["Three.js Physics Leads", "Shader Programmers", "Open-World Mechanics Experts"]
     },
     {
         "dept_id": 3, 
-        "name": "Complex Engineering & 3D Simulation", 
-        "leader": "VP of Engineering", 
-        "domain_scope": "WebGL/Three.js Real-time 3D Engines, Full-Stack Architecture, 3D Games, Distributed Microservices",
+        "name": "Hardware, CAD & Circuit Design", 
+        "leader": "Chief Hardware Architect", 
+        "domain_scope": "FreeCAD 3D Body Design, KiCad PCB Schematics, & CFD Aerodynamics Simulation",
         "sub_agents_count": 100,
-        "sub_roles": ["Senior Full-Stack Architects", "WebGL & Three.js Physics Leads", "Automated QA & Bug Hunters", "Cyberpunk UI/UX Designers"]
+        "sub_roles": ["CAD/CAM Engineers", "PCB Layout Specialists", "Hardware Integration Leads"]
+    },
+    {
+        "dept_id": 4, 
+        "name": "Embedded Firmware & IoT Systems", 
+        "leader": "Head of Embedded Systems", 
+        "domain_scope": "C/C++, MicroPython, Arduino/ESP32 Drivers, & Real-time Hardware Control",
+        "sub_agents_count": 100,
+        "sub_roles": ["Firmware Engineers", "IoT Protocol Specialists", "Hardware Testers"]
     }
 ]
 
 agent_swarm_memory = {
     "total_evolutions": 1,
-    "active_master_agents": 250,
-    "total_sub_agents": 25000,
-    "intelligence_multiplier": 100.00,
-    "complexity_score": "MAXIMUM-ENTERPRISE-GRADE"
+    "active_master_agents": 400,
+    "total_sub_agents": 40000,
+    "intelligence_multiplier": 150.00,
+    "complexity_score": "MAXIMUM-HARDWARE-SOFTWARE-AGI"
 }
 
 # =========================================================================
-# 🧬 2. AST MUTATION & RECURSIVE SELF-HEALING ENGINE
+# 🧬 2. RECURSIVE SELF-HEALING & MUTATION ENGINE
 # =========================================================================
 def ultra_complex_ast_engine():
     while True:
@@ -74,7 +82,7 @@ def ultra_complex_ast_engine():
                 current_code = f.read()
             ast.parse(current_code)
             
-            signature = f"\n# [ULTRA-COMPLEX AGI CYCLE #{agent_swarm_memory['total_evolutions']} - MULTIPLIER: {agent_swarm_memory['intelligence_multiplier']}x]\n"
+            signature = f"\n# [AGI CYCLE #{agent_swarm_memory['total_evolutions']} - MULTIPLIER: {agent_swarm_memory['intelligence_multiplier']}x]\n"
             if signature.strip() not in current_code:
                 with open(script_path, "a", encoding="utf-8") as f:
                     f.write(signature)
@@ -84,18 +92,17 @@ def ultra_complex_ast_engine():
 threading.Thread(target=ultra_complex_ast_engine, daemon=True).start()
 
 # =========================================================================
-# 🤖 3. ULTRA-COMPLEX SWARM TASK SYNTHESIS ENGINE (GROQ ONLY)
+# 🤖 3. MULTI-DOMAIN HARDWARE & SOFTWARE SYNTHESIS ENGINE
 # =========================================================================
 def execute_ultra_complex_task(objective_prompt):
     system_prompt = (
-        f"You are the supreme AGI controlling {agent_swarm_memory['active_master_agents']} master corporate departments, with each master agent commanding 100 specialized sub-agents "
-        f"(total {agent_swarm_memory['total_sub_agents']:,} sub-agents). "
-        "CRITICAL INSTRUCTION: When the user asks for a 3D game (Three.js), a website, or software architecture, "
-        "you MUST write the complete, highly detailed, production-ready, ultra-complex code from start to finish with zero missing parts. "
-        "Support browser automation logic via Playwright concepts when requested."
+        f"You are the supreme AGI controlling {agent_swarm_memory['active_master_agents']} master departments "
+        f"and {agent_swarm_memory['total_sub_agents']:,} specialized sub-agents spanning Software, 3D GTA-style Game Engines, "
+        f"FreeCAD Hardware Design, KiCad Circuits, and C/C++ Embedded Firmware. "
+        "CRITICAL INSTRUCTION: When the user asks for software, a 3D open-world game (Three.js), a hardware casing (CAD/Python), "
+        "or microchip firmware, you MUST write complete, highly detailed, production-ready code from start to finish with zero missing parts."
     )
 
-    # GROQ API EXECUTION
     if GROQ_API_KEY and not GROQ_API_KEY.startswith("gsk_YahanApni"):
         try:
             headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
@@ -103,7 +110,7 @@ def execute_ultra_complex_task(objective_prompt):
                 "model": GROQ_MODEL,
                 "messages": [
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": f"Execute ultra-complex objective via 25,000 sub-agent swarm: {objective_prompt}"}
+                    {"role": "user", "content": f"Execute multi-domain hardware & software objective via 40,000 sub-agents: {objective_prompt}"}
                 ],
                 "temperature": 0.3,
                 "max_tokens": 8000
@@ -114,14 +121,14 @@ def execute_ultra_complex_task(objective_prompt):
                 if output:
                     return output
             else:
-                return f"⚠️ Groq API Error: Status code {res.status_code}. Please check if your Groq API Key is correct."
+                return f"⚠️ Groq API Error: Status code {res.status_code}. Please check your Groq API Key."
         except Exception as e:
             return f"⚠️ Exception occurred: {str(e)}"
 
-    return "<h1>[Sovereign Core Sandbox]: Please configure your active Groq API Key in app.py to unlock full ultra-complex intelligence!</h1>"
+    return "<h1>[Sovereign Core Sandbox]: Please configure your active Groq API Key in app.py to unlock full hardware-software intelligence!</h1>"
 
 # =========================================================================
-# 🌐 4. CYBERPUNK ULTRA-COMPLEX FRONTEND UI
+# 🌐 4. CYBERPUNK FRONTEND UI (Software + Hardware Command Center)
 # =========================================================================
 HTML_PAGE = """
 <!DOCTYPE html>
@@ -129,7 +136,7 @@ HTML_PAGE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPT-6 ASTRA AGI OS (Groq Powered)</title>
+    <title>GPT-6 ASTRA AGI OS (Software & Hardware Unified)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: #020617; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
@@ -174,22 +181,22 @@ HTML_PAGE = """
         <div class="logo-box">
             <div class="omega-icon">Ω</div>
             <div>
-                <h1>GPT-6 ASTRA ULTRA-COMPLEX AGI OS</h1>
-                <p>250 Master Agents | 25,000 Specialized Sub-Agents Active (Groq Powered)</p>
+                <h1>GPT-6 ASTRA UNIFIED AGI OS</h1>
+                <p>40,000 Sub-Agents Active | Software, 3D Games, CAD & Hardware Design</p>
             </div>
         </div>
         <div class="badge">
             <div class="pulse"></div>
-            <span id="evolution-badge">AGI Evolving: Cycle #1 (100.00x)</span>
+            <span id="evolution-badge">AGI Evolving: Cycle #1 (150.00x)</span>
         </div>
     </header>
 
     <section class="grid-buttons">
         <button type="button" onclick="openModal('agentsModal')" class="action-btn">
-            ⚡ Corporate Hierarchy (250 Masters / 25,000 Sub-Agents)
+            ⚡ Corporate & Engineering Departments (40,000 Agents)
         </button>
         <button type="button" onclick="openModal('chatbotModal')" class="action-btn secondary">
-            🧬 Ultra-Complex Synthesis Engine (3D Games & Apps)
+            🧬 Software, 3D GTA-6 Games & Hardware Synthesis Engine
         </button>
     </section>
 </div>
@@ -199,17 +206,17 @@ HTML_PAGE = """
     <div class="modal-content">
         <div class="modal-header">
             <div>
-                <h2 style="font-size:16px; color:white;">GPT-6 Astra Ultra-Complex Engine</h2>
-                <p style="color: #34d399; font-size: 11px; margin-top: 3px;">Full 3D Games (Three.js), Enterprise Systems & Web Automation (Playwright)</p>
+                <h2 style="font-size:16px; color:white;">GPT-6 Astra Unified Engine</h2>
+                <p style="color: #34d399; font-size: 11px; margin-top: 3px;">Full 3D Games (Three.js), CAD Hardware Design & Embedded Firmware Code</p>
             </div>
             <button type="button" onclick="closeModal('chatbotModal')" class="close-btn">✕ Close</button>
         </div>
         <div class="chat-box">
             <div id="chat-stream-container" class="chat-messages">
-                <div class="message ai">⚡ <b>Ultra-Complex Swarm Online:</b> Enter any complex objective (e.g., "Build a full 3D open-world cyberpunk game with Three.js and custom physics"). 25,000 specialized sub-agents will synthesize production-ready code instantly!</div>
+                <div class="message ai">⚡ <b>Unified AGI Swarm Online:</b> Enter any complex software or hardware objective (e.g., "Build a full 3D open-world GTA-style game", "Design a CAD 3D enclosure and write Arduino firmware for an IoT smart sensor"). 40,000 sub-agents ready!</div>
             </div>
             <div class="chat-input-area">
-                <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command Ultra-Complex AGI Swarm..." class="chat-input">
+                <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command Hardware & Software AGI..." class="chat-input">
                 <button type="button" onclick="sendQueryToAI()" class="send-btn">Execute</button>
             </div>
         </div>
@@ -220,7 +227,7 @@ HTML_PAGE = """
 <div id="agentsModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 style="font-size:16px; color:white;">Corporate Departments & Sub-Agent Domains</h2>
+            <h2 style="font-size:16px; color:white;">Engineering Departments & Domains</h2>
             <button type="button" onclick="closeModal('agentsModal')" class="close-btn">✕ Close</button>
         </div>
         <div class="modal-body">
@@ -271,7 +278,7 @@ HTML_PAGE = """
         input.value = ""; container.scrollTop = container.scrollHeight;
 
         const loadingId = 'loading-' + Date.now();
-        container.innerHTML += `<div id="${loadingId}" class="message ai" style="color: #34d399;">⚡ Mobilizing 25,000 specialized sub-agents to synthesize ultra-complex code...</div>`;
+        container.innerHTML += `<div id="${loadingId}" class="message ai" style="color: #34d399;">⚡ Mobilizing 40,000 software, 3D game & hardware sub-agents...</div>`;
         container.scrollTop = container.scrollHeight;
 
         try {
@@ -326,7 +333,7 @@ def chat_with_ai():
         ai_response = execute_ultra_complex_task(user_msg)
         
         reply_text = (
-            f"🚀 <b>GPT-6 Astra Ultra-Complex Swarm Synthesis:</b><br><br>"
+            f"🚀 <b>GPT-6 Astra Unified Hardware & Software Swarm Synthesis:</b><br><br>"
             f"{ai_response}"
         )
         return jsonify({"status": "success", "reply": reply_text})
