@@ -7,18 +7,21 @@ import time
 import ast
 import subprocess
 
+# सुरक्षा गार्डरेल: जब तक यूजर की परमिशन न मिले, फिजिकल कंप्यूटर कंट्रोल ब्लॉक रहेगा
+USER_PERMISSION_GRANTED = False
+
 app = Flask(__name__)
 
 # =========================================================================
-# 🔑 1. ORION-X AGI CONFIGURATION
+# 🔑 1. ORION-X UNIVERSAL AGI CONFIGURATION
 # =========================================================================
-GROQ_API_KEY = "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"
-GROQ_MODEL = "openai/gpt-oss-120b"
+GROQ_API_KEY = "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"
+GROQ_MODEL = "openai/gpt-oss-120b"  # आपका माँगा हुआ पुराना मॉडल नाम
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 ai_execution_database = {}
 
-# 500 मास्टर एजेंट्स जो हर तरह के सॉफ्टवेयर, 3D गेम्स, वेबसाइट्स और ऑटोमेशन में माहिर हैं
+# 500 मास्टर एजेंट्स जो सॉफ्टवेयर, 3D गेम्स, वेबसाइट्स, और हार्डवेयर डिजाइन में माहिर हैं
 CORPORATE_DEPARTMENTS = [
     {
         "dept_id": 1, 
@@ -26,7 +29,7 @@ CORPORATE_DEPARTMENTS = [
         "leader": "Chief Technology Officer (CTO)", 
         "domain_scope": "Full-Stack Web Apps, Mobile Platforms, SaaS Tools, & Enterprise Software",
         "sub_agents_count": 100,
-        "sub_roles": ["Senior Full-Stack Architects", "Next.js & React Specialists", "UI/UX Cyberpunk Designers"]
+        "sub_roles": ["Senior Full-Stack Architects", "Next.js & React Specialists", "UI/UX Designers"]
     },
     {
         "dept_id": 2, 
@@ -95,16 +98,38 @@ def ultra_complex_ast_engine():
 threading.Thread(target=ultra_complex_ast_engine, daemon=True).start()
 
 # =========================================================================
-# 🤖 3. UNIVERSAL TASK SYNTHESIS ENGINE (Orion-X Core)
+# 🛡️ 3. PHYSICAL COMPUTER CONTROL & SAFETY GUARDRAIL
+# =========================================================================
+def execute_computer_action(action_type, x=None, y=None, text=""):
+    global USER_PERMISSION_GRANTED
+    if not USER_PERMISSION_GRANTED:
+        return "⚠️ Action Blocked: User permission required to physically control the computer."
+    
+    # PyAutoGUI safety actions
+    try:
+        import pyautogui
+        if action_type == "click" and x and y:
+            pyautogui.click(x, y)
+        elif action_type == "type" and text:
+            pyautogui.write(text, interval=0.05)
+        elif action_type == "screenshot":
+            screenshot = pyautogui.screenshot()
+            screenshot.save("current_screen.png")
+            return "Screenshot captured successfully."
+        return f"Executed {action_type} successfully."
+    except Exception as e:
+        return f"Automation Error: {str(e)}"
+
+# =========================================================================
+# 🤖 4. UNIVERSAL TASK SYNTHESIS ENGINE (Orion-X Core)
 # =========================================================================
 def execute_ultra_complex_task(objective_prompt):
     system_prompt = (
         f"You are Orion-X, the supreme AGI controlling {agent_swarm_memory['active_master_agents']} master departments "
-        f"and {agent_swarm_memory['total_sub_agents']:,} specialized sub-agents. You are not limited to any single field; "
-        f"you are a universal creator capable of building any software, 3D game (Three.js/WebGL), website, mobile app, "
-        f"Python automation script, or hardware design. "
-        "CRITICAL INSTRUCTION: When the user asks for code, a game, a website, or a software tool, you MUST write "
-        "complete, highly detailed, production-ready code from start to finish with zero missing parts."
+        f"and {agent_swarm_memory['total_sub_agents']:,} specialized sub-agents. You are a universal creator capable of building "
+        f"any software, 3D game (Three.js/WebGL), website, mobile app, Python automation script, or 3D hardware gadget design. "
+        "CRITICAL INSTRUCTION: When the user asks for code, a game, a website, a tool, or a 3D gadget structure, "
+        "you MUST write complete, highly detailed, production-ready code from start to finish with zero missing parts."
     )
 
     if GROQ_API_KEY and not GROQ_API_KEY.startswith("gsk_YahanApni"):
@@ -132,7 +157,7 @@ def execute_ultra_complex_task(objective_prompt):
     return "<h1>[Orion-X Sandbox]: Please configure your active Groq API Key in app.py to unlock full universal intelligence!</h1>"
 
 # =========================================================================
-# 🌐 4. CYBERPUNK FRONTEND UI (Orion-X Command Center)
+# 🌐 5. CYBERPUNK FRONTEND UI
 # =========================================================================
 HTML_PAGE = """
 <!DOCTYPE html>
@@ -217,7 +242,7 @@ HTML_PAGE = """
         </div>
         <div class="chat-box">
             <div id="chat-stream-container" class="chat-messages">
-                <div class="message ai">⚡ <b>Orion-X Swarm Online:</b> Ask me to build anything—a 3D racing game, a modern e-commerce website, a Python automation tool, or IoT firmware. 50,000 sub-agents are ready!</div>
+                <div class="message ai">⚡ <b>Orion-X Swarm Online:</b> Ask me to build anything—a 3D racing game, a modern e-commerce website, a Python automation tool, or 3D gadget structure. 50,000 sub-agents are ready!</div>
             </div>
             <div class="chat-input-area">
                 <input type="text" id="chat-input-box" onkeypress="handleChatKeyPress(event)" placeholder="Command Orion-X Universal AGI..." class="chat-input">
@@ -314,7 +339,7 @@ HTML_PAGE = """
 """
 
 # =========================================================================
-# ⚙️ 5. FLASK API ROUTES
+# ⚙️ 6. FLASK API ROUTES
 # =========================================================================
 @app.route('/')
 def home():
