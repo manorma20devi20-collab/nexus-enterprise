@@ -1,21 +1,42 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PORT=10000
 
 WORKDIR /app
 
-# सिस्टम डिपेंडेंसीज इंस्टॉल करना ताकि OpenCV और Playwright स्मूथ चलें
-RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        gcc \
+        g++ \
+        && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
+
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Playwright ब्राउज़र बाइनरी सेटअप
-RUN playwright install --with-deps chromium
+COPY app.py .
 
-COPY . .
+RUN useradd \
+    --create-home \
+    --shell /usr/sbin/nologin \
+    veya
+
+USER veya
 
 EXPOSE 10000
 
-CMD ["gunicorn", "--bind", "0.0.0.0:10000", "app:app", "--workers", "2", "--threads", "4", "--timeout", "120"]
+CMD [
+    "gunicorn",
+    "--bind",
+    "0.0.0.0:10000",
+    "--workers",
+    "2",
+    "--threads",
+    "4",
+    "--timeout",
+    "120",
+    "app:app"
+]

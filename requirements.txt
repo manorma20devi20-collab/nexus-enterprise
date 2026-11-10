@@ -1,7 +1,8 @@
-Flask
-requests
-playwright
-gunicorn
-pyautogui
-opencv-python-headless
-pillow
+Flask>=3.1,<4
+groq>=0.31
+sympy>=1.13
+numpy>=2.0
+scipy>=1.14
+pandas>=2.2
+gunicorn>=23
+pydantic>=2.9
