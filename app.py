@@ -2,17 +2,17 @@ import os
 import ast
 import json
 import math
-import re
+import time
 import uuid
+import logging
 import threading
-from typing import Any, Dict, List, Optional
-from urllib.parse import urlparse
-from ipaddress import ip_address
+from datetime import datetime
+from typing import Any, Dict, List
 
-from flask import Flask, jsonify, request, render_template_string
+from flask import Flask, request, jsonify, render_template_string
 from groq import Groq
 
-# Optional local tools
+# Optional scientific libraries
 try:
     import sympy as sp
 except Exception:
@@ -23,210 +23,474 @@ try:
 except Exception:
     pd = None
 
-# Optional browser automation.
-# This controls a browser running on the SERVER, not the user's phone/PC.
 try:
-    from playwright.sync_api import sync_playwright, Browser, Page
+    import numpy as np
+except Exception:
+    np = None
+
+try:
+    import scipy
+except Exception:
+    scipy = None
+
+# Optional browser automation
+try:
+    from playwright.sync_api import sync_playwright
 except Exception:
     sync_playwright = None
-    Browser = None
-    Page = None
 
 
 # ============================================================
-# VEYA 3.0
+# VEYA
 # ============================================================
-# IMPORTANT:
-# Put your Groq key here.
-# Keep this repository PRIVATE. A public repository would expose
-# this secret to anyone who can read the source.
-GROQ_API_KEY = "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"
 
 APP_NAME = "Veya"
-VERSION = "3.0"
+VERSION = "4.0"
 
-# Current Groq GPT-OSS model.
-MODEL = "openai/gpt-oss-120b"
+# ============================================================
+# API KEY
+# ============================================================
+#
+# Put your API key here.
+#
+# IMPORTANT:
+# Never publish this file in a public GitHub repository.
+#
 
-# Keep these controls in code so Render does not need API-key
-# environment variables or a web form.
-ENABLE_SERVER_BROWSER = True
-ENABLE_SERVER_DESKTOP_CONTROL = False
+GROQ_API_KEY = "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"
 
-MAX_TOOL_ROUNDS = 8
-MAX_HISTORY_MESSAGES = 20
-MAX_MESSAGE_CHARS = 12000
-MAX_OUTPUT_TOKENS = 12000
-
-# Browser safety limits.
-MAX_BROWSER_TEXT = 18000
-BROWSER_TIMEOUT_MS = 15000
-ALLOWED_BROWSER_SCHEMES = {"http", "https"}
-
-if not GROQ_API_KEY or GROQ_API_KEY == "PASTE_YOUR_GROQ_API_KEY_HERE":
+if not GROQ_API_KEY or GROQ_API_KEY.startswith("PASTE_"):
     raise RuntimeError(
-        "Put your Groq API key into GROQ_API_KEY at the top of app.py."
+        "Put your Groq API key in GROQ_API_KEY at the top of app.py."
     )
 
-client = Groq(api_key=GROQ_API_KEY)
-app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 512 * 1024
+MODEL = "openai/gpt-oss-120b"
 
+client = Groq(api_key=GROQ_API_KEY)
+
+# ============================================================
+# FLASK
+# ============================================================
+
+app = Flask(__name__)
+
+app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s"
+)
+
+# ============================================================
+# LIMITS
+# ============================================================
+
+MAX_TOOL_ROUNDS = 8
+MAX_HISTORY = 20
+MAX_MESSAGE_LENGTH = 30000
+
+# Number of expert reports activated for one task.
+DEFAULT_ACTIVE_AGENTS = 8
+MAX_ACTIVE_AGENTS = 16
+
+# 100 Master Agents.
+MASTER_AGENT_COUNT = 100
+
+# 50 virtual worker slots per master.
+WORKER_SLOTS_PER_MASTER = 50
 
 # ============================================================
 # SESSION MEMORY
 # ============================================================
 
-SESSIONS: Dict[str, List[Dict[str, Any]]] = {}
+SESSIONS: Dict[str, List[Dict[str, str]]] = {}
+
 SESSION_LOCK = threading.Lock()
 
 
-def get_history(session_id: str) -> List[Dict[str, Any]]:
-    with SESSION_LOCK:
-        return list(SESSIONS.get(session_id, []))
-
-
-def append_history(session_id: str, message: Dict[str, Any]) -> None:
-    with SESSION_LOCK:
-        history = SESSIONS.setdefault(session_id, [])
-        history.append(message)
-        # Keep only recent conversation messages.
-        SESSIONS[session_id] = history[-MAX_HISTORY_MESSAGES:]
-
-
 # ============================================================
-# SPECIALIST AGENTS
+# 100 MASTER AGENTS
 # ============================================================
 
-SPECIALISTS = {
-    "general": {
-        "name": "General Intelligence",
-        "description": "General reasoning, planning, explanation and problem solving.",
-    },
-    "mathematics": {
-        "name": "Mathematics Agent",
-        "description": "Algebra, geometry, calculus, probability, statistics, number theory and linear algebra.",
-    },
-    "physics": {
-        "name": "Physics Agent",
-        "description": "Mechanics, electromagnetism, thermodynamics, optics, relativity and quantum concepts.",
-    },
-    "chemistry": {
-        "name": "Chemistry Agent",
-        "description": "Organic, inorganic, physical and analytical chemistry.",
-    },
-    "biology": {
-        "name": "Biology Agent",
-        "description": "Cell biology, genetics, molecular biology, ecology and evolution.",
-    },
-    "computer_science": {
-        "name": "Computer Science Agent",
-        "description": "Algorithms, data structures, operating systems, databases, AI/ML and distributed systems.",
-    },
-    "software_engineering": {
-        "name": "Software Engineering Agent",
-        "description": "Programming, architecture, debugging, testing, APIs, backend, frontend, DevOps and security.",
-    },
-    "data_science": {
-        "name": "Data Science Agent",
-        "description": "Data analysis, statistics, visualization and machine learning.",
-    },
-    "research": {
-        "name": "Research Agent",
-        "description": "Evidence-aware research, source comparison and current-information tasks.",
-    },
-    "business": {
-        "name": "Business Agent",
-        "description": "Business analysis, product strategy, operations, marketing and analytics.",
-    },
-    "creative": {
-        "name": "Creative Agent",
-        "description": "Writing, ideation, design concepts, storytelling and creative problem solving.",
-    },
-    "productivity": {
-        "name": "Productivity Agent",
-        "description": "Planning, summarization, organization, workflows and workspace tasks.",
-    },
-    "cybersecurity": {
-        "name": "Cybersecurity Agent",
-        "description": "Defensive security, secure coding, threat awareness and system hardening.",
-    },
-    "health_science": {
-        "name": "Health & Biology Science Agent",
-        "description": "General educational health, biology and life-science information; not diagnosis.",
-    },
-    "robotics": {
-        "name": "Robotics & IoT Agent",
-        "description": "Robotics concepts, sensors, control systems, IoT architecture and simulation.",
-    },
-}
+DOMAIN_DEFINITIONS = {
 
-
-ROUTING_RULES = {
     "mathematics": [
-        "math", "mathematics", "equation", "algebra", "geometry", "calculus",
-        "integral", "derivative", "probability", "statistics", "matrix",
+        "algebra",
+        "calculus",
+        "geometry",
+        "number theory",
+        "probability",
+        "statistics",
+        "linear algebra",
+        "discrete mathematics",
+        "optimization",
+        "mathematical proof",
     ],
+
     "physics": [
-        "physics", "force", "velocity", "acceleration", "momentum",
-        "energy", "gravity", "electric field", "magnetic",
+        "mechanics",
+        "electromagnetism",
+        "thermodynamics",
+        "optics",
+        "relativity",
+        "quantum physics",
+        "fluid mechanics",
+        "astrophysics",
+        "particle physics",
+        "physics problem solving",
     ],
+
     "chemistry": [
-        "chemistry", "molecule", "reaction", "atom", "chemical",
-        "organic chemistry", "inorganic",
+        "organic chemistry",
+        "inorganic chemistry",
+        "physical chemistry",
+        "analytical chemistry",
+        "biochemistry",
+        "chemical equations",
+        "molecular chemistry",
+        "thermochemistry",
+        "electrochemistry",
+        "chemistry reasoning",
     ],
+
     "biology": [
-        "biology", "cell", "gene", "dna", "protein", "genetics",
-        "organism", "ecology", "evolution",
+        "cell biology",
+        "genetics",
+        "molecular biology",
+        "microbiology",
+        "ecology",
+        "evolution",
+        "neuroscience",
+        "bioinformatics",
+        "biochemistry",
+        "biology reasoning",
     ],
+
+    "computer_science": [
+        "algorithms",
+        "data structures",
+        "operating systems",
+        "databases",
+        "computer networks",
+        "distributed systems",
+        "AI",
+        "machine learning",
+        "security engineering",
+        "computer science theory",
+    ],
+
     "software_engineering": [
-        "python", "javascript", "typescript", "flask", "react", "api",
-        "backend", "frontend", "software", "debug", "code", "programming",
-        "docker", "database", "github",
+        "Python engineering",
+        "JavaScript engineering",
+        "backend engineering",
+        "frontend engineering",
+        "API engineering",
+        "testing",
+        "debugging",
+        "DevOps",
+        "system architecture",
+        "code review",
     ],
+
     "data_science": [
-        "dataset", "pandas", "numpy", "machine learning", "regression",
-        "data analysis", "csv", "dataframe",
+        "data analysis",
+        "statistics",
+        "data cleaning",
+        "visualization",
+        "machine learning",
+        "feature engineering",
+        "model evaluation",
+        "experimentation",
+        "forecasting",
+        "data engineering",
     ],
+
     "research": [
-        "research", "latest", "paper", "study", "source", "evidence",
-        "literature", "citation", "compare",
+        "literature analysis",
+        "evidence evaluation",
+        "source comparison",
+        "scientific reasoning",
+        "research design",
+        "hypothesis analysis",
+        "fact checking",
+        "technical research",
+        "research synthesis",
+        "uncertainty analysis",
     ],
+
     "business": [
-        "business", "startup", "company", "market", "product", "strategy",
-        "sales", "marketing", "analytics", "finance",
+        "business strategy",
+        "product strategy",
+        "startup analysis",
+        "market analysis",
+        "operations",
+        "business analytics",
+        "pricing",
+        "growth",
+        "competitive analysis",
+        "product management",
     ],
-    "productivity": [
-        "plan", "schedule", "organize", "todo", "summarize", "notes",
-        "productivity", "workflow",
-    ],
-    "cybersecurity": [
-        "cybersecurity", "cyber security", "security", "vulnerability",
-        "secure", "malware", "phishing", "hardening",
-    ],
-    "health_science": [
-        "health", "biology", "medical", "medicine", "disease", "nutrition",
-        "anatomy", "physiology",
-    ],
-    "robotics": [
-        "robot", "robotics", "iot", "sensor", "arduino", "raspberry pi",
-        "autonomous", "control system",
-    ],
+
     "creative": [
-        "write", "story", "poem", "design", "creative", "logo", "script",
-        "caption", "idea", "brainstorm",
+        "writing",
+        "storytelling",
+        "design",
+        "branding",
+        "marketing",
+        "content strategy",
+        "creative ideation",
+        "game concepts",
+        "UX concepts",
+        "creative problem solving",
     ],
 }
 
 
-def classify_domain(user_message: str) -> str:
-    text = user_message.lower()
-    scores = {
-        domain: sum(1 for keyword in keywords if keyword in text)
-        for domain, keywords in ROUTING_RULES.items()
-    }
-    best = max(scores, key=scores.get)
-    return best if scores[best] else "general"
+def build_master_agents() -> Dict[str, Dict[str, Any]]:
+    agents = {}
+
+    counter = 1
+
+    for domain, specialties in DOMAIN_DEFINITIONS.items():
+
+        for specialty in specialties:
+
+            agent_id = f"M{counter:03d}"
+
+            agents[agent_id] = {
+                "id": agent_id,
+                "name": f"{specialty.title()} Master",
+                "domain": domain,
+                "specialty": specialty,
+                "worker_slots": WORKER_SLOTS_PER_MASTER,
+                "role": (
+                    f"Act as an expert in {specialty}. "
+                    f"Analyze the user's task independently, "
+                    f"identify errors and produce evidence-based conclusions."
+                ),
+            }
+
+            counter += 1
+
+    return agents
+
+
+MASTER_AGENTS = build_master_agents()
+
+
+# ============================================================
+# VERIFY 100 AGENTS EXIST
+# ============================================================
+
+assert len(MASTER_AGENTS) == MASTER_AGENT_COUNT
+
+
+# ============================================================
+# KEYWORD ROUTER
+# ============================================================
+
+DOMAIN_KEYWORDS = {
+
+    "mathematics": [
+        "math",
+        "mathematics",
+        "equation",
+        "integral",
+        "derivative",
+        "algebra",
+        "geometry",
+        "probability",
+        "statistics",
+        "matrix",
+        "proof",
+    ],
+
+    "physics": [
+        "physics",
+        "force",
+        "velocity",
+        "acceleration",
+        "energy",
+        "momentum",
+        "gravity",
+        "electric",
+        "magnetic",
+        "quantum",
+    ],
+
+    "chemistry": [
+        "chemistry",
+        "chemical",
+        "molecule",
+        "atom",
+        "reaction",
+        "organic",
+        "compound",
+        "acid",
+        "base",
+    ],
+
+    "biology": [
+        "biology",
+        "cell",
+        "dna",
+        "gene",
+        "protein",
+        "genetics",
+        "organism",
+        "evolution",
+        "bacteria",
+    ],
+
+    "computer_science": [
+        "algorithm",
+        "data structure",
+        "operating system",
+        "database",
+        "network",
+        "machine learning",
+        "artificial intelligence",
+        "distributed system",
+    ],
+
+    "software_engineering": [
+        "python",
+        "javascript",
+        "typescript",
+        "flask",
+        "react",
+        "api",
+        "backend",
+        "frontend",
+        "docker",
+        "debug",
+        "code",
+        "programming",
+    ],
+
+    "data_science": [
+        "dataset",
+        "pandas",
+        "numpy",
+        "scipy",
+        "data analysis",
+        "regression",
+        "classification",
+        "statistics",
+        "visualization",
+    ],
+
+    "research": [
+        "research",
+        "paper",
+        "study",
+        "evidence",
+        "source",
+        "latest",
+        "compare",
+        "literature",
+    ],
+
+    "business": [
+        "business",
+        "startup",
+        "company",
+        "market",
+        "product",
+        "strategy",
+        "pricing",
+        "growth",
+        "customer",
+    ],
+
+    "creative": [
+        "write",
+        "story",
+        "design",
+        "brand",
+        "marketing",
+        "creative",
+        "game",
+        "content",
+        "logo",
+    ],
+}
+
+
+def route_domains(text: str) -> List[str]:
+
+    text = text.lower()
+
+    scores = {}
+
+    for domain, keywords in DOMAIN_KEYWORDS.items():
+
+        score = 0
+
+        for keyword in keywords:
+
+            if keyword in text:
+                score += 1
+
+        scores[domain] = score
+
+    ranked = sorted(
+        scores,
+        key=scores.get,
+        reverse=True
+    )
+
+    selected = [
+        domain
+        for domain in ranked
+        if scores[domain] > 0
+    ]
+
+    if not selected:
+        return ["computer_science", "research", "mathematics"]
+
+    return selected[:4]
+
+
+# ============================================================
+# SELECT MASTER AGENTS
+# ============================================================
+
+def select_agents(
+    user_message: str,
+    count: int = DEFAULT_ACTIVE_AGENTS
+) -> List[Dict[str, Any]]:
+
+    count = max(
+        1,
+        min(count, MAX_ACTIVE_AGENTS)
+    )
+
+    domains = route_domains(user_message)
+
+    candidates = []
+
+    for agent in MASTER_AGENTS.values():
+
+        if agent["domain"] in domains:
+            candidates.append(agent)
+
+    # Add independent verification agents.
+    verification_domains = [
+        "research",
+        "mathematics",
+        "computer_science",
+    ]
+
+    for agent in MASTER_AGENTS.values():
+
+        if (
+            agent["domain"] in verification_domains
+            and agent not in candidates
+        ):
+            candidates.append(agent)
+
+    return candidates[:count]
 
 
 # ============================================================
@@ -234,6 +498,10 @@ def classify_domain(user_message: str) -> str:
 # ============================================================
 
 MATH_FUNCTIONS = {
+    "abs": abs,
+    "round": round,
+    "min": min,
+    "max": max,
     "sqrt": math.sqrt,
     "sin": math.sin,
     "cos": math.cos,
@@ -241,692 +509,905 @@ MATH_FUNCTIONS = {
     "log": math.log,
     "log10": math.log10,
     "exp": math.exp,
-    "fabs": math.fabs,
     "floor": math.floor,
     "ceil": math.ceil,
-    "factorial": math.factorial,
+    "pi": math.pi,
+    "e": math.e,
 }
 
-MATH_CONSTANTS = {"pi": math.pi, "e": math.e, "tau": math.tau}
+
+ALLOWED_AST = (
+    ast.Expression,
+    ast.Constant,
+    ast.BinOp,
+    ast.UnaryOp,
+    ast.Add,
+    ast.Sub,
+    ast.Mult,
+    ast.Div,
+    ast.Mod,
+    ast.Pow,
+    ast.USub,
+    ast.UAdd,
+    ast.Call,
+    ast.Name,
+)
 
 
 def safe_calculator(expression: str) -> str:
-    if len(expression) > 500:
-        return "Calculator rejected the expression: too long."
+
+    if len(expression) > 1000:
+        return "Expression too long."
 
     try:
-        tree = ast.parse(expression, mode="eval")
-    except SyntaxError:
-        return "Calculator rejected the expression: invalid syntax."
 
-    def evaluate(node: ast.AST) -> float:
-        if isinstance(node, ast.Expression):
-            return evaluate(node.body)
+        tree = ast.parse(
+            expression,
+            mode="eval"
+        )
 
-        if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
-            return node.value
+        for node in ast.walk(tree):
 
-        if isinstance(node, ast.Name) and node.id in MATH_CONSTANTS:
-            return MATH_CONSTANTS[node.id]
+            if not isinstance(node, ALLOWED_AST):
+                return "Calculator rejected this expression."
 
-        if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.UAdd, ast.USub)):
-            value = evaluate(node.operand)
-            return +value if isinstance(node.op, ast.UAdd) else -value
+            if isinstance(node, ast.Call):
 
-        if isinstance(node, ast.BinOp) and isinstance(
-            node.op, (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Pow, ast.Mod)
-        ):
-            left = evaluate(node.left)
-            right = evaluate(node.right)
+                if not isinstance(
+                    node.func,
+                    ast.Name
+                ):
+                    return "Calculator rejected this function."
 
-            if isinstance(node.op, ast.Add):
-                return left + right
-            if isinstance(node.op, ast.Sub):
-                return left - right
-            if isinstance(node.op, ast.Mult):
-                return left * right
-            if isinstance(node.op, ast.Div):
-                return left / right
-            if isinstance(node.op, ast.Pow):
-                if abs(right) > 1000:
-                    raise ValueError("Exponent is too large.")
-                return left ** right
-            return left % right
+                if node.func.id not in MATH_FUNCTIONS:
+                    return "Function not allowed."
 
-        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
-            function = MATH_FUNCTIONS.get(node.func.id)
-            if function is None or node.keywords:
-                raise ValueError("Function is not allowed.")
-            return function(*(evaluate(arg) for arg in node.args))
+            if isinstance(node, ast.Name):
 
-        raise ValueError("Expression contains an unsupported operation.")
+                if node.id not in MATH_FUNCTIONS:
+                    return "Name not allowed."
 
-    try:
-        result = evaluate(tree)
-        if not math.isfinite(float(result)):
-            return "Calculator result is not finite."
-        return str(result)
+        return str(
+            eval(
+                compile(
+                    tree,
+                    "<calculator>",
+                    "eval"
+                ),
+                {
+                    "__builtins__": {}
+                },
+                MATH_FUNCTIONS
+            )
+        )
+
     except Exception as exc:
+
         return f"Calculator error: {exc}"
 
 
 # ============================================================
-# SYMBOLIC + DATA TOOLS
+# SYMBOLIC MATH
 # ============================================================
 
 def symbolic_math(expression: str) -> str:
+
     if sp is None:
-        return "SymPy is not installed."
-    if len(expression) > 1200:
-        return "Expression is too long."
+        return "SymPy is unavailable."
+
+    if len(expression) > 5000:
+        return "Expression too large."
 
     try:
-        result = sp.simplify(sp.sympify(expression))
-        return str(result)
-    except Exception as exc:
-        return f"Symbolic math error: {exc}"
 
+        result = sp.sympify(expression)
+
+        return str(
+            sp.simplify(result)
+        )
+
+    except Exception as exc:
+
+        return f"SymPy error: {exc}"
+
+
+# ============================================================
+# DATA ANALYSIS
+# ============================================================
 
 def analyze_json_data(data: str) -> str:
+
     if pd is None:
-        return "Pandas is not installed."
-    if len(data) > 100_000:
-        return "Dataset is too large for this prototype."
+        return "Pandas is unavailable."
 
     try:
+
         rows = json.loads(data)
-        if not isinstance(rows, list):
-            return "Expected a JSON array of records."
 
         frame = pd.DataFrame(rows)
 
         result = {
-            "rows": int(len(frame)),
-            "columns": [str(column) for column in frame.columns],
+            "rows": len(frame),
+            "columns": list(frame.columns),
             "missing_values": {
-                str(key): int(value)
-                for key, value in frame.isna().sum().items()
+                str(k): int(v)
+                for k, v in frame.isna().sum().items()
             },
         }
 
-        numeric = frame.select_dtypes(include="number")
-        if not numeric.empty:
-            result["numeric_summary"] = json.loads(numeric.describe().to_json())
+        if len(frame.select_dtypes(include="number").columns):
 
-        return json.dumps(result, indent=2, default=str)
+            result["numeric_summary"] = (
+                frame
+                .describe(
+                    include="number"
+                )
+                .to_dict()
+            )
+
+        return json.dumps(
+            result,
+            indent=2,
+            default=str
+        )
+
     except Exception as exc:
+
         return f"Data analysis error: {exc}"
 
 
 # ============================================================
-# SERVER-SIDE BROWSER
-# ============================================================
-# This can automate a browser inside the Render container.
-# It cannot control the user's Android/Windows browser.
-
-_BROWSER = None
-_BROWSER_PAGE: Optional[Any] = None
-_BROWSER_LOCK = threading.Lock()
-
-
-def valid_public_url(url: str) -> bool:
-    try:
-        parsed = urlparse(url)
-        if parsed.scheme not in ALLOWED_BROWSER_SCHEMES or not parsed.hostname:
-            return False
-
-        host = parsed.hostname.lower()
-
-        # Prevent obvious localhost/private-network targets.
-        if host in {"localhost", "127.0.0.1", "::1"}:
-            return False
-
-        try:
-            ip = ip_address(host)
-            if (
-                ip.is_private
-                or ip.is_loopback
-                or ip.is_link_local
-                or ip.is_reserved
-                or ip.is_multicast
-            ):
-                return False
-        except ValueError:
-            pass
-
-        return True
-    except Exception:
-        return False
-
-
-def browser_open(url: str) -> str:
-    global _BROWSER, _BROWSER_PAGE
-
-    if not ENABLE_SERVER_BROWSER:
-        return "Server browser control is disabled."
-
-    if sync_playwright is None:
-        return "Playwright is not installed."
-
-    if not valid_public_url(url):
-        return "Browser rejected this URL. Only public http/https URLs are allowed."
-
-    with _BROWSER_LOCK:
-        try:
-            if _BROWSER is None:
-                playwright = sync_playwright().start()
-                _BROWSER = playwright.chromium.launch(headless=True)
-
-            if _BROWSER_PAGE is None or _BROWSER_PAGE.is_closed():
-                _BROWSER_PAGE = _BROWSER.new_page()
-
-            _BROWSER_PAGE.goto(
-                url,
-                wait_until="domcontentloaded",
-                timeout=BROWSER_TIMEOUT_MS,
-            )
-
-            title = _BROWSER_PAGE.title()
-            text = _BROWSER_PAGE.locator("body").inner_text(
-                timeout=BROWSER_TIMEOUT_MS
-            )
-
-            return (
-                f"TITLE: {title}\n"
-                f"URL: {_BROWSER_PAGE.url}\n\n"
-                f"PAGE TEXT:\n{text[:MAX_BROWSER_TEXT]}"
-            )
-        except Exception as exc:
-            return f"Browser error: {exc}"
-
-
-def browser_click(selector: str) -> str:
-    global _BROWSER_PAGE
-
-    if not ENABLE_SERVER_BROWSER:
-        return "Server browser control is disabled."
-
-    if not selector or len(selector) > 500:
-        return "Invalid selector."
-
-    with _BROWSER_LOCK:
-        try:
-            if _BROWSER_PAGE is None or _BROWSER_PAGE.is_closed():
-                return "No browser page is open. Open a public URL first."
-
-            _BROWSER_PAGE.locator(selector).first.click(
-                timeout=BROWSER_TIMEOUT_MS
-            )
-            return f"Clicked: {selector}"
-        except Exception as exc:
-            return f"Browser click error: {exc}"
-
-
-def browser_fill(selector: str, value: str) -> str:
-    global _BROWSER_PAGE
-
-    if not ENABLE_SERVER_BROWSER:
-        return "Server browser control is disabled."
-
-    if len(selector) > 500 or len(value) > 5000:
-        return "Selector or value is too long."
-
-    with _BROWSER_LOCK:
-        try:
-            if _BROWSER_PAGE is None or _BROWSER_PAGE.is_closed():
-                return "No browser page is open."
-
-            _BROWSER_PAGE.locator(selector).first.fill(
-                value,
-                timeout=BROWSER_TIMEOUT_MS
-            )
-            return f"Filled: {selector}"
-        except Exception as exc:
-            return f"Browser fill error: {exc}"
-
-
-def browser_press(key: str) -> str:
-    global _BROWSER_PAGE
-
-    if not ENABLE_SERVER_BROWSER:
-        return "Server browser control is disabled."
-
-    allowed_keys = {
-        "Enter", "Tab", "Escape", "ArrowUp", "ArrowDown",
-        "ArrowLeft", "ArrowRight", "Backspace"
-    }
-
-    if key not in allowed_keys:
-        return "This key is not allowed."
-
-    with _BROWSER_LOCK:
-        try:
-            if _BROWSER_PAGE is None or _BROWSER_PAGE.is_closed():
-                return "No browser page is open."
-
-            _BROWSER_PAGE.keyboard.press(key)
-            return f"Pressed: {key}"
-        except Exception as exc:
-            return f"Browser key error: {exc}"
-
-
-def browser_screenshot() -> str:
-    global _BROWSER_PAGE
-
-    if not ENABLE_SERVER_BROWSER:
-        return "Server browser control is disabled."
-
-    with _BROWSER_LOCK:
-        try:
-            if _BROWSER_PAGE is None or _BROWSER_PAGE.is_closed():
-                return "No browser page is open."
-
-            path = "/tmp/veya_browser.png"
-            _BROWSER_PAGE.screenshot(path=path, full_page=True)
-            return f"Screenshot saved on server: {path}"
-        except Exception as exc:
-            return f"Screenshot error: {exc}"
-
-
-# ============================================================
-# OPTIONAL DESKTOP CONTROL
-# ============================================================
-# IMPORTANT:
-# Render is a cloud server, so pyautogui would control a desktop
-# attached to that server, not the user's phone/PC.
-# It stays disabled by default.
-try:
-    import pyautogui
-except Exception:
-    pyautogui = None
-
-
-def desktop_control(action: str, x: int = 0, y: int = 0, text: str = "") -> str:
-    if not ENABLE_SERVER_DESKTOP_CONTROL:
-        return (
-            "Desktop control is disabled. "
-            "Enable it manually in the code only on a trusted local machine."
-        )
-
-    if pyautogui is None:
-        return "PyAutoGUI is not installed."
-
-    # Deliberately small, explicit action set.
-    try:
-        if action == "move":
-            pyautogui.moveTo(x, y, duration=0.2)
-            return "Mouse moved."
-
-        if action == "click":
-            pyautogui.click(x=x, y=y)
-            return "Mouse clicked."
-
-        if action == "write":
-            if len(text) > 1000:
-                return "Text is too long."
-            pyautogui.write(text, interval=0.01)
-            return "Text entered."
-
-        return "Unsupported desktop action."
-    except Exception as exc:
-        return f"Desktop control error: {exc}"
-
-
-# ============================================================
-# GROQ TOOL DEFINITIONS
+# SAFE TOOL REGISTRY
 # ============================================================
 
-LOCAL_TOOLS = [
+TOOLS = [
+
     {
         "type": "function",
         "function": {
             "name": "calculator",
-            "description": "Safely calculate a mathematical expression.",
+            "description": (
+                "Safely calculate a mathematical expression."
+            ),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "expression": {"type": "string"}
+                    "expression": {
+                        "type": "string"
+                    }
                 },
-                "required": ["expression"],
-            },
-        },
+                "required": [
+                    "expression"
+                ]
+            }
+        }
     },
+
     {
         "type": "function",
         "function": {
             "name": "symbolic_math",
-            "description": "Simplify or verify a symbolic mathematical expression.",
+            "description": (
+                "Perform symbolic mathematics using SymPy."
+            ),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "expression": {"type": "string"}
+                    "expression": {
+                        "type": "string"
+                    }
                 },
-                "required": ["expression"],
-            },
-        },
+                "required": [
+                    "expression"
+                ]
+            }
+        }
     },
+
     {
         "type": "function",
         "function": {
             "name": "analyze_json_data",
-            "description": "Analyze a JSON array of records using Pandas.",
+            "description": (
+                "Analyze a JSON array using Pandas."
+            ),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "data": {"type": "string"}
+                    "data": {
+                        "type": "string"
+                    }
                 },
-                "required": ["data"],
-            },
-        },
+                "required": [
+                    "data"
+                ]
+            }
+        }
     },
 ]
 
-if ENABLE_SERVER_BROWSER:
-    LOCAL_TOOLS.extend([
-        {
-            "type": "function",
-            "function": {
-                "name": "browser_open",
-                "description": "Open a public http/https URL in Veya's server-side browser and extract page text.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {"url": {"type": "string"}},
-                    "required": ["url"],
-                },
-            },
-        },
-        {
-            "type": "function",
-            "function": {
-                "name": "browser_click",
-                "description": "Click a CSS selector on the currently open server-side browser page.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {"selector": {"type": "string"}},
-                    "required": ["selector"],
-                },
-            },
-        },
-        {
-            "type": "function",
-            "function": {
-                "name": "browser_fill",
-                "description": "Fill a CSS selector on the currently open server-side browser page.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "selector": {"type": "string"},
-                        "value": {"type": "string"},
-                    },
-                    "required": ["selector", "value"],
-                },
-            },
-        },
-        {
-            "type": "function",
-            "function": {
-                "name": "browser_press",
-                "description": "Press a safe keyboard key on the current browser page.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "key": {
-                            "type": "string",
-                            "enum": [
-                                "Enter", "Tab", "Escape",
-                                "ArrowUp", "ArrowDown",
-                                "ArrowLeft", "ArrowRight",
-                                "Backspace"
-                            ],
-                        }
-                    },
-                    "required": ["key"],
-                },
-            },
-        },
-        {
-            "type": "function",
-            "function": {
-                "name": "browser_screenshot",
-                "description": "Take a screenshot of the current server-side browser page.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {},
-                },
-            },
-        },
-    ])
 
+def execute_tool(
+    name: str,
+    arguments: Dict[str, Any]
+) -> str:
 
-def execute_local_tool(name: str, args: Dict[str, Any]) -> str:
     if name == "calculator":
-        return safe_calculator(str(args.get("expression", "")))
-    if name == "symbolic_math":
-        return symbolic_math(str(args.get("expression", "")))
-    if name == "analyze_json_data":
-        return analyze_json_data(str(args.get("data", "")))
-    if name == "browser_open":
-        return browser_open(str(args.get("url", "")))
-    if name == "browser_click":
-        return browser_click(str(args.get("selector", "")))
-    if name == "browser_fill":
-        return browser_fill(
-            str(args.get("selector", "")),
-            str(args.get("value", "")),
+
+        return safe_calculator(
+            str(
+                arguments.get(
+                    "expression",
+                    ""
+                )
+            )
         )
-    if name == "browser_press":
-        return browser_press(str(args.get("key", "")))
-    if name == "browser_screenshot":
-        return browser_screenshot()
-    return f"Unknown local tool: {name}"
+
+    if name == "symbolic_math":
+
+        return symbolic_math(
+            str(
+                arguments.get(
+                    "expression",
+                    ""
+                )
+            )
+        )
+
+    if name == "analyze_json_data":
+
+        return analyze_json_data(
+            str(
+                arguments.get(
+                    "data",
+                    "[]"
+                )
+            )
+        )
+
+    return "Unknown tool."
 
 
 # ============================================================
-# SYSTEM PROMPT
+# AGENT PROMPT
 # ============================================================
 
-def build_system_prompt(domain: str) -> str:
-    specialist = SPECIALISTS.get(domain, SPECIALISTS["general"])
+def build_agent_prompt(
+    agent: Dict[str, Any],
+    user_message: str
+) -> str:
 
     return f"""
-You are {APP_NAME}, a high-performance multi-specialist AI system.
+You are Master Agent {agent["id"]}.
 
-ACTIVE SPECIALIST:
-{specialist["name"]}
+Name:
+{agent["name"]}
 
-SPECIALIST CAPABILITY:
-{specialist["description"]}
+Domain:
+{agent["domain"]}
 
-ARCHITECTURE:
-Router -> Specialist -> Tools -> Verification -> Final response.
+Specialty:
+{agent["specialty"]}
 
-RULES:
-1. Solve the user's actual task.
-2. Use tools when they improve accuracy.
-3. For mathematics, verify important calculations with calculator or symbolic math.
-4. For research/current information, use browser_search when available.
-5. For websites, browser_open/click/fill can operate the server-side browser when appropriate.
-6. Never claim you controlled the user's personal phone or computer. The Playwright browser runs on the server.
-7. Never invent sources, results, calculations, experiments or tool actions.
-8. Never expose API keys, secrets, cookies, passwords or private tokens.
-9. Do not reveal private chain-of-thought. Give concise useful explanations instead.
-10. For health topics, provide general educational information and do not claim to diagnose.
-11. For cybersecurity, focus on defensive, authorized and educational work.
-12. If a tool is unavailable, say so instead of pretending.
-13. Prefer correctness over impressive language.
-14. If the user asks for an action that could have an irreversible external effect, explain what will happen before taking that action when possible.
+You have {agent["worker_slots"]} virtual worker slots.
+
+Your role:
+{agent["role"]}
+
+USER TASK:
+{user_message}
+
+Work independently.
+
+Do not blindly agree with another agent.
+
+Check assumptions.
+
+For numerical problems, verify calculations.
+
+For programming, identify bugs and edge cases.
+
+For scientific questions, distinguish facts from uncertainty.
+
+For research questions, never invent sources.
+
+Do not claim that you performed an external action unless a real tool performed it.
+
+Return a concise expert report containing:
+
+1. Your interpretation.
+2. Your proposed solution.
+3. Important calculations or evidence.
+4. Potential mistakes or uncertainty.
+5. A final recommendation.
+
+Do not reveal private chain-of-thought.
+Provide useful conclusions and concise reasoning instead.
 """
 
 
 # ============================================================
-# MAIN AGENT LOOP
+# SINGLE MASTER AGENT CALL
 # ============================================================
 
-def run_agent(session_id: str, user_message: str) -> Dict[str, Any]:
-    domain = classify_domain(user_message)
+def ask_master_agent(
+    agent: Dict[str, Any],
+    user_message: str
+) -> str:
 
-    append_history(
-        session_id,
-        {"role": "user", "content": user_message}
-    )
+    try:
 
-    messages: List[Dict[str, Any]] = [
-        {
-            "role": "system",
-            "content": build_system_prompt(domain),
-        }
-    ]
-
-    messages.extend(get_history(session_id))
-
-    # Groq server-side tools for GPT-OSS:
-    # browser_search + code_interpreter.
-    # They run on Groq's infrastructure.
-    groq_builtin_tools = [
-        {"type": "browser_search"},
-        {"type": "code_interpreter"},
-    ]
-
-    all_tools = groq_builtin_tools + LOCAL_TOOLS
-
-    for round_number in range(1, MAX_TOOL_ROUNDS + 1):
         response = client.chat.completions.create(
             model=MODEL,
-            messages=messages,
-            tools=all_tools,
+            messages=[
+                {
+                    "role": "system",
+                    "content": build_agent_prompt(
+                        agent,
+                        user_message
+                    )
+                }
+            ],
+            tools=TOOLS,
             tool_choice="auto",
             reasoning_effort="high",
-            include_reasoning=False,
-            max_tokens=MAX_OUTPUT_TOKENS,
+            temperature=0.15,
+            max_tokens=5000,
         )
 
         message = response.choices[0].message
-        tool_calls = getattr(message, "tool_calls", None)
 
-        # Groq built-in tools are handled by Groq itself.
-        # Local function calls are returned here for our app to execute.
+        tool_calls = getattr(
+            message,
+            "tool_calls",
+            None
+        )
+
         if not tool_calls:
-            answer = (message.content or "").strip()
 
-            append_history(
-                session_id,
-                {"role": "assistant", "content": answer}
-            )
+            return message.content or ""
 
-            return {
-                "answer": answer,
-                "domain": domain,
-                "agent": SPECIALISTS[domain]["name"],
-                "rounds": round_number,
-            }
-
-        messages.append(message)
+        tool_messages = [
+            message
+        ]
 
         for call in tool_calls:
-            name = call.function.name
 
             try:
-                arguments = json.loads(call.function.arguments or "{}")
+
+                arguments = json.loads(
+                    call.function.arguments
+                )
+
             except Exception:
+
                 arguments = {}
 
-            if name in {
-                "calculator",
-                "symbolic_math",
-                "analyze_json_data",
-                "browser_open",
-                "browser_click",
-                "browser_fill",
-                "browser_press",
-                "browser_screenshot",
-            }:
-                result = execute_local_tool(name, arguments)
+            result = execute_tool(
+                call.function.name,
+                arguments
+            )
 
-                messages.append({
-                    "role": "tool",
-                    "tool_call_id": call.id,
-                    "content": result,
-                })
-            else:
-                # Built-in Groq tools should normally be completed by Groq.
-                # If a provider-side tool call reaches this branch in an
-                # incompatible SDK response, return a safe message.
-                messages.append({
-                    "role": "tool",
-                    "tool_call_id": call.id,
-                    "content": (
-                        f"{name} is a provider-managed tool. "
-                        "Continue using its returned result."
-                    ),
-                })
+            tool_messages.append({
+                "role": "tool",
+                "tool_call_id": call.id,
+                "content": result
+            })
+
+        second = client.chat.completions.create(
+            model=MODEL,
+            messages=[
+                {
+                    "role": "system",
+                    "content": build_agent_prompt(
+                        agent,
+                        user_message
+                    )
+                }
+            ] + tool_messages,
+            reasoning_effort="high",
+            temperature=0.1,
+            max_tokens=5000,
+        )
+
+        return (
+            second
+            .choices[0]
+            .message
+            .content
+            or ""
+        )
+
+    except Exception as exc:
+
+        logging.exception(
+            "Agent %s failed",
+            agent["id"]
+        )
+
+        return (
+            f"Agent {agent['id']} could not complete "
+            f"its report."
+        )
+
+
+# ============================================================
+# SWARM JUDGE
+# ============================================================
+
+def judge_reports(
+    user_message: str,
+    agents: List[Dict[str, Any]],
+    reports: List[str]
+) -> str:
+
+    packet = []
+
+    for agent, report in zip(
+        agents,
+        reports
+    ):
+
+        packet.append(
+            f"""
+AGENT {agent["id"]}
+NAME: {agent["name"]}
+DOMAIN: {agent["domain"]}
+SPECIALTY: {agent["specialty"]}
+
+REPORT:
+{report}
+"""
+        )
+
+    evidence = "\n".join(packet)
+
+    judge_prompt = f"""
+You are the Veya Swarm Judge.
+
+A group of independent specialist agents analyzed the same user task.
+
+USER TASK:
+{user_message}
+
+SPECIALIST REPORTS:
+{evidence}
+
+Your job is NOT to vote blindly.
+
+You must:
+
+1. Compare the reports.
+2. Detect contradictions.
+3. Check calculations where possible.
+4. Reject unsupported claims.
+5. Prefer internally consistent conclusions.
+6. Combine useful insights.
+7. Clearly identify uncertainty.
+8. Produce one final answer to the user.
+
+If agents disagree, explain the important disagreement briefly
+and choose the conclusion best supported by the available evidence.
+
+Never invent information merely to make the agents agree.
+
+Do not reveal private chain-of-thought.
+
+Return only the final user-facing answer.
+"""
+
+    response = client.chat.completions.create(
+        model=MODEL,
+        messages=[
+            {
+                "role": "system",
+                "content": judge_prompt
+            }
+        ],
+        reasoning_effort="high",
+        temperature=0.1,
+        max_tokens=10000,
+    )
+
+    return (
+        response
+        .choices[0]
+        .message
+        .content
+        or "No final answer was produced."
+    )
+
+
+# ============================================================
+# MEMORY
+# ============================================================
+
+def get_history(
+    session_id: str
+) -> List[Dict[str, str]]:
+
+    with SESSION_LOCK:
+
+        return list(
+            SESSIONS.get(
+                session_id,
+                []
+            )
+        )
+
+
+def save_message(
+    session_id: str,
+    role: str,
+    content: str
+):
+
+    with SESSION_LOCK:
+
+        history = SESSIONS.setdefault(
+            session_id,
+            []
+        )
+
+        history.append({
+            "role": role,
+            "content": content
+        })
+
+        del history[:-MAX_HISTORY]
+
+
+# ============================================================
+# FULL SWARM
+# ============================================================
+
+def run_swarm(
+    session_id: str,
+    user_message: str,
+    agent_count: int = DEFAULT_ACTIVE_AGENTS
+) -> Dict[str, Any]:
+
+    agents = select_agents(
+        user_message,
+        agent_count
+    )
+
+    save_message(
+        session_id,
+        "user",
+        user_message
+    )
+
+    reports = []
+
+    for agent in agents:
+
+        report = ask_master_agent(
+            agent,
+            user_message
+        )
+
+        reports.append(report)
+
+    final_answer = judge_reports(
+        user_message,
+        agents,
+        reports
+    )
+
+    save_message(
+        session_id,
+        "assistant",
+        final_answer
+    )
 
     return {
-        "answer": (
-            "I reached the maximum tool rounds. "
-            "Please try the task again with a more specific objective."
+        "answer": final_answer,
+
+        "active_agents": [
+            {
+                "id": agent["id"],
+                "name": agent["name"],
+                "domain": agent["domain"],
+                "specialty": agent["specialty"],
+                "worker_slots": agent["worker_slots"],
+            }
+            for agent in agents
+        ],
+
+        "master_agents_available": len(
+            MASTER_AGENTS
         ),
-        "domain": domain,
-        "agent": SPECIALISTS[domain]["name"],
-        "rounds": MAX_TOOL_ROUNDS,
+
+        "virtual_worker_slots": (
+            len(MASTER_AGENTS)
+            * WORKER_SLOTS_PER_MASTER
+        ),
+
+        "judge": "Swarm Judge",
     }
 
 
 # ============================================================
-# API
+# JSON ERROR HANDLER
+# ============================================================
+
+@app.errorhandler(Exception)
+def handle_exception(error):
+
+    logging.exception(
+        "Unhandled server error"
+    )
+
+    return jsonify({
+        "status": "error",
+        "error": (
+            "Veya encountered a server error. "
+            "Check the server logs for details."
+        )
+    }), 500
+
+
+# ============================================================
+# HEALTH
 # ============================================================
 
 @app.get("/api/health")
 def health():
+
     return jsonify({
         "status": "online",
         "name": APP_NAME,
         "version": VERSION,
         "model": MODEL,
-        "browser_control": ENABLE_SERVER_BROWSER,
-        "desktop_control": ENABLE_SERVER_DESKTOP_CONTROL,
-        "specialists": list(SPECIALISTS.keys()),
-        "local_tools": [
-            "calculator",
-            "symbolic_math",
-            "analyze_json_data",
-            "browser_open",
-            "browser_click",
-            "browser_fill",
-            "browser_press",
-            "browser_screenshot",
+        "master_agents": len(MASTER_AGENTS),
+        "worker_slots": (
+            len(MASTER_AGENTS)
+            * WORKER_SLOTS_PER_MASTER
+        ),
+        "tools": [
+            tool["function"]["name"]
+            for tool in TOOLS
         ],
+        "browser_available": (
+            sync_playwright is not None
+        ),
+        "scientific_stack": {
+            "sympy": sp is not None,
+            "numpy": np is not None,
+            "scipy": scipy is not None,
+            "pandas": pd is not None,
+        },
     })
 
 
+# ============================================================
+# AGENT REGISTRY
+# ============================================================
+
+@app.get("/api/agents")
+def agents():
+
+    return jsonify({
+        "master_agents": list(
+            MASTER_AGENTS.values()
+        ),
+        "master_count": len(
+            MASTER_AGENTS
+        ),
+        "virtual_worker_slots": (
+            len(MASTER_AGENTS)
+            * WORKER_SLOTS_PER_MASTER
+        ),
+    })
+
+
+# ============================================================
+# CHAT
+# ============================================================
+
 @app.post("/api/chat")
 def chat():
-    try:
-        body = request.get_json(silent=True) or {}
-        user_message = str(body.get("message", "")).strip()
 
-        if not user_message:
-            return jsonify({"error": "Message is required."}), 400
+    body = request.get_json(
+        silent=True
+    )
 
-        if len(user_message) > MAX_MESSAGE_CHARS:
-            return jsonify({"error": "Message is too long."}), 413
+    if not isinstance(body, dict):
 
-        session_id = str(body.get("session_id") or uuid.uuid4())
-
-        result = run_agent(session_id, user_message)
-
-        return jsonify({
-            "status": "success",
-            "session_id": session_id,
-            "assistant": APP_NAME,
-            **result,
-        })
-
-    except Exception:
-        app.logger.exception("Veya request failed")
         return jsonify({
             "status": "error",
-            "error": "Veya could not complete this request.",
-        }), 500
+            "error": "Request body must be JSON."
+        }), 400
+
+    message = str(
+        body.get(
+            "message",
+            ""
+        )
+    ).strip()
+
+    if not message:
+
+        return jsonify({
+            "status": "error",
+            "error": "Message is required."
+        }), 400
+
+    if len(message) > MAX_MESSAGE_LENGTH:
+
+        return jsonify({
+            "status": "error",
+            "error": "Message is too long."
+        }), 413
+
+    session_id = str(
+        body.get(
+            "session_id"
+        )
+        or uuid.uuid4()
+    )
+
+    try:
+
+        requested_agents = int(
+            body.get(
+                "agents",
+                DEFAULT_ACTIVE_AGENTS
+            )
+        )
+
+    except Exception:
+
+        requested_agents = DEFAULT_ACTIVE_AGENTS
+
+    result = run_swarm(
+        session_id,
+        message,
+        requested_agents
+    )
+
+    return jsonify({
+        "status": "success",
+        "session_id": session_id,
+        "assistant": APP_NAME,
+        **result
+    })
+
+
+# ============================================================
+# SAFE BROWSER CONTROL
+# ============================================================
+#
+# This controls a browser running on the SERVER/container.
+# It does NOT control the user's Android Chrome.
+#
+# It does not bypass website authentication or permissions.
+# ============================================================
+
+def browser_open(url: str) -> str:
+
+    if sync_playwright is None:
+        return "Playwright is not installed."
+
+    if not url.startswith(
+        ("http://", "https://")
+    ):
+        return "Only HTTP/HTTPS URLs are supported."
+
+    try:
+
+        with sync_playwright() as p:
+
+            browser = p.chromium.launch(
+                headless=True
+            )
+
+            page = browser.new_page()
+
+            page.goto(
+                url,
+                wait_until="domcontentloaded",
+                timeout=30000
+            )
+
+            title = page.title()
+
+            current_url = page.url
+
+            text = page.locator(
+                "body"
+            ).inner_text(
+                timeout=10000
+            )[:10000]
+
+            browser.close()
+
+            return json.dumps({
+                "title": title,
+                "url": current_url,
+                "text": text
+            }, indent=2)
+
+    except Exception as exc:
+
+        return f"Browser error: {exc}"
+
+
+@app.post("/api/browser/open")
+def browser_open_api():
+
+    body = request.get_json(
+        silent=True
+    ) or {}
+
+    url = str(
+        body.get(
+            "url",
+            ""
+        )
+    ).strip()
+
+    if not url:
+
+        return jsonify({
+            "status": "error",
+            "error": "URL required."
+        }), 400
+
+    return jsonify({
+        "status": "success",
+        "result": browser_open(url)
+    })
+
+
+# ============================================================
+# ANDROID BRIDGE
+# ============================================================
+#
+# IMPORTANT:
+#
+# Python cannot magically obtain control of an Android phone.
+#
+# A real Android companion app must:
+#
+# 1. Be installed by the user.
+# 2. Receive Android OS permissions through normal Android UI.
+# 3. Authenticate requests from Veya.
+# 4. Perform only operations allowed by those permissions.
+#
+# This backend therefore provides a SAFE command boundary.
+#
+# It deliberately does not bypass Android security.
+# ============================================================
+
+ANDROID_BRIDGE_ENABLED = False
+
+ANDROID_BRIDGE_URL = os.environ.get(
+    "ANDROID_BRIDGE_URL",
+    ""
+)
+
+ANDROID_BRIDGE_TOKEN = os.environ.get(
+    "ANDROID_BRIDGE_TOKEN",
+    ""
+)
+
+
+@app.get("/api/android/status")
+def android_status():
+
+    return jsonify({
+        "enabled": ANDROID_BRIDGE_ENABLED,
+        "connected": bool(
+            ANDROID_BRIDGE_URL
+            and ANDROID_BRIDGE_TOKEN
+        ),
+        "message": (
+            "Android control requires a user-installed "
+            "companion app and Android OS permissions."
+        )
+    })
 
 
 # ============================================================
@@ -936,146 +1417,461 @@ def chat():
 HTML = r"""
 <!doctype html>
 <html lang="en">
+
 <head>
+
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1"
+>
+
 <title>Veya AI</title>
+
 <style>
-:root{
-  --bg:#070a10;--panel:#0e131c;--line:#202938;
-  --text:#f4f7fb;--muted:#8d99aa;--accent:#72e6ae;
+
+* {
+    box-sizing: border-box;
 }
-*{box-sizing:border-box}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:system-ui,-apple-system,Segoe UI,sans-serif;
+
+body {
+    margin: 0;
+    background:
+        radial-gradient(
+            circle at top,
+            #17203a,
+            #070a10 55%
+        );
+    color: #f5f7fb;
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
 }
-header{
-  height:68px;border-bottom:1px solid var(--line);
-  display:flex;align-items:center;padding:0 22px;
-  background:#080c13;
+
+header {
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 22px;
+    border-bottom: 1px solid #242b3a;
+    backdrop-filter: blur(15px);
 }
-.logo{font-size:25px;font-weight:800}
-.status{margin-left:12px;font-size:12px;color:var(--accent)}
-main{
-  max-width:1050px;margin:auto;height:calc(100vh - 68px);
-  display:flex;flex-direction:column;
+
+.logo {
+    font-size: 25px;
+    font-weight: 850;
 }
-#messages{flex:1;overflow:auto;padding:25px 18px}
-.message{
-  max-width:850px;margin:14px auto;padding:17px 18px;
-  border-radius:16px;line-height:1.65;white-space:pre-wrap;
+
+.status {
+    color: #68e6a3;
+    font-size: 12px;
 }
-.ai{background:var(--panel);border:1px solid var(--line)}
-.user{background:#21385f}
-.meta{font-size:11px;color:var(--muted);margin-bottom:7px}
-.composer{
-  display:flex;gap:10px;padding:16px;
-  border-top:1px solid var(--line);background:#080c13;
+
+.container {
+    height: calc(100vh - 72px);
+    display: flex;
+    flex-direction: column;
+    max-width: 1200px;
+    margin: auto;
 }
-input{
-  flex:1;background:#111721;color:white;border:1px solid #303b4c;
-  padding:15px;border-radius:13px;outline:none;font-size:15px;
+
+.stats {
+    padding: 10px 18px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }
-button{
-  border:0;border-radius:13px;padding:0 23px;
-  font-weight:750;cursor:pointer;
+
+.stat {
+    border: 1px solid #293247;
+    background: #0d121c;
+    padding: 7px 10px;
+    border-radius: 9px;
+    font-size: 11px;
+    color: #aab4c7;
 }
-button:disabled{opacity:.45}
+
+#messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 22px;
+}
+
+.message {
+    max-width: 900px;
+    margin: 14px auto;
+    padding: 17px;
+    border-radius: 16px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+}
+
+.user {
+    background: #1c3e78;
+}
+
+.ai {
+    background: #111722;
+    border: 1px solid #273044;
+}
+
+.meta {
+    color: #8591a6;
+    font-size: 11px;
+    margin-bottom: 8px;
+}
+
+.agents {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.agent {
+    background: #182132;
+    border: 1px solid #303d55;
+    padding: 5px 8px;
+    border-radius: 7px;
+    font-size: 10px;
+    color: #b7c2d6;
+}
+
+.composer {
+    padding: 16px;
+    display: flex;
+    gap: 9px;
+    border-top: 1px solid #242b3a;
+}
+
+input {
+    flex: 1;
+    min-width: 0;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #303a4e;
+    background: #0e131c;
+    color: white;
+    outline: none;
+}
+
+button {
+    border: 0;
+    border-radius: 12px;
+    padding: 0 21px;
+    background: white;
+    color: #070a10;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: .5;
+}
+
 </style>
+
 </head>
+
 <body>
+
 <header>
-  <div class="logo">Veya</div>
-  <div class="status">● AI Online</div>
+
+<div class="logo">
+Veya
+</div>
+
+<div class="status">
+● ONLINE
+</div>
+
 </header>
 
-<main>
-  <div id="messages">
-    <div class="message ai">
-      <div class="meta">Veya</div>
-      Hello. I'm Veya.
-      Ask me about mathematics, science, programming,
-      data, research, business, productivity and more.
-    </div>
-  </div>
+<div class="container">
 
-  <div class="composer">
-    <input id="input" autocomplete="off"
-           placeholder="Ask Veya anything...">
-    <button id="send">Send</button>
-  </div>
-</main>
+<div class="stats">
+
+<div class="stat">
+100 Master Agents
+</div>
+
+<div class="stat">
+5,000 Virtual Worker Slots
+</div>
+
+<div class="stat">
+Multi-Agent Verification
+</div>
+
+<div class="stat">
+Tool Calling
+</div>
+
+</div>
+
+<div id="messages">
+
+<div class="message ai">
+
+<div class="meta">
+Veya • Swarm Intelligence
+</div>
+
+Hello. I'm Veya.
+
+I can route difficult tasks to multiple
+specialist agents and compare their reports
+before producing a final answer.
+
+</div>
+
+</div>
+
+<div class="composer">
+
+<input
+id="input"
+placeholder="Ask Veya anything..."
+autocomplete="off"
+/>
+
+<button
+id="send"
+>
+Send
+</button>
+
+</div>
+
+</div>
 
 <script>
-const input=document.getElementById("input");
-const send=document.getElementById("send");
-const messages=document.getElementById("messages");
 
-let sessionId=localStorage.getItem("veya_session")||null;
+const input =
+    document.getElementById("input");
 
-function addMessage(text,type,meta){
-  const box=document.createElement("div");
-  box.className="message "+type;
+const send =
+    document.getElementById("send");
 
-  if(meta){
-    const m=document.createElement("div");
-    m.className="meta";
-    m.textContent=meta;
-    box.appendChild(m);
-  }
+const messages =
+    document.getElementById("messages");
 
-  const content=document.createElement("div");
-  content.textContent=text;
-  box.appendChild(content);
+let sessionId =
+    localStorage.getItem("veya_session");
 
-  messages.appendChild(box);
-  messages.scrollTop=messages.scrollHeight;
+function addMessage(
+    text,
+    type,
+    meta = ""
+) {
+
+    const box =
+        document.createElement("div");
+
+    box.className =
+        "message " + type;
+
+    if (meta) {
+
+        const m =
+            document.createElement("div");
+
+        m.className = "meta";
+
+        m.textContent = meta;
+
+        box.appendChild(m);
+    }
+
+    const content =
+        document.createElement("div");
+
+    content.textContent = text;
+
+    box.appendChild(content);
+
+    messages.appendChild(box);
+
+    messages.scrollTop =
+        messages.scrollHeight;
+
+    return box;
 }
 
-async function sendMessage(){
-  const text=input.value.trim();
-  if(!text||send.disabled)return;
+function addAgents(
+    box,
+    agents
+) {
 
-  addMessage(text,"user","You");
-  input.value="";
-  send.disabled=true;
+    if (!agents || !agents.length) {
+        return;
+    }
 
-  try{
-    const res=await fetch("/api/chat",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        message:text,
-        session_id:sessionId
-      })
-    });
+    const wrapper =
+        document.createElement("div");
 
-    const data=await res.json();
+    wrapper.className = "agents";
 
-    if(!res.ok) throw new Error(data.error||"Request failed");
+    for (const agent of agents) {
 
-    sessionId=data.session_id;
-    localStorage.setItem("veya_session",sessionId);
+        const tag =
+            document.createElement("div");
+
+        tag.className = "agent";
+
+        tag.textContent =
+            agent.id +
+            " • " +
+            agent.specialty;
+
+        wrapper.appendChild(tag);
+    }
+
+    box.appendChild(wrapper);
+}
+
+async function sendMessage() {
+
+    const text =
+        input.value.trim();
+
+    if (!text) {
+        return;
+    }
 
     addMessage(
-      data.answer||"No answer returned.",
-      "ai",
-      "Veya • "+(data.agent||data.domain||"General")
+        text,
+        "user",
+        "You"
     );
-  }catch(err){
-    addMessage("Error: "+err.message,"ai","System");
-  }finally{
-    send.disabled=false;
-    input.focus();
-  }
+
+    input.value = "";
+
+    send.disabled = true;
+
+    const loading =
+        addMessage(
+            "Veya is consulting specialist agents...",
+            "ai",
+            "Swarm"
+        );
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/chat",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        message: text,
+                        session_id: sessionId,
+                        agents: 8
+                    })
+                }
+            );
+
+        const raw =
+            await response.text();
+
+        let data;
+
+        try {
+
+            data =
+                JSON.parse(raw);
+
+        } catch {
+
+            throw new Error(
+                "Server returned an invalid response. HTTP " +
+                response.status
+            );
+        }
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Server request failed."
+            );
+        }
+
+        if (data.session_id) {
+
+            sessionId =
+                data.session_id;
+
+            localStorage.setItem(
+                "veya_session",
+                sessionId
+            );
+        }
+
+        loading.remove();
+
+        const answerBox =
+            addMessage(
+                data.answer,
+                "ai",
+                "Veya • Swarm Judge"
+            );
+
+        addAgents(
+            answerBox,
+            data.active_agents
+        );
+
+    } catch (error) {
+
+        loading.remove();
+
+        addMessage(
+            "Veya could not complete this request.\n\n" +
+            error.message,
+            "ai",
+            "System"
+        );
+
+    } finally {
+
+        send.disabled = false;
+
+        input.focus();
+    }
 }
 
-send.addEventListener("click",sendMessage);
-input.addEventListener("keydown",e=>{
-  if(e.key==="Enter")sendMessage();
-});
+send.addEventListener(
+    "click",
+    sendMessage
+);
+
+input.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "Enter" &&
+            !event.shiftKey
+        ) {
+            sendMessage();
+        }
+
+    }
+);
+
 </script>
+
 </body>
 </html>
 """
@@ -1083,7 +1879,10 @@ input.addEventListener("keydown",e=>{
 
 @app.get("/")
 def home():
-    return render_template_string(HTML)
+
+    return render_template_string(
+        HTML
+    )
 
 
 # ============================================================
@@ -1091,5 +1890,16 @@ def home():
 # ============================================================
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", "10000"))
-    app.run(host="0.0.0.0", port=port, debug=False)
+
+    port = int(
+        os.environ.get(
+            "PORT",
+            "10000"
+        )
+    )
+
+    app.run(
+        host="0.0.0.0",
+        port=port,
+        debug=False
+    )
